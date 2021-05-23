@@ -5,7 +5,7 @@ Adxl::Adxl(){
 }
 
 void Adxl::init(){
-    Wire.begin();  
+    Wire.begin(I2C_SDA, I2C_SCL); 
 
     // Set ADXL345 DATA FORMAT 
     Wire.beginTransmission(this->ADXL345);
