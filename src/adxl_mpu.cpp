@@ -4,14 +4,19 @@
 #include <Adxl.h>
 #include <Mpu.h>
 
+#define I2C_SDA 33
+#define I2C_SCL 32
+
+
+
 Adxl adxl345;
 Mpu mpu6050;
 
 
 void setup() {
     Serial.begin(9600);               // Initiate serial communication for printing the results on the Serial monitor
-    //mpu6050.init();
-    adxl345.init();
+    mpu6050.init(I2C_SDA, I2C_SCL);
+    adxl345.init(I2C_SDA, I2C_SCL);
     Serial.println();
     Serial.println("Type key when all sensors are placed over an horizontal plane: X = 0g, Y = 0g, Z = +1g orientation"); 
     while (!Serial.available()){
@@ -19,7 +24,7 @@ void setup() {
     }  
     // === Calibration === //
     adxl345.calibrate();
-    //mpu6050.calibrate();
+    mpu6050.calibrate();
     while (Serial.available()){
       Serial.read();  // clear the input buffer
     }
@@ -35,6 +40,6 @@ void setup() {
 
 void loop() {
   adxl345.read();
-  //mpu6050.read();
+  mpu6050.read();
   delay(200);
 }

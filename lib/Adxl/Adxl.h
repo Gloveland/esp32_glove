@@ -4,13 +4,10 @@
 #include <Arduino.h>
 #include <Wire.h>  // Wire library - used for I2C communication
 
-#define I2C_SDA 33
-#define I2C_SCL 32
-
 class Adxl{
     public:
         Adxl();
-        void init();
+        void init(int sda, int scl);
         void calibrate();
         void read();
         ~Adxl();

@@ -31,15 +31,12 @@
 #define  MPU6050_RANGE_1000_DEG 0x10 ///< +/- 1000 deg/s
 #define  MPU6050_RANGE_2000_DEG 0x18 ///< +/- 2000 deg/s
 
-#define I2C_SDA 33
-#define I2C_SCL 32
-
 
 class Mpu{
 
     public:
         Mpu();
-        void init();
+        void init(int sda, int scl);
         void calibrate();
         void read();
         ~Mpu();

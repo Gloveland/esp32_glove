@@ -12,8 +12,8 @@ Mpu::Mpu(){
 
 }
 
-void Mpu::init(){
-    Wire.begin(I2C_SDA, I2C_SCL);              // Initialize comunication
+void Mpu::init(int sda, int scl){
+    Wire.begin(sda, scl);                      // Initialize comunication
     
     Wire.beginTransmission(this->MPU);       // Start communication with MPU6050 // MPU=0x68
     Wire.write(0x6B);                       // Talk to the register 6B
@@ -158,6 +158,7 @@ void Mpu::calibrate(){
 }
 
 void Mpu::read(){
+    Serial.print("MPU:");
     // === Read acceleromter data === //
     Wire.beginTransmission(MPU);
     Wire.write(0x3B); // Start with register 0x3B (ACCEL_XOUT_H)
