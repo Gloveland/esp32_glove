@@ -55,6 +55,7 @@ void Adxl::calibrate(){
         this->accY =  (Y / 256.0) * 9.8106;
         this->accZ =  (Z / 256.0 )* 9.8106;
         
+        
         Serial.print("."); 
         //Serial.print("    Xa= "); Serial.print(X); 
         //Serial.print("    Ya= "); Serial.print(Y); 
@@ -89,19 +90,21 @@ void Adxl::calibrate(){
         this->accErrorY = this->accErrorY + this->accY;
         this->accErrorZ = this->accErrorZ + (this->accZ - 9.8106);
 
-        Serial.print(".");
-        Serial.print("  accX=");Serial.print(this->accX);
-        Serial.print("  accY=");Serial.print(this->accY);
-        Serial.print("  accZ=");Serial.println(this->accZ);
+        //Serial.print(".");
+        //Serial.print("  accX=");Serial.print(this->accX);
+        //Serial.print("  accY=");Serial.print(this->accY);
+        //Serial.print("  accZ=");Serial.println(this->accZ);
         delay(100);
         
     } 
     this->accErrorX = this->accErrorX/times;
     this->accErrorY = this->accErrorY/times;
     this->accErrorZ = this->accErrorZ/times;
+    /*
     Serial.print("AccErrorX: ");Serial.println(this->accErrorX);
     Serial.print("AccErrorY: ");Serial.println(this->accErrorY);
     Serial.print("AccErrorZ: ");Serial.println(this->accErrorZ);
+    */
 
 
     float accAngleX, accAngleY = 0;
@@ -124,21 +127,24 @@ void Adxl::calibrate(){
         this->accAngleErrorX = this->accAngleErrorX + accAngleX;
         this->accAngleErrorY = this->accAngleErrorY + accAngleY;
 
+        /*
         Serial.print("."); 
         Serial.print("  accX=");Serial.print(this->accX );
         Serial.print("  accY=");Serial.print(this->accY );
         Serial.print("  accZ=");Serial.print(this->accZ );
         Serial.print("  accAngleX=");Serial.print(accAngleX);
         Serial.print("  accAngleY=");Serial.println(accAngleY);
+        */
         delay(100);
     } 
 
     this->accAngleErrorX = this->accAngleErrorX/times;
     this->accAngleErrorY = this->accAngleErrorY/times;
-    
+    /*
     Serial.println("");
     Serial.print("AccAngleErrorX: ");Serial.println(this->accAngleErrorX);
     Serial.print("AccAngleErrorY: ");Serial.println(this->accAngleErrorY);
+    */
 }
 
 void Adxl::setOffset(const int8_t offsetX, const int8_t offsetY, const int8_t offsetZ){
@@ -165,7 +171,7 @@ void Adxl::setOffset(const int8_t offsetX, const int8_t offsetY, const int8_t of
 
 void Adxl::read(){
     // === Read acceleromter data === //
-    Serial.print("ADXL:");
+    //Serial.print("ADXL:");
     Wire.beginTransmission(this->ADXL345);
     Wire.write(0x32); // Start with register 0x32 (ACCEL_XOUT_H)
     Wire.endTransmission(false);
@@ -180,9 +186,12 @@ void Adxl::read(){
     this->accX =  (this->Xg * 9.8106)  - this->accErrorX;
     this->accY =  (this->Yg * 9.8106)  - this->accErrorY;
     this->accZ =  (this->Zg * 9.8106)  - this->accErrorZ;
-    Serial.print("       Ya= ");Serial.print(this->Y_out);Serial.print("= ");  Serial.print(this->Yg);Serial.print("= ");Serial.print(this->accY);
-    Serial.print("       Xa= ");Serial.print(this->X_out);Serial.print("= ");  Serial.print(this->Xg);Serial.print("= ");Serial.print(this->accX);
-    Serial.print("       Za= ");Serial.print(this->Z_out);Serial.print("= ");  Serial.print(this->Zg);Serial.print("= ");Serial.print(this->accZ);
+    //Serial.print("       Ya= ");Serial.print(this->Y_out);Serial.print("= ");  Serial.print(this->Yg);Serial.print("= ");
+    Serial.print(this->accY);Serial.print(",");
+    //Serial.print("       Xa= ");Serial.print(this->X_out);Serial.print("= ");  Serial.print(this->Xg);Serial.print("= ");
+    Serial.print(this->accX);Serial.print(",");
+    //Serial.print("       Za= ");Serial.print(this->Z_out);Serial.print("= ");  Serial.print(this->Zg);Serial.print("= ");
+    Serial.print(this->accZ);
 
     // Calculate Roll and Pitch (rotation around X-axis, rotation around Y-axis)
     this->roll  = this->calculateAccAngleX(this->accX, this->accY, this->accZ) - this->accAngleErrorX;
@@ -192,8 +201,8 @@ void Adxl::read(){
     this->rollF = 0.94 * this->rollF + 0.06 * this->roll;
     this->pitchF = 0.94 * this->pitchF + 0.06 * this->pitch;
     
-    Serial.print("       pitch= ");Serial.print(this->pitch);
-    Serial.print("       roll= "); Serial.println(this->roll);
+    //Serial.print("       pitch= ");Serial.print(this->pitch);
+    //Serial.print("       roll= "); Serial.println(this->roll);
 
 }
 

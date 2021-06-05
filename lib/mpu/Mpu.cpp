@@ -54,6 +54,7 @@ void Mpu::calibrate(){
     this->AccAngleErrorY = 0.0;
     int times = 100.0;
     for (int i = 0; i <= times; i++) {
+        Serial.print(".");
         Wire.beginTransmission(MPU);
         Wire.write(0x3B);
         Wire.endTransmission(false);
@@ -80,12 +81,14 @@ void Mpu::calibrate(){
     this->AccErrorZ = this->AccErrorZ / times;
     this->AccAngleErrorX = this->AccAngleErrorX / times;
     this->AccAngleErrorY = this->AccAngleErrorY / times;
+    /*
     Serial.println("");
     Serial.print("AccErrorX: ");Serial.println(this->AccErrorX);
     Serial.print("AccErrorY: ");Serial.println(this->AccErrorY);
     Serial.print("AccErrorZ: ");Serial.println(this->AccErrorZ);
     Serial.print("AccAngleErrorX: ");Serial.println(this->AccAngleErrorX);
     Serial.print("AccAngleErrorY: ");Serial.println(this->AccAngleErrorY);
+    */
 
     float gyroX, gyroY, gyroZ;
     float minGyroX = FLT_MAX;
@@ -98,6 +101,7 @@ void Mpu::calibrate(){
     this->GyroErrorY = 0.0;
     this->GyroErrorZ = 0.0;
     for (int i = 0; i <= times; i++) {
+        Serial.print(".");
         Wire.beginTransmission(MPU);
         Wire.write(0x43);
         Wire.endTransmission(false);
@@ -147,6 +151,7 @@ void Mpu::calibrate(){
     this->PrevGyroY = 0.0;
     this->PrevGyroZ = 0.0;
 
+    /*
     Serial.println("");
     Serial.print("GyroErrorX: ");Serial.println(this->GyroErrorX);
     Serial.print("GyroErrorY: ");Serial.println(this->GyroErrorY);
@@ -155,10 +160,11 @@ void Mpu::calibrate(){
     Serial.print("DeviationX: ");Serial.println(this->DeviationX);
     Serial.print("DeviationY: ");Serial.println(this->DeviationY);
     Serial.print("DeviationZ: ");Serial.println(this->DeviationZ);
+    */
 }
 
 void Mpu::read(){
-    Serial.print("MPU:");
+    //Serial.print("MPU:");
     // === Read acceleromter data === //
     Wire.beginTransmission(MPU);
     Wire.write(0x3B); // Start with register 0x3B (ACCEL_XOUT_H)
@@ -173,9 +179,12 @@ void Mpu::read(){
     accY = (rawAccY  / 16384.0) * GRAVITY_EARTH - this->AccErrorY;
     accZ = (rawAccZ  / 16384.0) * GRAVITY_EARTH - this->AccErrorZ;
 
-    Serial.print("   aX: ");Serial.print(accX);
-    Serial.print("   aY: ");Serial.print(accY);
-    Serial.print("   aZ: ");Serial.print(accZ);
+    //Serial.print("   aX: ");
+    Serial.print(accX);Serial.print(",");
+    //Serial.print("   aY: ");
+    Serial.print(accY);Serial.print(",");
+    //Serial.print("   aZ: ");
+    Serial.print(accZ);Serial.print(",");
     //Serial.print("   m/(seg)^2    ");
 
     // Calculating Roll and Pitch from the accelerometer data
@@ -219,9 +228,12 @@ void Mpu::read(){
     }
     this->PrevGyroZ= gyroZ;
 
-    Serial.print("   gX: ");Serial.print(this->GyroX);
-    Serial.print("   gY: ");Serial.print(this->GyroY);
-    Serial.print("   gZ: ");Serial.print(this->GyroZ);
+    //Serial.print("   gX: ");
+    Serial.print(this->GyroX);Serial.print(",");
+    //Serial.print("   gY: ");
+    Serial.print(this->GyroY);Serial.print(",");
+    //Serial.print("   gZ: ");
+    Serial.print(this->GyroZ);Serial.print(",");
     //Serial.print("   degrees/seg         ");
 
     // Currently the raw values are in degrees per seconds, deg/s, so we need to multiply by sendonds (s) to get the angle in degrees
@@ -248,10 +260,10 @@ void Mpu::read(){
 
     
     // Print the values on the serial monitor
-    Serial.print("  roll:"); Serial.print(roll);
-    Serial.print("  pitch:");Serial.print(pitch);
-    Serial.print("  yaw:"); Serial.print(yaw);
-    Serial.println();
+    //Serial.print("  roll:"); Serial.print(roll);
+    //Serial.print("  pitch:");Serial.print(pitch);
+    //Serial.print("  yaw:"); Serial.print(yaw);
+    //Serial.println();
 }
 
 
