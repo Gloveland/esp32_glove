@@ -42,18 +42,13 @@ void Ble::onDisconnect(BLEServer *pServer) {
     Serial.println("********* Device Disconnected :( ************"); 
 }
 
-bool Ble::indicate(const std::string value){
-    if(deviceConnected){
-        this->profileCharacteristic->setValue(value);
-        this->profileCharacteristic->indicate();
-        Serial.println("send value: "+ String(value.c_str()));
-        return true;
-    }
-    Serial.println("No client connected to notify....");
-    return false;
+void Ble::indicate(const std::string value){
+    this->profileCharacteristic->setValue(value);
+    this->profileCharacteristic->indicate();
+    Serial.println("send value: "+ String(value.c_str()));
 }
 
-void Ble::waitACK(){
+bool Ble::waitACK(){
     char expected_ack_response[ACK_SIZE];
     sprintf(expected_ack_response,"%dack",this->ack_count);
     Serial.print("Expected value: "); 
@@ -61,6 +56,12 @@ void Ble::waitACK(){
     std::string value = this->profileCharacteristic->getValue();
     while(value.empty() || strncmp(value.c_str(), expected_ack_response, ACK_SIZE) != 0){
         value = this->profileCharacteristic->getValue();
+        if(!deviceConnected){
+            Serial.println("No client connected yet....");
+            this->profileServer->getAdvertising()->start();
+            this->ack_count = 0;
+            return false;
+        }
     }
     Serial.print("Device response: ");
     Serial.println(value.c_str());
@@ -68,17 +69,20 @@ void Ble::waitACK(){
     if(this->ack_count == ACK_LIMIT){
         this->ack_count = 0;
     }
+    return true;
 }
 
-bool Ble::notify(const std::string value){
-    if(deviceConnected){
-        this->profileCharacteristic->setValue(value);
-        this->profileCharacteristic->notify();
-        Serial.println("send value: "+ String(value.c_str()));
-        return true;
+void Ble::notify(const std::string value){
+    this->profileCharacteristic->setValue(value);
+    this->profileCharacteristic->notify();
+    Serial.println("send value: "+ String(value.c_str()));    
+}
+
+void Ble::notifyWithAck(const std::string value){
+    this->notify(value);
+    while(!waitACK()){
+        this->notify(value);
     }
-    Serial.println("No client connected to notify....");
-    return false;
 }
 
 Ble::~Ble(){}

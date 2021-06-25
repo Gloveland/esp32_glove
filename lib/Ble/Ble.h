@@ -20,11 +20,12 @@ class Ble: public BLEServerCallbacks {
         void init(const std::string );
         void onConnect(BLEServer *pServer);
         void onDisconnect(BLEServer *pServer);
-        void waitACK();
-        bool notify(const std::string value);
-        bool indicate(const std::string value);
+        void notifyWithAck(const std::string value);
+        void notify(const std::string value);
+        void indicate(const std::string value);
         ~Ble();
     private:
+        bool waitACK();
         int ack_count;
         std::string name;
         BLEServer *profileServer;

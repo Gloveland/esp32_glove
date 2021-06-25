@@ -30,7 +30,7 @@
 Mpu thumpSensor;
 Ble bluetooth;
 int txValue = 0;
-char txString[8];
+char txString[10];
 
 unsigned long start;
 void setupBleConnection();
@@ -49,7 +49,6 @@ void setupBleConnection(){
   Serial.println("2- Scan for BLE devices in the app");
   Serial.println("3- Connect to RightHandSmaortGlove");
   Serial.println("4- Go to CUSTOM CHARACTERISTIC -> CUSTOM SERVICE");
-  bluetooth.waitACK();
 }
 
 void setupGlove(){
@@ -91,10 +90,10 @@ void loop() {
 
     txValue = random(-10,20);
     //conversion
-    dtostrf(txValue, 1, 2, txString);
+    //dtostrf(txValue, 1, 2, txString);
     //bluetooth.indicate(txString);
-    bluetooth.notify(txString);
-    bluetooth.waitACK();
+    sprintf(txString, "Random= %d",txValue);
+    bluetooth.notifyWithAck(txString);
     
 
     Serial.println("Type key to start mesuring acceleration..."); 
