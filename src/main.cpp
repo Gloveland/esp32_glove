@@ -28,8 +28,6 @@
 //Mpu indexSensor;
 Mpu thumpSensor;
 Ble bluetooth;
-int txValue = 0;
-char txString[10];
 
 unsigned long start;
 void setupBleConnection();
@@ -85,15 +83,6 @@ void loop() {
   if(millis() - start > 10000){
     Serial.println("---------------------------------------END----------------------------------------------");
 
-    //txValue = random(-10,20);
-    //conversion
-    //dtostrf(txValue, 1, 2, txString);
-    //bluetooth.indicate(txString);
-    //sprintf(txString, "Random= %d",txValue);
-    //bluetooth.notify(txString);
-    //bluetooth.notifyWithAck(txString);
-    
-
     Serial.println("Type key to start mesuring acceleration..."); 
     while (!Serial.available()){
       //wait for a character 
@@ -115,22 +104,22 @@ void loop() {
 
 bool sendMesurementByBluetooth(const long instant, const char finger, const Mesure mesure){
   const int buffer_size = 1 + snprintf(NULL, 0, "%ld,%c,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f", 
-     instant, finger,
-     mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
-     mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
-     mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
-    );
-    Serial.print("  buffer_size: ");Serial.print(buffer_size);
-    assert(buffer_size > 0);
-    char buf[buffer_size];
-    int size_written =  sprintf(buf, "%ld,T,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f", 
-     instant, finger,
-     mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
-     mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
-     mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
-    );
-    assert(size_written == buffer_size - 1);
-    Serial.print("  size_written: ");Serial.print(size_written);
-    Serial.println("  sending value via bluetooth: "+ String(buf));
-    bluetooth.notifyWithAck(buf);
+    instant, finger,
+    mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
+    mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
+    mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
+  );
+  Serial.print("  buffer_size: ");Serial.print(buffer_size);
+  assert(buffer_size > 0);
+  char buf[buffer_size];
+  int size_written =  sprintf(buf, "%ld,T,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f", 
+    instant, finger,
+    mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
+    mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
+    mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
+  );
+  assert(size_written == buffer_size - 1);
+  Serial.print("  size_written: ");Serial.print(size_written);
+  Serial.println("  sending value via bluetooth: "+ String(buf));
+  bluetooth.notifyWithAck(buf);
 }
