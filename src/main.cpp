@@ -34,6 +34,7 @@ char txString[10];
 unsigned long start;
 void setupBleConnection();
 void setupGlove();
+bool sendMesurementByBluetooth(const long instant, const char finger, const Mesure mesure);
 
 void setup() {
     Serial.begin(9600);              
@@ -84,13 +85,12 @@ void loop() {
   if(millis() - start > 10000){
     Serial.println("---------------------------------------END----------------------------------------------");
 
-    txValue = random(-10,20);
+    //txValue = random(-10,20);
     //conversion
     //dtostrf(txValue, 1, 2, txString);
     //bluetooth.indicate(txString);
-    sprintf(txString, "Random= %d",txValue);
+    //sprintf(txString, "Random= %d",txValue);
     //bluetooth.notify(txString);
-    
     //bluetooth.notifyWithAck(txString);
     
 
@@ -104,39 +104,33 @@ void loop() {
     Serial.println("-------------------------------------------------------------------------------------");
     start = millis();
   }else{
-    Serial.print(millis() - start);Serial.print(",");
-    /*
-    Serial.print("P:");
-    pinkySensor.read();
-    Serial.print("     R:");
-    ringSensor.read();
-    Serial.print("     M:");
-    middleSensor.read();
-    Serial.print("     I:");
-    indexSensor.read(); 
-    */
-    Serial.print("    T:");
-    Mesure mesure = thumpSensor.read();
-    Serial.print("   aX: ");
-    Serial.print(mesure.acc.X);
-    Serial.print("   aY: ");
-    Serial.print(mesure.acc.Y);
-    Serial.print("   aZ: ");
-    Serial.print(mesure.acc.Z);Serial.print(",");
-
-    Serial.print("   gX: ");
-    Serial.print(mesure.gyro.X);Serial.print(",");
-    Serial.print("   gY: ");
-    Serial.print(mesure.gyro.Y);Serial.print(",");
-    Serial.print("   gZ: ");
-    Serial.print(mesure.gyro.Z);Serial.print(",");
-    Serial.print("   degrees/seg");
-
-    Serial.print("  roll:"); Serial.print(mesure.inclination.roll);
-    Serial.print("  pitch:");Serial.print(mesure.inclination.pitch);
-    Serial.print("  yaw:"); Serial.print(mesure.inclination.yaw);
-    Serial.println("");
+    long instant = millis() - start;
+    Serial.print(instant );
+    Mesure thumpMesure = thumpSensor.read();
+    sendMesurementByBluetooth(instant, 'T', thumpMesure);
    
   }
   delay(200);
+}
+
+bool sendMesurementByBluetooth(const long instant, const char finger, const Mesure mesure){
+  const int buffer_size = 1 + snprintf(NULL, 0, "%ld,%c,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f", 
+     instant, finger,
+     mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
+     mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
+     mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
+    );
+    Serial.print("  buffer_size: ");Serial.print(buffer_size);
+    assert(buffer_size > 0);
+    char buf[buffer_size];
+    int size_written =  sprintf(buf, "%ld,T,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f", 
+     instant, finger,
+     mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
+     mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
+     mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
+    );
+    assert(size_written == buffer_size - 1);
+    Serial.print("  size_written: ");Serial.print(size_written);
+    Serial.println("  sending value via bluetooth: "+ String(buf));
+    bluetooth.notifyWithAck(buf);
 }
