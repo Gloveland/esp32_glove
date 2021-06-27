@@ -22,7 +22,6 @@
 #define I2C_SCL_THUMB 22 /* amarillo */
 #define I2C_SDA_THUMB 21 /* naranja */
 
-
 //Mpu pinkySensor;
 //Mpu ringSensor;
 //Mpu middleSensor;
@@ -45,14 +44,11 @@ void setup() {
 
 void setupBleConnection(){
   bluetooth.init(RIGHT_HAND_BLE_SERVICE);
-  Serial.println("1- Download and install an BLE scanner app in your phone");
-  Serial.println("2- Scan for BLE devices in the app");
-  Serial.println("3- Connect to RightHandSmaortGlove");
-  Serial.println("4- Go to CUSTOM CHARACTERISTIC -> CUSTOM SERVICE");
+  Serial.println("Open Glove_sla App anc connect using bluetooth");
 }
 
 void setupGlove(){
-   //pinkySensor.init(I2C_SDA_PINKY, I2C_SCL_PINKY);
+    //pinkySensor.init(I2C_SDA_PINKY, I2C_SCL_PINKY);
     //ringSensor.init(I2C_SDA_RING, I2C_SCL_RING);
     //middleSensor.init(I2C_SDA_MIDDLE, I2C_SCL_MIDDLE);
     //indexSensor.init(I2C_SDA_INDEX, I2C_SCL_INDEX);
@@ -93,7 +89,9 @@ void loop() {
     //dtostrf(txValue, 1, 2, txString);
     //bluetooth.indicate(txString);
     sprintf(txString, "Random= %d",txValue);
-    bluetooth.notifyWithAck(txString);
+    //bluetooth.notify(txString);
+    
+    //bluetooth.notifyWithAck(txString);
     
 
     Serial.println("Type key to start mesuring acceleration..."); 
@@ -118,7 +116,25 @@ void loop() {
     indexSensor.read(); 
     */
     Serial.print("    T:");
-    thumpSensor.read();
+    Mesure mesure = thumpSensor.read();
+    Serial.print("   aX: ");
+    Serial.print(mesure.acc.X);
+    Serial.print("   aY: ");
+    Serial.print(mesure.acc.Y);
+    Serial.print("   aZ: ");
+    Serial.print(mesure.acc.Z);Serial.print(",");
+
+    Serial.print("   gX: ");
+    Serial.print(mesure.gyro.X);Serial.print(",");
+    Serial.print("   gY: ");
+    Serial.print(mesure.gyro.Y);Serial.print(",");
+    Serial.print("   gZ: ");
+    Serial.print(mesure.gyro.Z);Serial.print(",");
+    Serial.print("   degrees/seg");
+
+    Serial.print("  roll:"); Serial.print(mesure.inclination.roll);
+    Serial.print("  pitch:");Serial.print(mesure.inclination.pitch);
+    Serial.print("  yaw:"); Serial.print(mesure.inclination.yaw);
     Serial.println("");
    
   }

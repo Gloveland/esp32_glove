@@ -3,7 +3,7 @@ bool deviceConnected;
 
 
 Ble::Ble(){
-    this->ack_count = 0;
+    this->ack_count = ACK_INIT;
 }
 
 
@@ -20,10 +20,12 @@ void Ble::init(const std::string name){
     //create characteristic
     this->profileCharacteristic = this->profileService->createCharacteristic(CHARACTERISTIC_UUID_TX, 
                                                                                 BLECharacteristic::PROPERTY_INDICATE | 
+                                                                                BLECharacteristic::PROPERTY_NOTIFY   |
                                                                                 BLECharacteristic::PROPERTY_WRITE    |
                                                                                 BLECharacteristic::PROPERTY_READ 
                                                                             );
     this->profileCharacteristic->addDescriptor(new BLE2902());
+    //this->profileCharacteristic->setValue("Hola soy jaz desde el esp32");
     this->profileService->start();
 
     //Start advertising
@@ -59,7 +61,7 @@ bool Ble::waitACK(){
         if(!deviceConnected){
             Serial.println("No client connected yet....");
             this->profileServer->getAdvertising()->start();
-            this->ack_count = 0;
+            this->ack_count = ACK_INIT;
             return false;
         }
     }
@@ -67,7 +69,7 @@ bool Ble::waitACK(){
     Serial.println(value.c_str());
     this->ack_count = this->ack_count + 1;
     if(this->ack_count == ACK_LIMIT){
-        this->ack_count = 0;
+        this->ack_count = ACK_INIT;
     }
     return true;
 }

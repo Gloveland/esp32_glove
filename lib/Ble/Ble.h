@@ -13,6 +13,7 @@
 #define CHARACTERISTIC_UUID_TX  "47e62e53-e278-494d-a3f8-ac00973ae0af"
 #define ACK_SIZE 4
 #define ACK_LIMIT 10
+#define ACK_INIT 1
 
 class Ble: public BLEServerCallbacks {
     public:

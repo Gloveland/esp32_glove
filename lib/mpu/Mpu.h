@@ -31,6 +31,26 @@
 #define  MPU6050_RANGE_1000_DEG 0x10 ///< +/- 1000 deg/s
 #define  MPU6050_RANGE_2000_DEG 0x18 ///< +/- 2000 deg/s
 
+#define ACCEL_XOUT_H 0x3B
+#define GYRO_XOUT_H 0x43
+
+struct Inclination {
+  float roll;
+  float pitch;
+  float yaw;
+};
+struct Acceleration {
+  float X, Y, Z;
+};
+struct Gyro {
+  float X, Y, Z;
+};
+struct Mesure {
+  Acceleration acc;
+  Gyro gyro;
+  Inclination inclination;
+  float temperature;
+};
 
 class Mpu{
 
@@ -38,7 +58,7 @@ class Mpu{
         Mpu();
         void init(int sda, int scl);
         void calibrate();
-        void read();
+        Mesure read();
         ~Mpu();
 
     private:
@@ -50,10 +70,16 @@ class Mpu{
         float PrevGyroX, PrevGyroY, PrevGyroZ;
         float DeviationX, DeviationY,DeviationZ;
         float DegreesDeviationX, DegreesDeviationY, DegreesDeviationZ;
-        float calculateAccAngleX(float accX, float accY, float accZ);
-        float calculateAccAngleY(float accX, float accY, float accZ);
         float PreviousTime, CurrentTime, ElapsedTime;
         float GyroAngleX, GyroAngleY, GyroAngleZ;
+        Acceleration readAcceleration();
+        Gyro readGyro();
+        Inclination readInclination(Acceleration acc);
+        float readTemperature();
+        float calculateAccAngleX(float accX, float accY, float accZ);
+        float calculateAccAngleY(float accX, float accY, float accZ);
+
+
         
     
 
