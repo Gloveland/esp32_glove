@@ -26,7 +26,6 @@ class Ble: public BLEServerCallbacks {
         void indicate(const std::string value);
         ~Ble();
     private:
-        bool waitACK();
         int ack_count;
         std::string name;
         BLEServer *profileServer;

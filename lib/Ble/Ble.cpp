@@ -50,30 +50,6 @@ void Ble::indicate(const std::string value){
     Serial.println("send value: "+ String(value.c_str()));
 }
 
-bool Ble::waitACK(){
-    char expected_ack_response[ACK_SIZE];
-    sprintf(expected_ack_response,"%dack",this->ack_count);
-    Serial.print("Expected value: "); 
-    Serial.println(expected_ack_response);
-    std::string value = this->profileCharacteristic->getValue();
-    while(value.empty() || strncmp(value.c_str(), expected_ack_response, ACK_SIZE) != 0){
-        value = this->profileCharacteristic->getValue();
-        if(!deviceConnected){
-            Serial.println("No client connected yet....");
-            this->profileServer->getAdvertising()->start();
-            this->ack_count = ACK_INIT;
-            return false;
-        }
-    }
-    Serial.print("Device response: ");
-    Serial.println(value.c_str());
-    this->ack_count = this->ack_count + 1;
-    if(this->ack_count == ACK_LIMIT){
-        this->ack_count = ACK_INIT;
-    }
-    return true;
-}
-
 void Ble::notify(const std::string value){
     this->profileCharacteristic->setValue(value);
     this->profileCharacteristic->notify();
@@ -82,8 +58,23 @@ void Ble::notify(const std::string value){
 
 void Ble::notifyWithAck(const std::string value){
     this->notify(value);
-    while(!waitACK()){
+    char expected_ack_response[ACK_SIZE];
+    sprintf(expected_ack_response,"%dack",this->ack_count);
+    Serial.print("Expected value: ");Serial.println(expected_ack_response);
+    std::string response = this->profileCharacteristic->getValue();
+    while(response.empty() || strncmp(response.c_str(), expected_ack_response, ACK_SIZE) != 0){
+        if(!deviceConnected){
+            Serial.println("No client connected yet....");
+            this->profileServer->getAdvertising()->start();
+            this->ack_count = ACK_INIT;
+        }
         this->notify(value);
+        response = this->profileCharacteristic->getValue();
+    }
+    Serial.print("Device response: ");Serial.println(response.c_str());
+    this->ack_count = this->ack_count + 1;
+    if(this->ack_count == ACK_LIMIT) {
+        this->ack_count = ACK_INIT;
     }
 }
 
