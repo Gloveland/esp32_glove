@@ -5,7 +5,10 @@
 #include <Mpu.h>
 #include <Ble.h>
 
+#define START_SENDING_MEASUREMENTS "start"
+#define END_SENDING_MEASUREMENTS "end"
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmaortGlove"
+#define FORMATTED_MEASUREMENT "%ld,%c,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f"
 
 #define I2C_SCL_PINKY 27 /* gris */
 #define I2C_SDA_PINKY 26 /* violeta */
@@ -76,13 +79,14 @@ void setupGlove(){
     while (Serial.available()){
       Serial.read();  // clear the input buffer
     }
+    bluetooth.notifyWithAck(START_SENDING_MEASUREMENTS);
 }
 
 
 void loop() {
   if(millis() - start > 10000){
+    bluetooth.notifyWithAck(END_SENDING_MEASUREMENTS);
     Serial.println("---------------------------------------END----------------------------------------------");
-
     Serial.println("Type key to start mesuring acceleration..."); 
     while (!Serial.available()){
       //wait for a character 
@@ -92,18 +96,19 @@ void loop() {
     }
     Serial.println("-------------------------------------------------------------------------------------");
     start = millis();
+    bluetooth.notifyWithAck(START_SENDING_MEASUREMENTS);
   }else{
     long instant = millis() - start;
     Serial.print(instant );
     Mesure thumpMesure = thumpSensor.read();
     sendMesurementByBluetooth(instant, 'T', thumpMesure);
-   
   }
   delay(200);
 }
 
 bool sendMesurementByBluetooth(const long instant, const char finger, const Mesure mesure){
-  const int buffer_size = 1 + snprintf(NULL, 0, "%ld,%c,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f", 
+  //calculating the size of bluetooth payload buffer
+  const int buffer_size = 1 + snprintf(NULL, 0, FORMATTED_MEASUREMENT, 
     instant, finger,
     mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
     mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
@@ -111,8 +116,9 @@ bool sendMesurementByBluetooth(const long instant, const char finger, const Mesu
   );
   Serial.print("  buffer_size: ");Serial.print(buffer_size);
   assert(buffer_size > 0);
+  //bluetooth payload buffer
   char buf[buffer_size];
-  int size_written =  sprintf(buf, "%ld,T,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f", 
+  int size_written =  sprintf(buf, FORMATTED_MEASUREMENT, 
     instant, finger,
     mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
     mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
