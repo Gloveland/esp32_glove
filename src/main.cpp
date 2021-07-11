@@ -8,7 +8,7 @@
 #define START_SENDING_MEASUREMENTS "start"
 #define END_SENDING_MEASUREMENTS "end"
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmaortGlove"
-#define FORMATTED_MEASUREMENT "%ld,%c,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f"
+#define FORMATTED_MEASUREMENT "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f"
 
 #define I2C_SCL_PINKY 27 /* gris */
 #define I2C_SDA_PINKY 26 /* violeta */
@@ -33,15 +33,17 @@ Mpu thumpSensor;
 Ble bluetooth;
 
 unsigned long start;
+unsigned int c;
 void setupBleConnection();
 void setupGlove();
-bool sendMesurementByBluetooth(const long instant, const char finger, const Mesure mesure);
+bool sendMesurementByBluetooth(const Mesure mesure);
 
 void setup() {
     Serial.begin(9600);              
     setupBleConnection();
     setupGlove();
     start = millis();
+    c = 0;
 }
 
 void setupBleConnection(){
@@ -84,7 +86,13 @@ void setupGlove(){
 
 
 void loop() {
-  if(millis() - start > 10000){
+  //if(millis() - start > 10000){
+  if(c < 10){
+    Mesure thumpMesure = thumpSensor.read();
+    sendMesurementByBluetooth(thumpMesure);
+    c++;
+    delay(10);
+  }else{
     bluetooth.notifyWithAck(END_SENDING_MEASUREMENTS);
     Serial.println("---------------------------------------END----------------------------------------------");
     Serial.println("Type key to start mesuring acceleration..."); 
@@ -96,20 +104,14 @@ void loop() {
     }
     Serial.println("-------------------------------------------------------------------------------------");
     start = millis();
+    c =0;
     bluetooth.notifyWithAck(START_SENDING_MEASUREMENTS);
-  }else{
-    long instant = millis() - start;
-    Serial.print(instant );
-    Mesure thumpMesure = thumpSensor.read();
-    sendMesurementByBluetooth(instant, 'T', thumpMesure);
   }
-  delay(200);
 }
 
-bool sendMesurementByBluetooth(const long instant, const char finger, const Mesure mesure){
+bool sendMesurementByBluetooth(const Mesure mesure){
   //calculating the size of bluetooth payload buffer
   const int buffer_size = 1 + snprintf(NULL, 0, FORMATTED_MEASUREMENT, 
-    instant, finger,
     mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
     mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
     mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
@@ -119,7 +121,6 @@ bool sendMesurementByBluetooth(const long instant, const char finger, const Mesu
   //bluetooth payload buffer
   char buf[buffer_size];
   int size_written =  sprintf(buf, FORMATTED_MEASUREMENT, 
-    instant, finger,
     mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
     mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
     mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
