@@ -1,5 +1,4 @@
 
-
 /*esta prueba funciona mas o menos bien con un data rate de 2g. lee 1 cuando x esta para arriba */
 #include <Adxl.h>
 #include <Mpu.h>
@@ -32,23 +31,29 @@
 Mpu thumpSensor;
 Ble bluetooth;
 
-unsigned long start;
-unsigned int c;
 void setupBleConnection();
 void setupGlove();
-bool sendMesurementByBluetooth(const Mesure mesure);
+
+QueueHandle_t queue;
+int queueSize = 100;
+TaskHandle_t bluetoothTxTaskHandler;
+void taskBluetoothTransmission( void * pvParameters );
+bool sendMesurementViaBluetooth(const FingerMesurements mesure);
+
+TaskHandle_t readGloveMovesTaskHandler;
+void taskReadGloveMoves( void * pvParameters );
+
+
 
 void setup() {
-    Serial.begin(9600);              
-    setupBleConnection();
-    setupGlove();
-    start = millis();
-    c = 0;
-}
+    Serial.begin(9600); 
+    queue = xQueueCreate( queueSize, sizeof(FingerMesurements));
+    if(queue == NULL){
+      Serial.println("Error creating the queue");
+    }
 
-void setupBleConnection(){
-  bluetooth.init(RIGHT_HAND_BLE_SERVICE);
-  Serial.println("Open Glove_sla App anc connect using bluetooth");
+    setupGlove();              
+    setupBleConnection();
 }
 
 void setupGlove(){
@@ -69,54 +74,102 @@ void setupGlove(){
     //middleSensor.calibrate();
     //indexSensor.calibrate();
     thumpSensor.calibrate();
-    
-    while (Serial.available()){
-      Serial.read();  // clear the input buffer
-    }
 
-    Serial.println("Type key to start mesuring acceleration..."); 
-    while (!Serial.available()){
-      //wait for a character 
-    }  
-    while (Serial.available()){
-      Serial.read();  // clear the input buffer
-    }
-    bluetooth.notifyWithAck(START_SENDING_MEASUREMENTS);
+    //create a task that will be executed the transmission of the list
+    xTaskCreatePinnedToCore(
+        taskReadGloveMoves,       /* Task function. */
+        "readGloveMoves",         /* name of task. */
+        10000,                    /* Stack size of task */
+        NULL,                     /* parameter of the task */
+        1,                        /* priority of the task */
+        &readGloveMovesTaskHandler,  /* Task handle to keep track of created task */
+        0                         /* pin task to core 0 */
+    ); 
 }
 
+void setupBleConnection(){
+    bluetooth.init(RIGHT_HAND_BLE_SERVICE);
+    Serial.println("Open Glove_sla App anc connect using bluetooth");
+  
+    //create a task that will be executed the transmission of the list
+    xTaskCreatePinnedToCore(
+        taskBluetoothTransmission,/* Task function. */
+        "bluetoothTxTask",        /* name of task. */
+        10000,                    /* Stack size of task */
+        NULL,                     /* parameter of the task */
+        1,                        /* priority of the task */
+        &bluetoothTxTaskHandler,  /* Task handle to keep track of created task */
+        1                         /* pin task to core 0 */
+    ); 
+}
 
-void loop() {
-  //if(millis() - start > 10000){
-  if(c < 10){
-    Mesure thumpMesure = thumpSensor.read();
-    sendMesurementByBluetooth(thumpMesure);
-    c++;
-    delay(10);
-  }else{
-    bluetooth.notifyWithAck(END_SENDING_MEASUREMENTS);
-    Serial.println("---------------------------------------END----------------------------------------------");
-    Serial.println("Type key to start mesuring acceleration..."); 
-    while (!Serial.available()){
-      //wait for a character 
-    }
-    while (Serial.available()){
-      Serial.read();  // clear the input buffer
-    }
-    Serial.println("-------------------------------------------------------------------------------------");
-    start = millis();
-    c =0;
-    bluetooth.notifyWithAck(START_SENDING_MEASUREMENTS);
+void clearInput(){
+  while (Serial.available()){ 
+    Serial.read(); 
+    /* clear the input buffer */
+    // Pause the task for 500ms otherwise watchdog will delete it cousing memory error
+    vTaskDelay(500 / portTICK_PERIOD_MS);
   }
 }
 
-bool sendMesurementByBluetooth(const Mesure mesure){
+void waitAnyUserInput(String msg){
+  clearInput();
+  Serial.println(msg);
+  while (!Serial.available()){
+    /* wait for a character */
+    // Pause the task for 500ms otherwise watchdog will delete it cousing memory error
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+  }  
+  clearInput();
+}
+
+void loop() { //loop() runs on core 1
+  // empty because loop is in tasks
+}
+
+void taskReadGloveMoves( void * pvParameters ){
+  for(;;){ //loop in thread
+    Serial.println("Task2 running on core ");
+    Serial.println(xPortGetCoreID());
+    waitAnyUserInput("Type key to start mesuring..."); 
+    Serial.println("---------------------------------------END----------------------------------------------");
+    for( int i = 0; i < queueSize; i++){
+      FingerMesurements thumpMesure = thumpSensor.read();
+      xQueueSend(queue, &thumpMesure, portMAX_DELAY);
+      //default rate is 8khz = 0.125 miliseconds
+      delay(100); //
+    }
+    Serial.println("---------------------------------------END----------------------------------------------");
+    // Pause the task for 500ms otherwise watchdog will delete it cousing memory error
+    vTaskDelay(500 / portTICK_PERIOD_MS);
+  }
+}
+
+void taskBluetoothTransmission( void * pvParameters ){
+  Serial.println("Task2 running on core ");
+  Serial.println(xPortGetCoreID());
+  FingerMesurements m;
+  for(;;){ //loop in thread
+    bluetooth.notifyWithAck(START_SENDING_MEASUREMENTS);
+    for(int i = 0; i < queueSize; i++ ){
+        Serial.print("  Reading queue ");Serial.println(i);
+        xQueueReceive(queue,  &m, portMAX_DELAY);
+        sendMesurementViaBluetooth(m);
+    }
+    bluetooth.notifyWithAck(END_SENDING_MEASUREMENTS);
+    // Pause the task for 500ms otherwise watchdog will delete it cousing memory error
+    vTaskDelay(500 / portTICK_PERIOD_MS); //vTaskDelete( NULL );
+  }
+}
+
+bool sendMesurementViaBluetooth(const FingerMesurements mesure){
   //calculating the size of bluetooth payload buffer
   const int buffer_size = 1 + snprintf(NULL, 0, FORMATTED_MEASUREMENT, 
     mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
     mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
     mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
   );
-  Serial.print("  buffer_size: ");Serial.print(buffer_size);
+  //Serial.print("  buffer_size: ");Serial.print(buffer_size);
   assert(buffer_size > 0);
   //bluetooth payload buffer
   char buf[buffer_size];
@@ -126,7 +179,8 @@ bool sendMesurementByBluetooth(const Mesure mesure){
     mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
   );
   assert(size_written == buffer_size - 1);
-  Serial.print("  size_written: ");Serial.print(size_written);
+  //Serial.print("  size_written: ");Serial.print(size_written);
   Serial.println("  sending value via bluetooth: "+ String(buf));
   bluetooth.notifyWithAck(buf);
+  return true;
 }

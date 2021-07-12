@@ -45,7 +45,7 @@ struct Acceleration {
 struct Gyro {
   float X, Y, Z;
 };
-struct Mesure {
+struct FingerMesurements {
   Acceleration acc;
   Gyro gyro;
   Inclination inclination;
@@ -58,7 +58,7 @@ class Mpu{
         Mpu();
         void init(int sda, int scl);
         void calibrate();
-        Mesure read();
+        FingerMesurements read();
         ~Mpu();
 
     private:

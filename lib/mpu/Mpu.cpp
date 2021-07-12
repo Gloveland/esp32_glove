@@ -163,11 +163,11 @@ void Mpu::calibrate(){
 
 }
 
-Mesure Mpu::read(){
+FingerMesurements Mpu::read(){
     Acceleration acc = this->readAcceleration();
     Gyro gyro = this->readGyro();
     Inclination inclination = this->readInclination(acc);
-    Mesure result;
+    FingerMesurements result;
     result.acc = acc;
     result.gyro = gyro;
     result.inclination = inclination;

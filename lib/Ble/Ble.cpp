@@ -30,7 +30,6 @@ void Ble::init(const std::string name){
 
     //Start advertising
     this->profileServer->getAdvertising()->start();
-
 }
 
 void Ble::onConnect(BLEServer *pServer) {
@@ -70,8 +69,10 @@ void Ble::notifyWithAck(const std::string value){
         }
         this->notify(value);
         response = this->profileCharacteristic->getValue();
+        Serial.print("App response: ");Serial.println(response.c_str());
+        // Pause the task for 100ms otherwise watchdog will delete it cousing memory error
+        vTaskDelay(100 / portTICK_PERIOD_MS);
     }
-    Serial.print("Device response: ");Serial.println(response.c_str());
     this->ack_count = this->ack_count + 1;
     if(this->ack_count == ACK_LIMIT) {
         this->ack_count = ACK_INIT;
