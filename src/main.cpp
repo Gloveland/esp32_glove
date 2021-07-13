@@ -1,21 +1,29 @@
 
 /*esta prueba funciona mas o menos bien con un data rate de 2g. lee 1 cuando x esta para arriba */
+#include <WiFi.h>
 #include <Adxl.h>
 #include <Mpu.h>
 #include <Ble.h>
 
-#define START_SENDING_MEASUREMENTS "start"
-#define END_SENDING_MEASUREMENTS "end"
-#define RIGHT_HAND_BLE_SERVICE "RightHandSmaortGlove"
-#define FORMATTED_MEASUREMENT "%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f"
+const char* ssid = "Ensalada tomate y cebolla";
+const char* password =  "greta2012";
 
-Ble bluetooth;
 char buf[10];
+WiFiServer wifiServer(8080);
 
 void setup() {
-    Serial.begin(9600);   
-    bluetooth.init(RIGHT_HAND_BLE_SERVICE);
-    Serial.println("Open Glove_sla App anc connect using bluetooth");     
+    Serial.begin(9600);  
+     WiFi.begin(ssid, password);
+ 
+    while (WiFi.status() != WL_CONNECTED) {
+      delay(1000);
+      Serial.println("Connecting to WiFi..");
+    }
+  
+    Serial.println("Connected to the WiFi network");
+    Serial.println(WiFi.localIP());
+  
+    wifiServer.begin();    
 }
 
 void clearInput(){
@@ -35,13 +43,25 @@ void waitAnyUserInput(String msg){
 }
 
 void loop() { //loop() runs on core 1
-  waitAnyUserInput("Press any key to start sending msg");
-  for(int i = 0.0; i < 100; i++){
-    sprintf(buf, "mensaje %d .", i);
-    bluetooth.indicate(buf);
-    Serial.println("  sending value via bluetooth: "+ String(buf));
+  Serial.println("waiting for new connection");
+  WiFiClient client = wifiServer.available();
+ 
+  if (client) {
+    Serial.println("New client!!");
+    while (client.connected()) {
+      while (client.available() > 0) {
+        char c = client.read();
+        Serial.print(c);
+      }
+      delay(10);
+
+      waitAnyUserInput("Press any key to start sending msg");
+      client.write("hola soy jaz");
+    }
+    client.stop();
+    Serial.println("Client disconnected");
   }
-  delay(100);
+  delay(500);
 }
 
 
