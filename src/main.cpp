@@ -47,13 +47,39 @@ void taskReadGloveMoves( void * pvParameters );
 
 void setup() {
     Serial.begin(9600); 
+
     queue = xQueueCreate( queueSize, sizeof(FingerMesurements));
     if(queue == NULL){
       Serial.println("Error creating the queue");
     }
 
-    setupGlove();              
-    setupBleConnection();
+    setupGlove();
+
+    //create a task that will be executed the transmission of the list
+    xTaskCreatePinnedToCore(
+        taskReadGloveMoves,       /* Task function. */
+        "readGloveMoves",         /* name of task. */
+        10000,                    /* Stack size of task */
+        NULL,                     /* parameter of the task */
+        1,                        /* priority of the task */
+        &readGloveMovesTaskHandler,  /* Task handle to keep track of created task */
+        0                         /* pin task to core 0 */
+    ); 
+
+     //create a task that will be executed the transmission of the list
+    xTaskCreatePinnedToCore(
+        taskBluetoothTransmission,/* Task function. */
+        "bluetoothTxTask",        /* name of task. */
+        10000,                    /* Stack size of task */
+        NULL,                     /* parameter of the task */
+        1,                        /* priority of the task */
+        &bluetoothTxTaskHandler,  /* Task handle to keep track of created task */
+        1                         /* pin task to core 0 */
+    );          
+}
+
+void loop() { //loop() runs on core 1
+  // empty because loop is in tasks
 }
 
 void setupGlove(){
@@ -74,34 +100,8 @@ void setupGlove(){
     //middleSensor.calibrate();
     //indexSensor.calibrate();
     thumpSensor.calibrate();
-
-    //create a task that will be executed the transmission of the list
-    xTaskCreatePinnedToCore(
-        taskReadGloveMoves,       /* Task function. */
-        "readGloveMoves",         /* name of task. */
-        10000,                    /* Stack size of task */
-        NULL,                     /* parameter of the task */
-        1,                        /* priority of the task */
-        &readGloveMovesTaskHandler,  /* Task handle to keep track of created task */
-        0                         /* pin task to core 0 */
-    ); 
 }
 
-void setupBleConnection(){
-    bluetooth.init(RIGHT_HAND_BLE_SERVICE);
-    Serial.println("Open Glove_sla App anc connect using bluetooth");
-  
-    //create a task that will be executed the transmission of the list
-    xTaskCreatePinnedToCore(
-        taskBluetoothTransmission,/* Task function. */
-        "bluetoothTxTask",        /* name of task. */
-        10000,                    /* Stack size of task */
-        NULL,                     /* parameter of the task */
-        1,                        /* priority of the task */
-        &bluetoothTxTaskHandler,  /* Task handle to keep track of created task */
-        1                         /* pin task to core 0 */
-    ); 
-}
 
 void clearInput(){
   while (Serial.available()){ 
@@ -123,11 +123,8 @@ void waitAnyUserInput(String msg){
   clearInput();
 }
 
-void loop() { //loop() runs on core 1
-  // empty because loop is in tasks
-}
 
-void taskReadGloveMoves( void * pvParameters ){
+void taskReadGloveMoves( void * pvParameters ){  
   for(;;){ //loop in thread
     Serial.println("Task2 running on core ");
     Serial.println(xPortGetCoreID());
@@ -145,9 +142,15 @@ void taskReadGloveMoves( void * pvParameters ){
   }
 }
 
+void setupBleConnection(){
+    bluetooth.init(RIGHT_HAND_BLE_SERVICE);
+    Serial.println("Open Glove_sla App anc connect using bluetooth");
+}
+
 void taskBluetoothTransmission( void * pvParameters ){
   Serial.println("Task2 running on core ");
   Serial.println(xPortGetCoreID());
+  setupBleConnection();
   FingerMesurements m;
   for(;;){ //loop in thread
     bluetooth.notifyWithAck(START_SENDING_MEASUREMENTS);
