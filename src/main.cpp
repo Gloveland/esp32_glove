@@ -135,6 +135,7 @@ void loop() { //loop() runs on core 1
     Serial.println("New client!!");
     while (client.connected()) {
       while (client.available() > 0) {
+        Serial.println("read client request");
         char c = client.read();
         int i = c - '0';
         Serial.println(i);
