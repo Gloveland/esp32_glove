@@ -5,8 +5,8 @@
 #include <Mpu.h>
 #include <Ble.h>
 
-const char* ssid = "BULL SHIP";//"Ensalada tomate y cebolla";
-const char* password =  "eribri11";//"greta2012";
+const char* ssid = "Ensalada tomate y cebolla"; //"BULL SHIP";
+const char* password = "greta2012"; //"eribri11";
 int event_count;
 
 WiFiServer wifiServer(8080);
@@ -62,13 +62,13 @@ void sendEvent(){
     .gyro = 37.9999999999
   };
   const int buffer_size= 1 + snprintf(NULL, 0,
-                                    "{\"device_id\":%s, \"event_num\":%d, \"acc\":%.3f, \"gyro\":%.3f}\n", 
+                                    "{\"device_id\":\"%s\", \"event_num\":%d, \"acc\":%.3f, \"gyro\":%.3f}\n", 
                                     mov.device_id.c_str(), mov.event_num, mov.acc, mov.gyro);
   Serial.print("  buffer_size: ");Serial.print(buffer_size);
   assert(buffer_size > 0);
   char package[buffer_size];
   int size_written = snprintf(package, buffer_size,
-                                    "{\"device_id\":%s, \"event_num\":%d, \"acc\":%.3f, \"gyro\":%.3f}\n", 
+                                    "{\"device_id\":\"%s\", \"event_num\":%d, \"acc\":%.3f, \"gyro\":%.3f}\n", 
                                     mov.device_id.c_str(), mov.event_num, mov.acc, mov.gyro);
   assert(size_written == buffer_size - 1);
   Serial.print("  size_written: ");Serial.print(size_written);
