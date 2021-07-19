@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <float.h>
+#include <Model.h>
 
 #define GRAVITY_EARTH 9.80665F
 
@@ -34,31 +35,13 @@
 #define ACCEL_XOUT_H 0x3B
 #define GYRO_XOUT_H 0x43
 
-struct Inclination {
-  float roll;
-  float pitch;
-  float yaw;
-};
-struct Acceleration {
-  float X, Y, Z;
-};
-struct Gyro {
-  float X, Y, Z;
-};
-struct FingerMesurements {
-  Acceleration acc;
-  Gyro gyro;
-  Inclination inclination;
-  float temperature;
-};
-
 class Mpu{
 
     public:
         Mpu();
         void init(int sda, int scl);
         void calibrate();
-        FingerMesurements read();
+        Finger read();
         ~Mpu();
 
     private:
@@ -78,10 +61,6 @@ class Mpu{
         float readTemperature();
         float calculateAccAngleX(float accX, float accY, float accZ);
         float calculateAccAngleY(float accX, float accY, float accZ);
-
-
-        
-    
 
 };
 

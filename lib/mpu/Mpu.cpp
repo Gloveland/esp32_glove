@@ -163,11 +163,11 @@ void Mpu::calibrate(){
 
 }
 
-FingerMesurements Mpu::read(){
+Finger Mpu::read(){
     Acceleration acc = this->readAcceleration();
     Gyro gyro = this->readGyro();
     Inclination inclination = this->readInclination(acc);
-    FingerMesurements result;
+    Finger result;
     result.acc = acc;
     result.gyro = gyro;
     result.inclination = inclination;
@@ -253,8 +253,8 @@ Gyro Mpu::readGyro(){
 
 Inclination Mpu::readInclination(Acceleration acc){
     // Calculating Roll and Pitch from the accelerometer data
-    accAngleX = this->calculateAccAngleX(acc.X, acc.Y, acc.Z) - this->AccAngleErrorX; //from calibration
-    accAngleY = this->calculateAccAngleY(acc.X, acc.Y, acc.Z) - this->AccAngleErrorY; 
+    accAngleX = this->calculateAccAngleX(acc.x, acc.y, acc.z) - this->AccAngleErrorX; //from calibration
+    accAngleY = this->calculateAccAngleY(acc.x, acc.y, acc.z) - this->AccAngleErrorY; 
 
     //Serial.print("   accAngleX: ");Serial.print(accAngleX );
     //Serial.print("   accAngleY: ");Serial.print(accAngleY );
