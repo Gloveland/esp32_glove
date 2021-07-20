@@ -42,11 +42,11 @@ QueueHandle_t queue;
 const int queueSize = 100;
 
 TaskHandle_t bluetoothTxTaskHandler;
-void taskBluetoothTransmission(void* pvParameters);
+[[noreturn]] void taskBluetoothTransmission(void* pvParameters);
 bool sendMeasurementViaBluetooth(const FingerMeasurement measurement);
 
 TaskHandle_t readGloveMovesTaskHandler;
-void taskReadGloveMoves(void* pvParameters);
+[[noreturn]] void taskReadGloveMoves(void* pvParameters);
 
 void setup() {
   Serial.begin(9600);
@@ -141,7 +141,7 @@ void loop() {  // loop() runs on core 1
                // empty because loop is in tasks
 }
 
-void taskReadGloveMoves(void* pvParameters) {
+[[noreturn]] void taskReadGloveMoves(void* pvParameters) {
   Serial.println("Task 'read gloves' running on core ");
   Serial.println(xPortGetCoreID());
   for (;;) {  // loop in thread
@@ -157,10 +157,10 @@ void taskReadGloveMoves(void* pvParameters) {
   }
 }
 
-void taskBluetoothTransmission(void* pvParameters) {
+[[noreturn]] void taskBluetoothTransmission(void* pvParameters) {
   Serial.println("Task 'Bluetooth transmission' running on core ");
   Serial.println(xPortGetCoreID());
-  FingerMeasurement fingerMeasurement;
+  FingerMeasurement fingerMeasurement{};
   for (;;) {  // loop in thread
     // bluetooth.notify(START_SENDING_MEASUREMENTS);
     for (int i = 0; i < queueSize; i++) {
