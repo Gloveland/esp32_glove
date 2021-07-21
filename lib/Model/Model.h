@@ -37,5 +37,4 @@ struct Movement {
   Hand hand;
 };
 
-
 #endif //MODEL_H

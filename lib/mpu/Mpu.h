@@ -35,32 +35,32 @@
 #define ACCEL_XOUT_H 0x3B
 #define GYRO_XOUT_H 0x43
 
-class Mpu{
+class Mpu {
 
-    public:
-        Mpu();
-        void init(int sda, int scl);
-        void calibrate();
-        Finger read();
-        ~Mpu();
+ public:
+  Mpu();
+  void init(int sda, int scl);
+  void calibrate();
+  Finger read();
+  ~Mpu();
 
-    private:
-        const int MPU = 0x68;
-        float AccErrorX, AccErrorY,  AccErrorZ;
-        float AccAngleErrorX, AccAngleErrorY;
-        float GyroErrorX, GyroErrorY, GyroErrorZ;
-        float GyroX, GyroY, GyroZ;
-        float PrevGyroX, PrevGyroY, PrevGyroZ;
-        float DeviationX, DeviationY,DeviationZ;
-        float DegreesDeviationX, DegreesDeviationY, DegreesDeviationZ;
-        float PreviousTime, CurrentTime, ElapsedTime;
-        float GyroAngleX, GyroAngleY, GyroAngleZ;
-        Acceleration readAcceleration();
-        Gyro readGyro();
-        Inclination readInclination(Acceleration acc);
-        float readTemperature();
-        float calculateAccAngleX(float accX, float accY, float accZ);
-        float calculateAccAngleY(float accX, float accY, float accZ);
+ private:
+  const int MPU = 0x68;
+  float AccErrorX, AccErrorY, AccErrorZ;
+  float AccAngleErrorX, AccAngleErrorY;
+  float GyroErrorX, GyroErrorY, GyroErrorZ;
+  float GyroX, GyroY, GyroZ;
+  float PrevGyroX, PrevGyroY, PrevGyroZ;
+  float DeviationX, DeviationY, DeviationZ;
+  float DegreesDeviationX, DegreesDeviationY, DegreesDeviationZ;
+  float PreviousTime, CurrentTime, ElapsedTime;
+  float GyroAngleX, GyroAngleY, GyroAngleZ;
+  Acceleration readAcceleration();
+  Gyro readGyro();
+  Inclination readInclination(Acceleration acc);
+  float readTemperature();
+  float calculateAccAngleX(float accX, float accY, float accZ);
+  float calculateAccAngleY(float accX, float accY, float accZ);
 
 };
 
