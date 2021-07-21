@@ -10,10 +10,13 @@ void CharacteristicCallbacks::onWrite(BLECharacteristic *pCharacteristic) {
   BLECharacteristicCallbacks::onWrite(pCharacteristic);
   std::string value = pCharacteristic->getValue();
   Serial.println(">> onWrite callback run: " + String(value.c_str()));
-}
+  if (value == "stop" && taskHandler != nullptr) {
+    Serial.println(">> Received stop");
+    vTaskSuspend(taskHandler);
+    return;
+  }
 
-void CharacteristicCallbacks::onNotify(BLECharacteristic *pCharacteristic) {
-  BLECharacteristicCallbacks::onNotify(pCharacteristic);
-  std::string value = pCharacteristic->getValue();
-  Serial.println(">> onNotify callback run: " + String(value.c_str()));
+  if (value == "start" && taskHandler != nullptr) {
+    vTaskResume(taskHandler);
+  }
 }

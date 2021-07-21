@@ -3,7 +3,9 @@
  * esta para arriba */
 #include <Adxl.h>
 #include <Ble.h>
+#include <CharacteristicCallbacks.h>
 #include <Mpu.h>
+#include <ServerCallbacks.h>
 
 #define START_SENDING_MEASUREMENTS "start"
 #define END_SENDING_MEASUREMENTS "end"
@@ -40,6 +42,8 @@ void setupGlove();
 
 QueueHandle_t queue;
 const int queueSize = 100;
+
+// TODO: Stop tasks after this: https://www.youtube.com/watch?v=jJaGRCgDo9s
 
 TaskHandle_t bluetoothTxTaskHandler;
 [[noreturn]] void taskBluetoothTransmission(void* pvParameters);
@@ -91,9 +95,12 @@ void setupGlove() {
  * Internally runs the ::taskBluetoothTransmission task.
  */
 void setupBleConnection() {
-  bluetooth.init(RIGHT_HAND_BLE_SERVICE);
+  BLEServerCallbacks* serverCallbacks = new ServerCallbacks();
+  BLECharacteristicCallbacks* characteristicCallbacks =
+      new CharacteristicCallbacks(readGloveMovesTaskHandler);
+  bluetooth.init(RIGHT_HAND_BLE_SERVICE, serverCallbacks,
+                 characteristicCallbacks);
   Serial.println("Open Glove_sla App and connect using bluetooth.");
-
   // create a task that will execute the transmission of the list
   xTaskCreatePinnedToCore(
       taskBluetoothTransmission,  // Task function

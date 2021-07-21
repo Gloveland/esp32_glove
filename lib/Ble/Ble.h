@@ -12,14 +12,13 @@
 
 class Ble {
  private:
-  BLEServer *profileServer;
-  BLEService *profileService;
-  BLECharacteristic *profileCharacteristic;
-  BLEServerCallbacks *serverCallbacks;
-  BLECharacteristicCallbacks *characteristicCallbacks;
+  BLEServer *profileServer{};
+  BLEService *profileService{};
+  BLECharacteristic *profileCharacteristic{};
 
  public:
-  void init(const std::string &name);
+  void init(const std::string &name, BLEServerCallbacks *serverCallbacks,
+            BLECharacteristicCallbacks *characteristicCallbacks);
   void notify(const std::string &value);
 };
 
