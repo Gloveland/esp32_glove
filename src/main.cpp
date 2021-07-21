@@ -39,94 +39,95 @@ void setupGlove();
 bool sendMesurementByBluetooth(const Mesure mesure);
 
 void setup() {
-    Serial.begin(9600);              
-    setupBleConnection();
-    setupGlove();
-    start = millis();
-    c = 0;
+  Serial.begin(9600);
+  setupBleConnection();
+  setupGlove();
+  start = millis();
+  c = 0;
 }
 
-void setupBleConnection(){
+void setupBleConnection() {
   bluetooth.init(RIGHT_HAND_BLE_SERVICE);
   Serial.println("Open Glove_sla App anc connect using bluetooth");
 }
 
-void setupGlove(){
-    //pinkySensor.init(I2C_SDA_PINKY, I2C_SCL_PINKY);
-    //ringSensor.init(I2C_SDA_RING, I2C_SCL_RING);
-    //middleSensor.init(I2C_SDA_MIDDLE, I2C_SCL_MIDDLE);
-    //indexSensor.init(I2C_SDA_INDEX, I2C_SCL_INDEX);
-    thumpSensor.init(I2C_SDA_THUMB, I2C_SCL_THUMB);
-    
-    Serial.println();
-    Serial.println("Type key when all sensors are placed over an horizontal plane: X = 0g, Y = 0g, Z = +1g orientation"); 
-    while (!Serial.available()){
-      //wait for a character 
-    }  
-    // === Calibration === //
-    //pinkySensor.calibrate();
-    //ringSensor.calibrate();
-    //middleSensor.calibrate();
-    //indexSensor.calibrate();
-    thumpSensor.calibrate();
-    
-    while (Serial.available()){
-      Serial.read();  // clear the input buffer
-    }
+void setupGlove() {
+  //pinkySensor.init(I2C_SDA_PINKY, I2C_SCL_PINKY);
+  //ringSensor.init(I2C_SDA_RING, I2C_SCL_RING);
+  //middleSensor.init(I2C_SDA_MIDDLE, I2C_SCL_MIDDLE);
+  //indexSensor.init(I2C_SDA_INDEX, I2C_SCL_INDEX);
+  thumpSensor.init(I2C_SDA_THUMB, I2C_SCL_THUMB);
 
-    Serial.println("Type key to start mesuring acceleration..."); 
-    while (!Serial.available()){
-      //wait for a character 
-    }  
-    while (Serial.available()){
-      Serial.read();  // clear the input buffer
-    }
-    bluetooth.notifyWithAck(START_SENDING_MEASUREMENTS);
+  Serial.println();
+  Serial.println("Type key when all sensors are placed over an horizontal plane: X = 0g, Y = 0g, Z = +1g orientation");
+  while (!Serial.available()) {
+    //wait for a character
+  }
+  // === Calibration === //
+  //pinkySensor.calibrate();
+  //ringSensor.calibrate();
+  //middleSensor.calibrate();
+  //indexSensor.calibrate();
+  thumpSensor.calibrate();
+
+  while (Serial.available()) {
+    Serial.read();  // clear the input buffer
+  }
+
+  Serial.println("Type key to start mesuring acceleration...");
+  while (!Serial.available()) {
+    //wait for a character
+  }
+  while (Serial.available()) {
+    Serial.read();  // clear the input buffer
+  }
+  bluetooth.notifyWithAck(START_SENDING_MEASUREMENTS);
 }
-
 
 void loop() {
   //if(millis() - start > 10000){
-  if(c < 10){
+  if (c < 10) {
     Mesure thumpMesure = thumpSensor.read();
     sendMesurementByBluetooth(thumpMesure);
     c++;
     delay(10);
-  }else{
+  } else {
     bluetooth.notifyWithAck(END_SENDING_MEASUREMENTS);
     Serial.println("---------------------------------------END----------------------------------------------");
-    Serial.println("Type key to start mesuring acceleration..."); 
-    while (!Serial.available()){
+    Serial.println("Type key to start mesuring acceleration...");
+    while (!Serial.available()) {
       //wait for a character 
     }
-    while (Serial.available()){
+    while (Serial.available()) {
       Serial.read();  // clear the input buffer
     }
     Serial.println("-------------------------------------------------------------------------------------");
     start = millis();
-    c =0;
+    c = 0;
     bluetooth.notifyWithAck(START_SENDING_MEASUREMENTS);
   }
 }
 
-bool sendMesurementByBluetooth(const Mesure mesure){
+bool sendMesurementByBluetooth(const Mesure mesure) {
   //calculating the size of bluetooth payload buffer
-  const int buffer_size = 1 + snprintf(NULL, 0, FORMATTED_MEASUREMENT, 
-    mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
-    mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
-    mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
+  const int buffer_size = 1 + snprintf(NULL, 0, FORMATTED_MEASUREMENT,
+                                       mesure.acc.X, mesure.acc.Y, mesure.acc.Z,
+                                       mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
+                                       mesure.inclination.roll, mesure.inclination.pitch, mesure.inclination.yaw
   );
-  Serial.print("  buffer_size: ");Serial.print(buffer_size);
+  Serial.print("  buffer_size: ");
+  Serial.print(buffer_size);
   assert(buffer_size > 0);
   //bluetooth payload buffer
   char buf[buffer_size];
-  int size_written =  sprintf(buf, FORMATTED_MEASUREMENT, 
-    mesure.acc.X, mesure.acc.Y, mesure.acc.Z, 
-    mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
-    mesure.inclination.roll,mesure.inclination.pitch,mesure.inclination.yaw
+  int size_written = sprintf(buf, FORMATTED_MEASUREMENT,
+                             mesure.acc.X, mesure.acc.Y, mesure.acc.Z,
+                             mesure.gyro.X, mesure.gyro.Y, mesure.gyro.Z,
+                             mesure.inclination.roll, mesure.inclination.pitch, mesure.inclination.yaw
   );
   assert(size_written == buffer_size - 1);
-  Serial.print("  size_written: ");Serial.print(size_written);
-  Serial.println("  sending value via bluetooth: "+ String(buf));
+  Serial.print("  size_written: ");
+  Serial.print(size_written);
+  Serial.println("  sending value via bluetooth: " + String(buf));
   bluetooth.notifyWithAck(buf);
 }
