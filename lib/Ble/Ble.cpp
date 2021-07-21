@@ -3,13 +3,13 @@
 #include "CharacteristicCallbacks.h"
 #include "ServerCallbacks.h"
 
-void Ble::init(const std::string& name) {
+void Ble::init(const std::string& name, BLEServerCallbacks *serverCallbacks,
+               BLECharacteristicCallbacks *characteristicCallbacks) {
   BLEDevice::init(name);
-  this->serverCallbacks = new ServerCallbacks();
 
   // create ble server
   this->profileServer = BLEDevice::createServer();
-  this->profileServer->setCallbacks(this->serverCallbacks);
+  this->profileServer->setCallbacks(serverCallbacks);
 
   // create service
   this->profileService = this->profileServer->createService(SERVICE_UUID);
@@ -19,7 +19,6 @@ void Ble::init(const std::string& name) {
       CHARACTERISTIC_UUID_TX,
       BLECharacteristic::PROPERTY_NOTIFY | BLECharacteristic::PROPERTY_WRITE);
   this->profileCharacteristic->addDescriptor(new BLE2902());
-  this->characteristicCallbacks = new CharacteristicCallbacks();
   this->profileCharacteristic->setCallbacks(characteristicCallbacks);
   // this->profileCharacteristic->setValue("Hola soy jaz desde el esp32");
 
