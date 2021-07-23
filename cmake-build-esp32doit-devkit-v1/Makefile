@@ -223,6 +223,33 @@ lib/Ble/Ble.cpp.s:
 	$(MAKE) $(MAKESILENT) -f CMakeFiles/Z_DUMMY_TARGET.dir/build.make CMakeFiles/Z_DUMMY_TARGET.dir/lib/Ble/Ble.cpp.s
 .PHONY : lib/Ble/Ble.cpp.s
 
+lib/Movement/Movement.obj: lib/Movement/Movement.cpp.obj
+
+.PHONY : lib/Movement/Movement.obj
+
+# target to build an object file
+lib/Movement/Movement.cpp.obj:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Z_DUMMY_TARGET.dir/build.make CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.obj
+.PHONY : lib/Movement/Movement.cpp.obj
+
+lib/Movement/Movement.i: lib/Movement/Movement.cpp.i
+
+.PHONY : lib/Movement/Movement.i
+
+# target to preprocess a source file
+lib/Movement/Movement.cpp.i:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Z_DUMMY_TARGET.dir/build.make CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.i
+.PHONY : lib/Movement/Movement.cpp.i
+
+lib/Movement/Movement.s: lib/Movement/Movement.cpp.s
+
+.PHONY : lib/Movement/Movement.s
+
+# target to generate assembly for a file
+lib/Movement/Movement.cpp.s:
+	$(MAKE) $(MAKESILENT) -f CMakeFiles/Z_DUMMY_TARGET.dir/build.make CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.s
+.PHONY : lib/Movement/Movement.cpp.s
+
 lib/Mpu/Mpu.obj: lib/Mpu/Mpu.cpp.obj
 
 .PHONY : lib/Mpu/Mpu.obj
@@ -294,6 +321,9 @@ help:
 	@echo "... lib/Ble/Ble.obj"
 	@echo "... lib/Ble/Ble.i"
 	@echo "... lib/Ble/Ble.s"
+	@echo "... lib/Movement/Movement.obj"
+	@echo "... lib/Movement/Movement.i"
+	@echo "... lib/Movement/Movement.s"
 	@echo "... lib/Mpu/Mpu.obj"
 	@echo "... lib/Mpu/Mpu.i"
 	@echo "... lib/Mpu/Mpu.s"

@@ -342,7 +342,10 @@
 		<Unit filename="/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/lib/Ble/Ble.h">
 			<Option target="Z_DUMMY_TARGET"/>
 		</Unit>
-		<Unit filename="/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/lib/Model/Model.h">
+		<Unit filename="/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/lib/Movement/Movement.cpp">
+			<Option target="Z_DUMMY_TARGET"/>
+		</Unit>
+		<Unit filename="/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/lib/Movement/Movement.h">
 			<Option target="Z_DUMMY_TARGET"/>
 		</Unit>
 		<Unit filename="/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/lib/Mpu/Mpu.cpp">

@@ -103,9 +103,22 @@ CMakeFiles/Z_DUMMY_TARGET.dir/lib/Ble/Ble.cpp.s: cmake_force
 	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Z_DUMMY_TARGET.dir/lib/Ble/Ble.cpp.s"
 	/Users/jazminferreiro/.platformio/packages/toolchain-xtensa32@2.50200.97/bin/xtensa-esp32-elf-g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/lib/Ble/Ble.cpp -o CMakeFiles/Z_DUMMY_TARGET.dir/lib/Ble/Ble.cpp.s
 
+CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.obj: CMakeFiles/Z_DUMMY_TARGET.dir/flags.make
+CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.obj: ../lib/Movement/Movement.cpp
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/cmake-build-esp32doit-devkit-v1/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.obj"
+	/Users/jazminferreiro/.platformio/packages/toolchain-xtensa32@2.50200.97/bin/xtensa-esp32-elf-g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.obj -c /Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/lib/Movement/Movement.cpp
+
+CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.i: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Preprocessing CXX source to CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.i"
+	/Users/jazminferreiro/.platformio/packages/toolchain-xtensa32@2.50200.97/bin/xtensa-esp32-elf-g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -E /Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/lib/Movement/Movement.cpp > CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.i
+
+CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.s: cmake_force
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green "Compiling CXX source to assembly CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.s"
+	/Users/jazminferreiro/.platformio/packages/toolchain-xtensa32@2.50200.97/bin/xtensa-esp32-elf-g++ $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -S /Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/lib/Movement/Movement.cpp -o CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.s
+
 CMakeFiles/Z_DUMMY_TARGET.dir/lib/Mpu/Mpu.cpp.obj: CMakeFiles/Z_DUMMY_TARGET.dir/flags.make
 CMakeFiles/Z_DUMMY_TARGET.dir/lib/Mpu/Mpu.cpp.obj: ../lib/Mpu/Mpu.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/cmake-build-esp32doit-devkit-v1/CMakeFiles --progress-num=$(CMAKE_PROGRESS_3) "Building CXX object CMakeFiles/Z_DUMMY_TARGET.dir/lib/Mpu/Mpu.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/cmake-build-esp32doit-devkit-v1/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Z_DUMMY_TARGET.dir/lib/Mpu/Mpu.cpp.obj"
 	/Users/jazminferreiro/.platformio/packages/toolchain-xtensa32@2.50200.97/bin/xtensa-esp32-elf-g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Z_DUMMY_TARGET.dir/lib/Mpu/Mpu.cpp.obj -c /Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/lib/Mpu/Mpu.cpp
 
 CMakeFiles/Z_DUMMY_TARGET.dir/lib/Mpu/Mpu.cpp.i: cmake_force
@@ -118,7 +131,7 @@ CMakeFiles/Z_DUMMY_TARGET.dir/lib/Mpu/Mpu.cpp.s: cmake_force
 
 CMakeFiles/Z_DUMMY_TARGET.dir/src/main.cpp.obj: CMakeFiles/Z_DUMMY_TARGET.dir/flags.make
 CMakeFiles/Z_DUMMY_TARGET.dir/src/main.cpp.obj: ../src/main.cpp
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/cmake-build-esp32doit-devkit-v1/CMakeFiles --progress-num=$(CMAKE_PROGRESS_4) "Building CXX object CMakeFiles/Z_DUMMY_TARGET.dir/src/main.cpp.obj"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --progress-dir=/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/cmake-build-esp32doit-devkit-v1/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Building CXX object CMakeFiles/Z_DUMMY_TARGET.dir/src/main.cpp.obj"
 	/Users/jazminferreiro/.platformio/packages/toolchain-xtensa32@2.50200.97/bin/xtensa-esp32-elf-g++  $(CXX_DEFINES) $(CXX_INCLUDES) $(CXX_FLAGS) -o CMakeFiles/Z_DUMMY_TARGET.dir/src/main.cpp.obj -c /Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/src/main.cpp
 
 CMakeFiles/Z_DUMMY_TARGET.dir/src/main.cpp.i: cmake_force
@@ -133,6 +146,7 @@ CMakeFiles/Z_DUMMY_TARGET.dir/src/main.cpp.s: cmake_force
 Z_DUMMY_TARGET_OBJECTS = \
 "CMakeFiles/Z_DUMMY_TARGET.dir/lib/Adxl/Adxl.cpp.obj" \
 "CMakeFiles/Z_DUMMY_TARGET.dir/lib/Ble/Ble.cpp.obj" \
+"CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.obj" \
 "CMakeFiles/Z_DUMMY_TARGET.dir/lib/Mpu/Mpu.cpp.obj" \
 "CMakeFiles/Z_DUMMY_TARGET.dir/src/main.cpp.obj"
 
@@ -141,11 +155,12 @@ Z_DUMMY_TARGET_EXTERNAL_OBJECTS =
 
 Z_DUMMY_TARGET: CMakeFiles/Z_DUMMY_TARGET.dir/lib/Adxl/Adxl.cpp.obj
 Z_DUMMY_TARGET: CMakeFiles/Z_DUMMY_TARGET.dir/lib/Ble/Ble.cpp.obj
+Z_DUMMY_TARGET: CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.obj
 Z_DUMMY_TARGET: CMakeFiles/Z_DUMMY_TARGET.dir/lib/Mpu/Mpu.cpp.obj
 Z_DUMMY_TARGET: CMakeFiles/Z_DUMMY_TARGET.dir/src/main.cpp.obj
 Z_DUMMY_TARGET: CMakeFiles/Z_DUMMY_TARGET.dir/build.make
 Z_DUMMY_TARGET: CMakeFiles/Z_DUMMY_TARGET.dir/link.txt
-	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/cmake-build-esp32doit-devkit-v1/CMakeFiles --progress-num=$(CMAKE_PROGRESS_5) "Linking CXX executable Z_DUMMY_TARGET"
+	@$(CMAKE_COMMAND) -E cmake_echo_color --switch=$(COLOR) --green --bold --progress-dir=/Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove/cmake-build-esp32doit-devkit-v1/CMakeFiles --progress-num=$(CMAKE_PROGRESS_6) "Linking CXX executable Z_DUMMY_TARGET"
 	$(CMAKE_COMMAND) -E cmake_link_script CMakeFiles/Z_DUMMY_TARGET.dir/link.txt --verbose=$(VERBOSE)
 
 # Rule to build all files generated by this target.

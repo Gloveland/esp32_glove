@@ -1,6 +1,7 @@
 file(REMOVE_RECURSE
   "CMakeFiles/Z_DUMMY_TARGET.dir/lib/Adxl/Adxl.cpp.obj"
   "CMakeFiles/Z_DUMMY_TARGET.dir/lib/Ble/Ble.cpp.obj"
+  "CMakeFiles/Z_DUMMY_TARGET.dir/lib/Movement/Movement.cpp.obj"
   "CMakeFiles/Z_DUMMY_TARGET.dir/lib/Mpu/Mpu.cpp.obj"
   "CMakeFiles/Z_DUMMY_TARGET.dir/src/main.cpp.obj"
   "Z_DUMMY_TARGET"
