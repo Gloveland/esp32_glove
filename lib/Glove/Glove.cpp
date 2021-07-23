@@ -35,7 +35,7 @@ Movement Glove::readMovement(const int eventCount) {
 
 string Glove::getChipId() {
   uint8_t chipid[6];
-  esp_efuse_read_mac(chipid);
+  esp_efuse_mac_get_default(chipid);
   char chipIdString[17];
   snprintf(chipIdString, 17, "%02x:%02x:%02x:%02x:%02x:%02x\n", chipid[0],
            chipid[1], chipid[2], chipid[3], chipid[4], chipid[5]);
