@@ -1,6 +1,6 @@
 #include "Movement.h"
 
-Movement::Movement(int num, string id, Hand hand)
+Movement::Movement(int num, string id, HandMov hand)
     : eventNum(num), deviceId(id), hand(hand) {}
 
 void Movement::send(WiFiClient client) {
@@ -25,7 +25,7 @@ void Movement::send(WiFiClient client) {
   delay(10);
 }
 
-JSONVar Movement::getFingerJson(Finger finger) {
+JSONVar Movement::getFingerJson(FingerMov finger) {
   JSONVar jsonAcc;
   jsonAcc["x"] = this->format(finger.acc.x).c_str();
   jsonAcc["y"] = this->format(finger.acc.y).c_str();

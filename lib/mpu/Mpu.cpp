@@ -8,21 +8,24 @@ float gyroX, gyroY, gyroZ;
 float roll, pitch, yaw;
 float degreesX, degreesY, degreesZ;
 
-Mpu::Mpu() {}
+Mpu::Mpu(int ad0, string name) {
+  this->ad0 = ad0;
+  this->name = name;
+}
 
-void Mpu::beginCommunication(){
+void Mpu::beginCommunication() {
   this->checkAddress(MPU_ADDRESS_OFF);
   digitalWrite(this->ad0, LOW);
   this->checkAddress(MPU_ADDRESS_ON);
 }
 
-void Mpu::endCommunication(){
+void Mpu::endCommunication() {
   this->checkAddress(MPU_ADDRESS_ON);
   digitalWrite(this->ad0, HIGH);
   this->checkAddress(MPU_ADDRESS_OFF);
 }
 
-void Mpu::checkAddress(int address){
+void Mpu::checkAddress(int address) {
   Wire.beginTransmission(address);
   byte error = Wire.endTransmission();
   if (error != 0) {
@@ -43,13 +46,10 @@ void Mpu::checkAddress(int address){
   assert(error == 0);
 }
 
-
-void Mpu::init(int ad0, string name) {
-  this->ad0 = ad0;
-  this->name = name;
+void Mpu::init() {
   this->beginCommunication();
   Wire.beginTransmission(MPU_ADDRESS_ON);  // Start communication with MPU6050
-  Wire.write(0x6B);                   // Talk to the register 6B
+  Wire.write(0x6B);                        // Talk to the register 6B
   Wire.write(0x00);            // Make reset - place a 0 into the 6B register
   Wire.endTransmission(true);  // end the transmission
 
@@ -76,7 +76,7 @@ void Mpu::init(int ad0, string name) {
   register bits as 00010000 (1000deg/s full scale) Wire.endTransmission(true);
   delay(20);
   */
- this->endCommunication();
+  this->endCommunication();
 }
 
 void Mpu::calibrate() {
@@ -213,13 +213,12 @@ void Mpu::calibrate() {
   this->endCommunication();
 }
 
-
-Finger Mpu::read() {
+FingerMov Mpu::read() {
   this->beginCommunication();
   Acceleration acc = this->readAcceleration();
   Gyro gyro = this->readGyro();
   Inclination inclination = this->readInclination(acc);
-  Finger result;
+  FingerMov result;
   result.acc = acc;
   result.gyro = gyro;
   result.inclination = inclination;
@@ -232,8 +231,9 @@ Acceleration Mpu::readAcceleration() {
   Wire.beginTransmission(MPU_ADDRESS_ON);
   Wire.write(ACCEL_XOUT_H);  // Start with register 0x3B (ACCEL_XOUT_H)
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU_ADDRESS_ON, 6, true);  // Read 6 registers total, each axis value is
-                                   // stored in 2 registers
+  Wire.requestFrom(MPU_ADDRESS_ON, 6,
+                   true);  // Read 6 registers total, each axis value is
+                           // stored in 2 registers
 
   // For a range of +-2g, we need to divide the raw values by 16384, according
   // to the datasheet
@@ -270,8 +270,9 @@ Gyro Mpu::readGyro() {
   Wire.beginTransmission(MPU_ADDRESS_ON);
   Wire.write(GYRO_XOUT_H);  // Gyro data first register address 0x43
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU_ADDRESS_ON, 6, true);  // Read 4 registers total, each axis value is
-                                   // stored in 2 registers
+  Wire.requestFrom(MPU_ADDRESS_ON, 6,
+                   true);  // Read 4 registers total, each axis value is
+                           // stored in 2 registers
 
   // For a 250deg/s range we have to divide first the raw value by 131.0,
   // according to the datasheet

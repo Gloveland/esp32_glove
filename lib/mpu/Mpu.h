@@ -43,10 +43,10 @@ using namespace std;
 class Mpu {
 
  public:
-  Mpu();
-  void init(int ad0, string name);
+  Mpu(int ad0, string name);
+  void init();
   void calibrate();
-  Finger read();
+  FingerMov read();
   ~Mpu();
 
  private:

@@ -21,31 +21,31 @@ struct Inclination {
   float yaw;
 };
 
-struct Finger {
+struct FingerMov {
   Acceleration acc;
   Gyro gyro;
   Inclination inclination;
 };
 
-struct Hand {
-  Finger pinky;
-  // Finger ring;
-  // Finger middle;
-  // Finger index;
-  Finger thump;
+struct HandMov {
+  FingerMov pinky;
+  // FingerMov ring;
+  // FingerMov middle;
+  // FingerMov index;
+  FingerMov thump;
 };
 
 class Movement {
  public:
-  Movement(int event_num, string deviceId, Hand hand);
+  Movement(int event_num, string deviceId, HandMov hand);
   void send(WiFiClient client);
   ~Movement();
 
  private:
   int eventNum;
   string deviceId;
-  Hand hand;
-  JSONVar getFingerJson(Finger finger);
+  HandMov hand;
+  JSONVar getFingerJson(FingerMov finger);
   string format(float measurement);
 };
 

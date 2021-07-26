@@ -1,23 +1,21 @@
 //#include <Adxl.h>
 //#include <Ble.h>
-#include <Utils.h>
 #include <Glove.h>
 #include <Movement.h>
+#include <Utils.h>
 #include <WiFi.h>
 
 using namespace std;
-#define SSID "Ensalada tomate y cebolla" //"GAP Ocampo"   //"BULL SHIP";
-#define PASSWORD "greta2012" //"eribri11"   //"eribri11";
+#define SSID "Ensalada tomate y cebolla"  //"GAP Ocampo"   //"BULL SHIP";
+#define PASSWORD "greta2012"              //"eribri11"   //"eribri11";
 WiFiServer wifiServer(8080);
 WiFiClient client;
 int eventCount;
 Glove glove;
 
-
-
 void setup() {
   Serial.begin(9600);
-  
+  /*
   WiFi.begin(SSID, PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
@@ -26,6 +24,7 @@ void setup() {
   Serial.print("Connected to the WiFi network: ");
   Serial.print(WiFi.localIP());
   wifiServer.begin();
+  */
 
   glove.init();
   eventCount = 0;
@@ -33,8 +32,10 @@ void setup() {
 }
 
 void loop() {  // loop() runs on core 1
+  glove.readMovement(eventCount);
 
   Serial.println("...............................................");
+  /*
   Serial.println("waiting for new connection");
   client = wifiServer.available();
   if (client) {
@@ -50,5 +51,6 @@ void loop() {  // loop() runs on core 1
     eventCount = 0;
     Serial.println("Client disconnected");
   }
+  */
   delay(500);
 }

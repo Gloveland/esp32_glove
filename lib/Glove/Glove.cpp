@@ -1,8 +1,7 @@
 #include <Glove.h>
 
-Glove::Glove() { this->chipId = this->getChipId(); }
-
-void Glove::init() {
+Glove::Glove(): pinkySensor(PINKY, "pinky"), thumpSensor(THUMP, "thump"){ 
+  this->chipId = this->getChipId(); 
   pinMode(PINKY, OUTPUT);
   digitalWrite(PINKY, HIGH);
   // pinMode(RING, OUTPUT);
@@ -13,11 +12,11 @@ void Glove::init() {
   // digitalWrite(INDEX, HIGH);
   pinMode(THUMP, OUTPUT);
   digitalWrite(THUMP, HIGH);
-
   Wire.begin(I2C_SDA, I2C_SCL);  // Initialize  i2c bus comunication
-  pinkySensor.init(PINKY, "pinky");
-  //
-  thumpSensor.init(THUMP, "thump");
+}
+
+void Glove::init() {
+  
   Serial.println();
   Serial.print(
       "Type key when all sensors are placed over an horizontal plane:");
@@ -34,9 +33,9 @@ void Glove::init() {
 }
 
 Movement Glove::readMovement(const int eventCount) {
-  Finger pinky = pinkySensor.read();
-  Finger thump = thumpSensor.read();
-  Hand hand = {
+  FingerMov pinky = pinkySensor.read();
+  FingerMov thump = thumpSensor.read();
+  HandMov hand = {
       .pinky = pinky,
       .thump = thump,
   };
