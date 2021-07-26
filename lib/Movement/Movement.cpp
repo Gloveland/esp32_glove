@@ -1,53 +1,55 @@
-//
-// Created by Jazmin Ferreiro on 22/07/2021.
-//
-
 #include "Movement.h"
-Movement::Movement(int num, string id, Hand hand) :
-    eventNum(num),
-    deviceId(id),
-    hand(hand) {
 
-}
+Movement::Movement(int num, string id, Hand hand)
+    : eventNum(num), deviceId(id), hand(hand) {}
+
 void Movement::send(WiFiClient client) {
-  const int buffer_size =
-      1 + snprintf(NULL, 0, FORMATTED_JSON_MEASUREMENT,
-                   this->deviceId.c_str(),
-                   this->eventNum, this->hand.thump.acc.x, this->hand.thump.acc.y,
-                   this->hand.thump.acc.z, this->hand.thump.gyro.x,
-                   this->hand.thump.gyro.y, this->hand.thump.gyro.z,
-                   this->hand.thump.inclination.roll,
-                   this->hand.thump.inclination.pitch,
-                   this->hand.thump.inclination.yaw);
-  Serial.print("  buffer_size: ");
-  Serial.
-      print(buffer_size);
-  assert(buffer_size
-             > 0);
-  char package[buffer_size];
-  int size_written = snprintf(
-      package, buffer_size, FORMATTED_JSON_MEASUREMENT,
-      this->deviceId.c_str(),
-      this->eventNum, this->hand.thump.acc.x, this->hand.thump.acc.y,
-      this->hand.thump.acc.z, this->hand.thump.gyro.x,
-      this->hand.thump.gyro.y, this->hand.thump.gyro.z,
-      this->hand.thump.inclination.roll,
-      this->hand.thump.inclination.pitch,
-      this->hand.thump.inclination.yaw);
-  assert(size_written
-             == buffer_size - 1);
-  Serial.print("  size_written: ");
-  Serial.
-      print(size_written);
+  JSONVar jsonHand;
+  //jsonHand["index"] = this->getFingerJson(this->hand.index);
+  //jsonHand["middle"] = this->getFingerJson(this->hand.middle);
+  //jsonHand["ring"] = this->getFingerJson(this->hand.ring);
+  //jsonHand["pinky"] = this->getFingerJson(this->hand.pinky);
+  JSONVar thump = this->getFingerJson(this->hand.thump);
+
+  jsonHand["thump"] = thump;
+  JSONVar jsonMovement;
+  jsonMovement["device_id"] = this->deviceId.c_str();
+  jsonMovement["event_num"] = this->eventNum;
+  jsonMovement["hand"] = jsonHand;
   Serial.print("  sending value via wifi: ");
-  Serial.
-      println(package);
-  int bytes_sent = client.write(package, size_written);
+  String jsonString = JSON.stringify(jsonMovement);
+  Serial.println(jsonString);
+  int bytes_sent = client.write(jsonString.c_str(), jsonString.length());
   Serial.print("bytes_sent: ");
   Serial.println(bytes_sent);
   delay(10);
 }
 
-Movement::~Movement() {
-
+JSONVar Movement::getFingerJson(Finger finger) {
+  JSONVar jsonAcc;
+  jsonAcc["x"] = this->format(finger.acc.x).c_str();
+  jsonAcc["y"] = this->format(finger.acc.y).c_str();
+  jsonAcc["z"] = this->format(finger.acc.z).c_str();
+  JSONVar jsonGyro;
+  jsonGyro["x"] = this->format(finger.gyro.x).c_str();
+  jsonGyro["y"] = this->format(finger.gyro.y).c_str();
+  jsonGyro["z"] = this->format(finger.gyro.z).c_str();
+  JSONVar jsonInclination;
+  jsonInclination["roll"] = this->format(finger.inclination.roll).c_str();
+  jsonInclination["pith"] = this->format(finger.inclination.pitch).c_str();
+  jsonInclination["yaw"] = this->format(finger.inclination.yaw).c_str();
+  JSONVar jsonFinger;
+  jsonFinger["acc"] = jsonAcc;
+  jsonFinger["gyro"] = jsonGyro;
+  jsonFinger["inclination"] = jsonInclination;
+  return jsonFinger;
 }
+
+string Movement::format(float measurement) {
+  const int size = 1 + snprintf(NULL, 0, "%.3f", measurement);
+  char buff[size];
+  snprintf(buff, size, "%.3f", measurement);
+  return buff;
+}
+
+Movement::~Movement() {}

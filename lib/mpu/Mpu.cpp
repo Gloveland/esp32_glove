@@ -8,43 +8,82 @@ float gyroX, gyroY, gyroZ;
 float roll, pitch, yaw;
 float degreesX, degreesY, degreesZ;
 
-Mpu::Mpu() {
+Mpu::Mpu() {}
 
+void Mpu::beginCommunication(){
+  this->checkAddress(MPU_ADDRESS_OFF);
+  digitalWrite(this->ad0, LOW);
+  this->checkAddress(MPU_ADDRESS_ON);
 }
 
-void Mpu::init(int sda, int scl) {
-  Wire.begin(sda, scl);                      // Initialize comunication
+void Mpu::endCommunication(){
+  this->checkAddress(MPU_ADDRESS_ON);
+  digitalWrite(this->ad0, HIGH);
+  this->checkAddress(MPU_ADDRESS_OFF);
+}
 
-  Wire.beginTransmission(this->MPU);       // Start communication with MPU6050 // MPU=0x68
-  Wire.write(0x6B);                       // Talk to the register 6B
-  Wire.write(0x00);                      // Make reset - place a 0 into the 6B register
-  Wire.endTransmission(true);           //end the transmission
+void Mpu::checkAddress(int address){
+  Wire.beginTransmission(address);
+  byte error = Wire.endTransmission();
+  if (error != 0) {
+    Serial.print("Error checking address: ");
+    Serial.print(" 0x");
+    if (address < 16) {
+      Serial.print("0");
+    }
+    Serial.print(address, HEX);
+    if (error == 1) {
+      Serial.print(" Data too long to fit in transmit buffer. ");
+      Serial.println(" Is i2c bus initialize?");
+    }
+    if (error == 4) {
+      Serial.println(" Unknow error");
+    }
+  }
+  assert(error == 0);
+}
+
+
+void Mpu::init(int ad0, string name) {
+  this->ad0 = ad0;
+  this->name = name;
+  this->beginCommunication();
+  Wire.beginTransmission(MPU_ADDRESS_ON);  // Start communication with MPU6050
+  Wire.write(0x6B);                   // Talk to the register 6B
+  Wire.write(0x00);            // Make reset - place a 0 into the 6B register
+  Wire.endTransmission(true);  // end the transmission
 
   /*
   // Configure Accelerometer Sensitivity - Full Scale Range (default +/- 2g)
-  Wire.beginTransmission(MPU);
-  Wire.write(ACC_CONFIG_REGISTER);                  //Talk to the ACCEL_CONFIG register (1C hex)
-  Wire.write(MPU6050_RANGE_2_G);                  //Set the register bits as 00010000 = 0x10 (+/- 8g full scale range)
+  Wire.beginTransmission(MPU_ADDRESS_ON);
+  Wire.write(ACC_CONFIG_REGISTER);                  //Talk to the ACCEL_CONFIG
+  register (1C hex) Wire.write(MPU6050_RANGE_2_G);                  //Set the
+  register bits as 00010000 = 0x10 (+/- 8g full scale range)
   Wire.endTransmission(true);
   delay(20);
 
   // Configure Gyro Sensitivity - Full Scale Range (default +/- 250deg/s)
-  Wire.beginTransmission(MPU);
-  Wire.write(GYRO_CONFIG_REGISTER);                   // Talk to the GYRO_CONFIG register (1B hex)
-  Wire.write(MPU6050_RANGE_250_DEG);                   // Set the register bits as 00010000 (1000deg/s full scale)
+  Wire.beginTransmission(MPU_ADDRESS_ON);
+  Wire.write(GYRO_CONFIG_REGISTER);                   // Talk to the GYRO_CONFIG
+  register (1B hex) Wire.write(MPU6050_RANGE_250_DEG);                   // Set
+  the register bits as 00010000 (1000deg/s full scale)
   Wire.endTransmission(true);
   delay(20);
 
-  Wire.beginTransmission(MPU);
-  Wire.write(GENERAL_CONFIG);                   // Talk to the GYRO_CONFIG register (1B hex)
-  Wire.write(MPU6050_BAND_21_HZ);                   // Set the register bits as 00010000 (1000deg/s full scale)
-  Wire.endTransmission(true);
+  Wire.beginTransmission(MPU_ADDRESS_ON);
+  Wire.write(GENERAL_CONFIG);                   // Talk to the GYRO_CONFIG
+  register (1B hex) Wire.write(MPU6050_BAND_21_HZ);                   // Set the
+  register bits as 00010000 (1000deg/s full scale) Wire.endTransmission(true);
   delay(20);
   */
+ this->endCommunication();
 }
 
 void Mpu::calibrate() {
-  Serial.println("===================== Calibrating MPU6050 ====================");
+  this->beginCommunication();
+
+  Serial.println(
+      "===================== Calibrating MPU6050 ====================");
 
   float accX, accY, accZ;
   this->AccErrorX = 0.0;
@@ -55,10 +94,10 @@ void Mpu::calibrate() {
   int times = 100.0;
   for (int i = 0; i <= times; i++) {
     Serial.print(".");
-    Wire.beginTransmission(MPU);
+    Wire.beginTransmission(MPU_ADDRESS_ON);
     Wire.write(ACCEL_XOUT_H);
     Wire.endTransmission(false);
-    Wire.requestFrom(MPU, 6, true);
+    Wire.requestFrom(MPU_ADDRESS_ON, 6, true);
     rawAccX = (Wire.read() << 8 | Wire.read());
     rawAccY = (Wire.read() << 8 | Wire.read());
     rawAccZ = (Wire.read() << 8 | Wire.read());
@@ -71,11 +110,13 @@ void Mpu::calibrate() {
     this->AccErrorY = this->AccErrorY + accY;
     this->AccErrorZ = this->AccErrorZ + (accZ - GRAVITY_EARTH);
     // Sum all readings
-    this->AccAngleErrorX = this->AccAngleErrorX + this->calculateAccAngleX(accX, accY, accZ);
-    this->AccAngleErrorY = this->AccAngleErrorY + this->calculateAccAngleX(accX, accY, accZ);
+    this->AccAngleErrorX =
+        this->AccAngleErrorX + this->calculateAccAngleX(accX, accY, accZ);
+    this->AccAngleErrorY =
+        this->AccAngleErrorY + this->calculateAccAngleX(accX, accY, accZ);
     delay(20);
   }
-  //Divide the sum by 200 to get the error value
+  // Divide the sum by 200 to get the error value
   this->AccErrorX = this->AccErrorX / times;
   this->AccErrorY = this->AccErrorY / times;
   this->AccErrorZ = this->AccErrorZ / times;
@@ -106,10 +147,10 @@ void Mpu::calibrate() {
   this->GyroErrorZ = 0.0;
   for (int i = 0; i <= times; i++) {
     Serial.print(".");
-    Wire.beginTransmission(MPU);
+    Wire.beginTransmission(MPU_ADDRESS_ON);
     Wire.write(GYRO_XOUT_H);
     Wire.endTransmission(false);
-    Wire.requestFrom(MPU, 6, true);
+    Wire.requestFrom(MPU_ADDRESS_ON, 6, true);
     rawGyroX = Wire.read() << 8 | Wire.read();
     rawGyroY = Wire.read() << 8 | Wire.read();
     rawGyroZ = Wire.read() << 8 | Wire.read();
@@ -169,10 +210,12 @@ void Mpu::calibrate() {
   Serial.println(this->DeviationY);
   Serial.print("DeviationZ: ");
   Serial.println(this->DeviationZ);
-
+  this->endCommunication();
 }
 
+
 Finger Mpu::read() {
+  this->beginCommunication();
   Acceleration acc = this->readAcceleration();
   Gyro gyro = this->readGyro();
   Inclination inclination = this->readInclination(acc);
@@ -180,49 +223,58 @@ Finger Mpu::read() {
   result.acc = acc;
   result.gyro = gyro;
   result.inclination = inclination;
+  this->endCommunication();
   return result;
 }
 
 Acceleration Mpu::readAcceleration() {
   // === Read acceleromter data === //
-  Wire.beginTransmission(MPU);
-  Wire.write(ACCEL_XOUT_H); // Start with register 0x3B (ACCEL_XOUT_H)
+  Wire.beginTransmission(MPU_ADDRESS_ON);
+  Wire.write(ACCEL_XOUT_H);  // Start with register 0x3B (ACCEL_XOUT_H)
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU, 6, true); // Read 6 registers total, each axis value is stored in 2 registers
+  Wire.requestFrom(MPU_ADDRESS_ON, 6, true);  // Read 6 registers total, each axis value is
+                                   // stored in 2 registers
 
-  //For a range of +-2g, we need to divide the raw values by 16384, according to the datasheet
-  rawAccX = (Wire.read() << 8 | Wire.read()); // X-axis value
-  rawAccY = (Wire.read() << 8 | Wire.read()); // Y-axis value
-  rawAccZ = (Wire.read() << 8 | Wire.read()); // Z-axis value
+  // For a range of +-2g, we need to divide the raw values by 16384, according
+  // to the datasheet
+  rawAccX = (Wire.read() << 8 | Wire.read());  // X-axis value
+  rawAccY = (Wire.read() << 8 | Wire.read());  // Y-axis value
+  rawAccZ = (Wire.read() << 8 | Wire.read());  // Z-axis value
 
   accX = (rawAccX / 16384.0) * GRAVITY_EARTH - this->AccErrorX;
   accY = (rawAccY / 16384.0) * GRAVITY_EARTH - this->AccErrorY;
   accZ = (rawAccZ / 16384.0) * GRAVITY_EARTH - this->AccErrorZ;
-  /*
+
+  Serial.print(name.c_str());
   Serial.print("   aX: ");
   Serial.print(accX);
   Serial.print("   aY: ");
   Serial.print(accY);
   Serial.print("   aZ: ");
-  Serial.print(accZ);Serial.print(",");
-  Serial.print("   m/(seg)^2    ");
-  */
+  Serial.print(accZ);
+  Serial.print(",");
+  Serial.println("   m/(seg)^2    ");
+
   Acceleration acc = {accX, accY, accZ};
   return acc;
 }
 
 Gyro Mpu::readGyro() {
   // === Read gyroscope data === //
-  this->PreviousTime = this->CurrentTime;        // Previous time is stored before the actual time read
-  this->CurrentTime = millis();            // Current time actual time read
-  this->ElapsedTime = (this->CurrentTime - this->PreviousTime) / 1000; // Divide by 1000 to get seconds
+  this->PreviousTime =
+      this->CurrentTime;  // Previous time is stored before the actual time read
+  this->CurrentTime = millis();  // Current time actual time read
+  this->ElapsedTime = (this->CurrentTime - this->PreviousTime) /
+                      1000;  // Divide by 1000 to get seconds
 
-  Wire.beginTransmission(MPU);
-  Wire.write(GYRO_XOUT_H); // Gyro data first register address 0x43
+  Wire.beginTransmission(MPU_ADDRESS_ON);
+  Wire.write(GYRO_XOUT_H);  // Gyro data first register address 0x43
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU, 6, true); // Read 4 registers total, each axis value is stored in 2 registers
+  Wire.requestFrom(MPU_ADDRESS_ON, 6, true);  // Read 4 registers total, each axis value is
+                                   // stored in 2 registers
 
-  // For a 250deg/s range we have to divide first the raw value by 131.0, according to the datasheet
+  // For a 250deg/s range we have to divide first the raw value by 131.0,
+  // according to the datasheet
   rawGyroX = (Wire.read() << 8 | Wire.read());
   rawGyroY = (Wire.read() << 8 | Wire.read());
   rawGyroZ = (Wire.read() << 8 | Wire.read());
@@ -231,7 +283,8 @@ Gyro Mpu::readGyro() {
   gyroY = (rawGyroY / 131.0);
   gyroZ = (rawGyroZ / 131.0);
 
-  //Si la diferencia absoluta entre esta medicion y la anterior es menor a la desviacion maxima lo desestimo.
+  // Si la diferencia absoluta entre esta medicion y la anterior es menor a la
+  // desviacion maxima lo desestimo.
   if (abs(this->PrevGyroX - gyroX) > this->DeviationX) {
     this->GyroX = gyroX - this->GyroErrorX;
   }
@@ -262,14 +315,18 @@ Gyro Mpu::readGyro() {
 
 Inclination Mpu::readInclination(Acceleration acc) {
   // Calculating Roll and Pitch from the accelerometer data
-  accAngleX = this->calculateAccAngleX(acc.x, acc.y, acc.z) - this->AccAngleErrorX; //from calibration
-  accAngleY = this->calculateAccAngleY(acc.x, acc.y, acc.z) - this->AccAngleErrorY;
+  accAngleX = this->calculateAccAngleX(acc.x, acc.y, acc.z) -
+              this->AccAngleErrorX;  // from calibration
+  accAngleY =
+      this->calculateAccAngleY(acc.x, acc.y, acc.z) - this->AccAngleErrorY;
 
-  //Serial.print("   accAngleX: ");Serial.print(accAngleX );
-  //Serial.print("   accAngleY: ");Serial.print(accAngleY );
+  // Serial.print("   accAngleX: ");Serial.print(accAngleX );
+  // Serial.print("   accAngleY: ");Serial.print(accAngleY );
 
-  // Currently the raw values are in degrees per seconds, deg/s, so we need to multiply by sendonds (s) to get the angle in degrees
-  this->GyroAngleX = this->GyroAngleX + this->GyroX * this->ElapsedTime; // deg/s * s = deg
+  // Currently the raw values are in degrees per seconds, deg/s, so we need to
+  // multiply by sendonds (s) to get the angle in degrees
+  this->GyroAngleX =
+      this->GyroAngleX + this->GyroX * this->ElapsedTime;  // deg/s * s = deg
   this->GyroAngleY = this->GyroAngleY + this->GyroY * this->ElapsedTime;
   this->GyroAngleZ = this->GyroAngleZ + this->GyroZ * this->ElapsedTime;
 
@@ -279,7 +336,7 @@ Inclination Mpu::readInclination(Acceleration acc) {
   Serial.print("   degZ: ");Serial.print(this->GyroAngleZ);
   */
 
-  //ajustamos el angulo de inclinacion con la aceleracion
+  // ajustamos el angulo de inclinacion con la aceleracion
   if (abs(accAngleX - this->GyroAngleX) > 5.0) {
     this->GyroAngleX = accAngleX;
   }
@@ -302,9 +359,7 @@ Inclination Mpu::readInclination(Acceleration acc) {
   return inclination;
 }
 
-float Mpu::readTemperature() {
-  return 0.0;
-}
+float Mpu::readTemperature() { return 0.0; }
 
 float Mpu::calculateAccAngleX(float accX, float accY, float accZ) {
   return (atan(accY / sqrt(pow(accX, 2) + pow(accZ, 2))) * 180 / PI);
@@ -314,6 +369,4 @@ float Mpu::calculateAccAngleY(float accX, float accY, float accZ) {
   return (atan(-1 * accX / sqrt(pow(accY, 2) + pow(accZ, 2))) * 180 / PI);
 }
 
-Mpu::~Mpu() {
-
-}
+Mpu::~Mpu() {}

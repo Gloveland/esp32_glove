@@ -1,20 +1,15 @@
 #ifndef GLOVE_H
 #define GLOVE_H
 
-#define I2C_SCL_PINKY 27 /* gris */
-#define I2C_SDA_PINKY 26 /* violeta */
 
-#define I2C_SCL_RING 33 /* azul */
-#define I2C_SDA_RING 32 /* verde */
+#define I2C_SCL 22 
+#define I2C_SDA 21 
 
-#define I2C_SCL_MIDDLE 25 /* amarillo */
-#define I2C_SDA_MIDDLE 23 /* naranja */
-
-#define I2C_SCL_INDEX 19 /* azul */
-#define I2C_SDA_INDEX 18 /* verde */
-
-#define I2C_SCL_THUMB 22 /* amarillo */
-#define I2C_SDA_THUMB 21 /* naranja */
+#define PINKY 17 
+#define RING  27
+#define MIDDLE 26 
+#define INDEX 32 
+#define THUMP 33 
 
 #include <Movement.h>
 #include <Mpu.h>
@@ -28,7 +23,7 @@ class Glove {
 
  private:
   string chipId;
-  // Mpu pinkySensor;
+  Mpu pinkySensor;
   // Mpu ringSensor;
   // Mpu middleSensor;
   // Mpu indexSensor;

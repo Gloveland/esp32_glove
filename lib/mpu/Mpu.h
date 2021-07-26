@@ -5,6 +5,7 @@
 #include <Wire.h>
 #include <float.h>
 #include <Movement.h>
+using namespace std;
 
 #define GRAVITY_EARTH 9.80665F
 
@@ -35,17 +36,22 @@
 #define ACCEL_XOUT_H 0x3B
 #define GYRO_XOUT_H 0x43
 
+#define MPU_ADDRESS_ON 0x68
+#define MPU_ADDRESS_OFF 0x69
+
+
 class Mpu {
 
  public:
   Mpu();
-  void init(int sda, int scl);
+  void init(int ad0, string name);
   void calibrate();
   Finger read();
   ~Mpu();
 
  private:
-  const int MPU = 0x68;
+  string name;
+  int ad0;
   float AccErrorX, AccErrorY, AccErrorZ;
   float AccAngleErrorX, AccAngleErrorY;
   float GyroErrorX, GyroErrorY, GyroErrorZ;
@@ -55,6 +61,9 @@ class Mpu {
   float DegreesDeviationX, DegreesDeviationY, DegreesDeviationZ;
   float PreviousTime, CurrentTime, ElapsedTime;
   float GyroAngleX, GyroAngleY, GyroAngleZ;
+  void beginCommunication();
+  void endCommunication();
+  void checkAddress(int address);
   Acceleration readAcceleration();
   Gyro readGyro();
   Inclination readInclination(Acceleration acc);

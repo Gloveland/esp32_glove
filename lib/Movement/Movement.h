@@ -1,17 +1,8 @@
-//
-// Created by Jazmin Ferreiro on 22/07/2021.
-//
 
 #ifndef MOVEMENT_H_
 #define MOVEMENT_H_
 
-#define FORMATTED_JSON_MEASUREMENT                                            \
-  "{\"device_id\":\"%s\", \"event_num\":%d, \"hand\": { \"thump\": { "        \
-  "\"acc\": { \"x\":%.3f, \"y\":%.3f, \"z\":%.3f }, \"gyro\": { \"x\":%.3f, " \
-  "\"y\":%.3f, \"z\":%.3f }, \"inclination\": { \"roll\":%.3f, "              \
-  "\"pitch\":%.3f, \"yaw\":%.3f } } } }\n"
-
-
+#include <Arduino_JSON.h>
 #include <WiFi.h>
 
 using namespace std;
@@ -37,16 +28,15 @@ struct Finger {
 };
 
 struct Hand {
+  Finger pinky;
+  // Finger ring;
+  // Finger middle;
+  // Finger index;
   Finger thump;
-  //Finger index;
-  //Finger middle;
-  //Finger ring;
-  //Finger pinky;
 };
 
 class Movement {
  public:
-
   Movement(int event_num, string deviceId, Hand hand);
   void send(WiFiClient client);
   ~Movement();
@@ -55,7 +45,8 @@ class Movement {
   int eventNum;
   string deviceId;
   Hand hand;
+  JSONVar getFingerJson(Finger finger);
+  string format(float measurement);
 };
 
-#endif //MOVEMENT_H_
-
+#endif  // MOVEMENT_H_

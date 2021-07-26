@@ -3,21 +3,30 @@
 Glove::Glove() { this->chipId = this->getChipId(); }
 
 void Glove::init() {
-  // pinkySensor.init(I2C_SDA_PINKY, I2C_SCL_PINKY);
-  // ringSensor.init(I2C_SDA_RING, I2C_SCL_RING);
-  // middleSensor.init(I2C_SDA_MIDDLE, I2C_SCL_MIDDLE);
-  // indexSensor.init(I2C_SDA_INDEX, I2C_SCL_INDEX);
-  thumpSensor.init(I2C_SDA_THUMB, I2C_SCL_THUMB);
+  pinMode(PINKY, OUTPUT);
+  digitalWrite(PINKY, HIGH);
+  // pinMode(RING, OUTPUT);
+  // digitalWrite(RING, HIGH);
+  // pinMode(MIDDLE, OUTPUT);
+  // digitalWrite(MIDDLE, HIGH);
+  // pinMode(INDEX, OUTPUT);
+  // digitalWrite(INDEX, HIGH);
+  pinMode(THUMP, OUTPUT);
+  digitalWrite(THUMP, HIGH);
 
+  Wire.begin(I2C_SDA, I2C_SCL);  // Initialize  i2c bus comunication
+  pinkySensor.init(PINKY, "pinky");
+  //
+  thumpSensor.init(THUMP, "thump");
   Serial.println();
-  Serial.println(
-      "Type key when all sensors are placed over an horizontal plane:"
-      " X = 0g, Y = 0g, Z = +1g orientation");
+  Serial.print(
+      "Type key when all sensors are placed over an horizontal plane:");
+  Serial.println(" X = 0g, Y = 0g, Z = +1g orientation");
   while (!Serial.available()) {
     // wait for a character
   }
   // === Calibration === //
-  // pinkySensor.calibrate();
+  pinkySensor.calibrate();
   // ringSensor.calibrate();
   // middleSensor.calibrate();
   // indexSensor.calibrate();
@@ -25,8 +34,10 @@ void Glove::init() {
 }
 
 Movement Glove::readMovement(const int eventCount) {
+  Finger pinky = pinkySensor.read();
   Finger thump = thumpSensor.read();
   Hand hand = {
+      .pinky = pinky,
       .thump = thump,
   };
   Movement mov(eventCount, this->chipId, hand);
