@@ -213,12 +213,12 @@ void Mpu::calibrate() {
   this->endCommunication();
 }
 
-FingerMov Mpu::read() {
+SensorMeasurement Mpu::read() {
   this->beginCommunication();
   Acceleration acc = this->readAcceleration();
   Gyro gyro = this->readGyro();
   Inclination inclination = this->readInclination(acc);
-  FingerMov result;
+  SensorMeasurement result;
   result.acc = acc;
   result.gyro = gyro;
   result.inclination = inclination;

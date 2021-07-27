@@ -9,7 +9,7 @@
 #define RING  27
 #define MIDDLE 26 
 #define INDEX 32 
-#define THUMP 33 
+#define THUMB 33 
 
 #include <Movement.h>
 #include <Mpu.h>
@@ -27,7 +27,7 @@ class Glove {
   // Mpu ringSensor;
   // Mpu middleSensor;
   // Mpu indexSensor;
-  Mpu thumpSensor;
+  Mpu thumbSensor;
   string getChipId();
 };
 

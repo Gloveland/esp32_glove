@@ -5,13 +5,13 @@ Movement::Movement(int num, string id, HandMov hand)
 
 void Movement::send(WiFiClient client) {
   JSONVar jsonHand;
-  //jsonHand["index"] = this->getFingerJson(this->hand.index);
-  //jsonHand["middle"] = this->getFingerJson(this->hand.middle);
-  //jsonHand["ring"] = this->getFingerJson(this->hand.ring);
-  //jsonHand["pinky"] = this->getFingerJson(this->hand.pinky);
-  JSONVar thump = this->getFingerJson(this->hand.thump);
+  // jsonHand["index"] = this->getFingerJson(this->hand.index);
+  // jsonHand["middle"] = this->getFingerJson(this->hand.middle);
+  // jsonHand["ring"] = this->getFingerJson(this->hand.ring);
+  // jsonHand["pinky"] = this->getFingerJson(this->hand.pinky);
+  JSONVar thumb = this->measurementToJSON(this->hand.thumb);
 
-  jsonHand["thump"] = thump;
+  jsonHand["thumb"] = thumb;
   JSONVar jsonMovement;
   jsonMovement["device_id"] = this->deviceId.c_str();
   jsonMovement["event_num"] = this->eventNum;
@@ -25,19 +25,22 @@ void Movement::send(WiFiClient client) {
   delay(10);
 }
 
-JSONVar Movement::getFingerJson(FingerMov finger) {
+JSONVar Movement::measurementToJSON(SensorMeasurement sensorMeasurement) {
   JSONVar jsonAcc;
-  jsonAcc["x"] = this->format(finger.acc.x).c_str();
-  jsonAcc["y"] = this->format(finger.acc.y).c_str();
-  jsonAcc["z"] = this->format(finger.acc.z).c_str();
+  jsonAcc["x"] = this->format(sensorMeasurement.acc.x).c_str();
+  jsonAcc["y"] = this->format(sensorMeasurement.acc.y).c_str();
+  jsonAcc["z"] = this->format(sensorMeasurement.acc.z).c_str();
   JSONVar jsonGyro;
-  jsonGyro["x"] = this->format(finger.gyro.x).c_str();
-  jsonGyro["y"] = this->format(finger.gyro.y).c_str();
-  jsonGyro["z"] = this->format(finger.gyro.z).c_str();
+  jsonGyro["x"] = this->format(sensorMeasurement.gyro.x).c_str();
+  jsonGyro["y"] = this->format(sensorMeasurement.gyro.y).c_str();
+  jsonGyro["z"] = this->format(sensorMeasurement.gyro.z).c_str();
   JSONVar jsonInclination;
-  jsonInclination["roll"] = this->format(finger.inclination.roll).c_str();
-  jsonInclination["pith"] = this->format(finger.inclination.pitch).c_str();
-  jsonInclination["yaw"] = this->format(finger.inclination.yaw).c_str();
+  jsonInclination["roll"] =
+      this->format(sensorMeasurement.inclination.roll).c_str();
+  jsonInclination["pith"] =
+      this->format(sensorMeasurement.inclination.pitch).c_str();
+  jsonInclination["yaw"] =
+      this->format(sensorMeasurement.inclination.yaw).c_str();
   JSONVar jsonFinger;
   jsonFinger["acc"] = jsonAcc;
   jsonFinger["gyro"] = jsonGyro;

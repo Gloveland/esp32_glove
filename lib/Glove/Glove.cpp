@@ -1,7 +1,7 @@
 #include <Glove.h>
 
-Glove::Glove(): pinkySensor(PINKY, "pinky"), thumpSensor(THUMP, "thump"){ 
-  this->chipId = this->getChipId(); 
+Glove::Glove() : pinkySensor(PINKY, "pinky"), thumbSensor(THUMB, "thumb") {
+  this->chipId = this->getChipId();
   pinMode(PINKY, OUTPUT);
   digitalWrite(PINKY, HIGH);
   // pinMode(RING, OUTPUT);
@@ -10,13 +10,12 @@ Glove::Glove(): pinkySensor(PINKY, "pinky"), thumpSensor(THUMP, "thump"){
   // digitalWrite(MIDDLE, HIGH);
   // pinMode(INDEX, OUTPUT);
   // digitalWrite(INDEX, HIGH);
-  pinMode(THUMP, OUTPUT);
-  digitalWrite(THUMP, HIGH);
+  pinMode(THUMB, OUTPUT);
+  digitalWrite(THUMB, HIGH);
   Wire.begin(I2C_SDA, I2C_SCL);  // Initialize  i2c bus comunication
 }
 
 void Glove::init() {
-  
   Serial.println();
   Serial.print(
       "Type key when all sensors are placed over an horizontal plane:");
@@ -29,18 +28,18 @@ void Glove::init() {
   // ringSensor.calibrate();
   // middleSensor.calibrate();
   // indexSensor.calibrate();
-  thumpSensor.calibrate();
+  thumbSensor.calibrate();
 }
 
 Movement Glove::readMovement(const int eventCount) {
-  FingerMov pinky = pinkySensor.read();
-  FingerMov thump = thumpSensor.read();
+  SensorMeasurement pinky = pinkySensor.read();
+  SensorMeasurement thumb = thumbSensor.read();
   HandMov hand = {
       .pinky = pinky,
-      .thump = thump,
+      .thumb = thumb,
   };
-  Movement mov(eventCount, this->chipId, hand);
-  return mov;
+  Movement movement(eventCount, this->chipId, hand);
+  return movement;
 }
 
 string Glove::getChipId() {

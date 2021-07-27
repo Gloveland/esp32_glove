@@ -1,5 +1,3 @@
-//#include <Adxl.h>
-//#include <Ble.h>
 #include <Glove.h>
 #include <Movement.h>
 #include <Utils.h>

@@ -21,18 +21,18 @@ struct Inclination {
   float yaw;
 };
 
-struct FingerMov {
+struct SensorMeasurement {
   Acceleration acc;
   Gyro gyro;
   Inclination inclination;
 };
 
 struct HandMov {
-  FingerMov pinky;
-  // FingerMov ring;
-  // FingerMov middle;
-  // FingerMov index;
-  FingerMov thump;
+  SensorMeasurement pinky;
+  // SensorMeasurement ring;
+  // SensorMeasurement middle;
+  // SensorMeasurement index;
+  SensorMeasurement thumb;
 };
 
 class Movement {
@@ -45,7 +45,7 @@ class Movement {
   int eventNum;
   string deviceId;
   HandMov hand;
-  JSONVar getFingerJson(FingerMov finger);
+  JSONVar measurementToJSON(SensorMeasurement sensorMeasurement);
   string format(float measurement);
 };
 

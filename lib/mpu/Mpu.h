@@ -46,7 +46,7 @@ class Mpu {
   Mpu(int ad0, string name);
   void init();
   void calibrate();
-  FingerMov read();
+  SensorMeasurement read();
   ~Mpu();
 
  private:
