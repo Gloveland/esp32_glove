@@ -2,17 +2,16 @@
 #define GLOVE_H
 
 
-#define I2C_SCL 22 
-#define I2C_SDA 21 
-
-#define PINKY 17 
-#define RING  27
-#define MIDDLE 26 
-#define INDEX 32 
-#define THUMB 33 
-
 #include <Movement.h>
 #include <Mpu.h>
+
+enum mpuAddressPin { 
+  PINKY = 17, 
+  RING = 27, 
+  MIDDLE = 26, 
+  INDEX = 32 , 
+  THUMB = 33
+};
 
 class Glove {
  public:
@@ -22,6 +21,8 @@ class Glove {
   ~Glove();
 
  private:
+  const int I2C_SCL = 22;
+  const int I2C_SDA = 21;
   std::string  chipId;
   Mpu pinkySensor;
   // Mpu ringSensor;

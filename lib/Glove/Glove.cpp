@@ -1,6 +1,6 @@
 #include <Glove.h>
 
-Glove::Glove() : pinkySensor("pinky", PINKY), thumbSensor("thumb", THUMB) {
+Glove::Glove() : pinkySensor("pinky", mpuAddressPin::PINKY), thumbSensor("thumb", mpuAddressPin::THUMB) {
   this->chipId = this->getChipId();
   pinMode(PINKY, OUTPUT);
   digitalWrite(PINKY, HIGH);

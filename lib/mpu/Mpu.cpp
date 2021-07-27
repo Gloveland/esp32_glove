@@ -11,15 +11,15 @@ float degreesX, degreesY, degreesZ;
 Mpu::Mpu(const std::string name, const int ad0) : name(name), ad0(ad0){}
 
 void Mpu::beginCommunication() {
-  this->checkAddress(MPU_ADDRESS_OFF);
+  this->checkAddress(mpuAddress::_OFF);
   digitalWrite(this->ad0, LOW);
-  this->checkAddress(MPU_ADDRESS_ON);
+  this->checkAddress(mpuAddress::_ON);
 }
 
 void Mpu::endCommunication() {
-  this->checkAddress(MPU_ADDRESS_ON);
+  this->checkAddress(mpuAddress::_ON);
   digitalWrite(this->ad0, HIGH);
-  this->checkAddress(MPU_ADDRESS_OFF);
+  this->checkAddress(mpuAddress::_OFF);
 }
 
 void Mpu::checkAddress(int address) {
@@ -45,7 +45,7 @@ void Mpu::checkAddress(int address) {
 
 void Mpu::init() {
   this->beginCommunication();
-  Wire.beginTransmission(MPU_ADDRESS_ON);  // Start communication with MPU6050
+  Wire.beginTransmission(mpuAddress::_ON);  // Start communication with MPU6050
   Wire.write(0x6B);                        // Talk to the register 6B
   Wire.write(0x00);            // Make reset - place a 0 into the 6B register
   Wire.endTransmission(true);  // end the transmission
@@ -91,10 +91,10 @@ void Mpu::calibrate() {
   int times = 100.0;
   for (int i = 0; i <= times; i++) {
     Serial.print(".");
-    Wire.beginTransmission(MPU_ADDRESS_ON);
+    Wire.beginTransmission(mpuAddress::_ON);
     Wire.write(ACCEL_XOUT_H);
     Wire.endTransmission(false);
-    Wire.requestFrom(MPU_ADDRESS_ON, 6, true);
+    Wire.requestFrom(mpuAddress::_ON, 6, true);
     rawAccX = (Wire.read() << 8 | Wire.read());
     rawAccY = (Wire.read() << 8 | Wire.read());
     rawAccZ = (Wire.read() << 8 | Wire.read());
@@ -144,10 +144,10 @@ void Mpu::calibrate() {
   this->GyroErrorZ = 0.0;
   for (int i = 0; i <= times; i++) {
     Serial.print(".");
-    Wire.beginTransmission(MPU_ADDRESS_ON);
+    Wire.beginTransmission(mpuAddress::_ON);
     Wire.write(GYRO_XOUT_H);
     Wire.endTransmission(false);
-    Wire.requestFrom(MPU_ADDRESS_ON, 6, true);
+    Wire.requestFrom(mpuAddress::_ON, 6, true);
     rawGyroX = Wire.read() << 8 | Wire.read();
     rawGyroY = Wire.read() << 8 | Wire.read();
     rawGyroZ = Wire.read() << 8 | Wire.read();
@@ -225,10 +225,10 @@ SensorMeasurement Mpu::read() {
 
 Acceleration Mpu::readAcceleration() {
   // === Read acceleromter data === //
-  Wire.beginTransmission(MPU_ADDRESS_ON);
+  Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(ACCEL_XOUT_H);  // Start with register 0x3B (ACCEL_XOUT_H)
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU_ADDRESS_ON, 6,
+  Wire.requestFrom(mpuAddress::_ON, 6,
                    true);  // Read 6 registers total, each axis value is
                            // stored in 2 registers
 
@@ -264,10 +264,10 @@ Gyro Mpu::readGyro() {
   this->ElapsedTime = (this->CurrentTime - this->PreviousTime) /
                       1000;  // Divide by 1000 to get seconds
 
-  Wire.beginTransmission(MPU_ADDRESS_ON);
+  Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(GYRO_XOUT_H);  // Gyro data first register address 0x43
   Wire.endTransmission(false);
-  Wire.requestFrom(MPU_ADDRESS_ON, 6,
+  Wire.requestFrom(mpuAddress::_ON, 6,
                    true);  // Read 4 registers total, each axis value is
                            // stored in 2 registers
 
