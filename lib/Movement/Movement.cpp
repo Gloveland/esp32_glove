@@ -1,6 +1,6 @@
 #include "Movement.h"
 
-Movement::Movement(int num, string id, HandMov hand)
+Movement::Movement(int num, std::string  id, HandMov hand)
     : eventNum(num), deviceId(id), hand(hand) {}
 
 void Movement::send(WiFiClient client) {
@@ -48,7 +48,7 @@ JSONVar Movement::measurementToJSON(SensorMeasurement sensorMeasurement) {
   return jsonFinger;
 }
 
-string Movement::format(float measurement) {
+std::string  Movement::format(float measurement) {
   const int size = 1 + snprintf(NULL, 0, "%.3f", measurement);
   char buff[size];
   snprintf(buff, size, "%.3f", measurement);

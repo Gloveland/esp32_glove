@@ -1,6 +1,6 @@
 #include <Glove.h>
 
-Glove::Glove() : pinkySensor(PINKY, "pinky"), thumbSensor(THUMB, "thumb") {
+Glove::Glove() : pinkySensor("pinky", PINKY), thumbSensor("thumb", THUMB) {
   this->chipId = this->getChipId();
   pinMode(PINKY, OUTPUT);
   digitalWrite(PINKY, HIGH);
@@ -42,7 +42,7 @@ Movement Glove::readMovement(const int eventCount) {
   return movement;
 }
 
-string Glove::getChipId() {
+std::string Glove::getChipId() {
   uint8_t chipid[6];
   esp_efuse_mac_get_default(chipid);
   char chipIdString[17];

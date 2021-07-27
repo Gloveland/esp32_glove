@@ -3,7 +3,6 @@
 #include <Utils.h>
 #include <WiFi.h>
 
-using namespace std;
 #define SSID "Ensalada tomate y cebolla"  //"GAP Ocampo"   //"BULL SHIP";
 #define PASSWORD "greta2012"              //"eribri11"   //"eribri11";
 WiFiServer wifiServer(8080);

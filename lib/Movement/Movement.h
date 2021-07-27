@@ -5,7 +5,6 @@
 #include <Arduino_JSON.h>
 #include <WiFi.h>
 
-using namespace std;
 
 struct Acceleration {
   float x, y, z;
@@ -37,16 +36,16 @@ struct HandMov {
 
 class Movement {
  public:
-  Movement(int event_num, string deviceId, HandMov hand);
+  Movement(int event_num, std::string  deviceId, HandMov hand);
   void send(WiFiClient client);
   ~Movement();
 
  private:
   int eventNum;
-  string deviceId;
+  std::string deviceId;
   HandMov hand;
   JSONVar measurementToJSON(SensorMeasurement sensorMeasurement);
-  string format(float measurement);
+  std::string format(float measurement);
 };
 
 #endif  // MOVEMENT_H_

@@ -8,10 +8,7 @@ float gyroX, gyroY, gyroZ;
 float roll, pitch, yaw;
 float degreesX, degreesY, degreesZ;
 
-Mpu::Mpu(int ad0, string name) {
-  this->ad0 = ad0;
-  this->name = name;
-}
+Mpu::Mpu(const std::string name, const int ad0) : name(name), ad0(ad0){}
 
 void Mpu::beginCommunication() {
   this->checkAddress(MPU_ADDRESS_OFF);
@@ -371,4 +368,3 @@ float Mpu::calculateAccAngleY(float accX, float accY, float accZ) {
 }
 
 Mpu::~Mpu() {}
-

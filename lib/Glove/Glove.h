@@ -22,13 +22,13 @@ class Glove {
   ~Glove();
 
  private:
-  string chipId;
+  std::string  chipId;
   Mpu pinkySensor;
   // Mpu ringSensor;
   // Mpu middleSensor;
   // Mpu indexSensor;
   Mpu thumbSensor;
-  string getChipId();
+  std::string  getChipId();
 };
 
 #endif  // GLOVE_H
