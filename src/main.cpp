@@ -1,4 +1,4 @@
-#include <Credentials.h>
+#include <../credentials/Credentials.h>
 #include <Glove.h>
 #include <Movement.h>
 #include <Utils.h>
@@ -11,7 +11,7 @@ Glove glove;
 
 void setup() {
   Serial.begin(9600);
-  WiFi.begin(SSID, PASSWORD);
+  WiFi.begin(NETWORK_SSID, NETWORK_PASSWORD);
   while (WiFi.status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi..");
@@ -25,7 +25,7 @@ void setup() {
   waitAnyUserInput("Type key to start mesuring movements...");
 }
 
-void loop() {  // loop() runs on core 1
+void loop() { // loop() runs on core 1
   Serial.println("...............................................");
   Serial.println("waiting for new connection");
   client = wifiServer.available();
