@@ -1,4 +1,5 @@
-#include <../credentials/Credentials.h>
+
+#include "../lib/Credentials/Credentials.h"
 #include <Glove.h>
 #include <Movement.h>
 #include <Utils.h>
@@ -22,7 +23,7 @@ void setup() {
 
   glove.init();
   eventCount = 0;
-  waitAnyUserInput("Type key to start mesuring movements...");
+  waitAnyUserInput("Type key to start measuring movements...");
 }
 
 void loop() { // loop() runs on core 1
