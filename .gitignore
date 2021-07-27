@@ -7,3 +7,5 @@
 CMakeListsPrivate.txt
 cmake-build-debug/*
 cmake-build-esp32doit-devkit-v1/*
+lib/Credentials/Credentials.h
+

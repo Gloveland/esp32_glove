@@ -1,10 +1,9 @@
+#include <Credentials.h>
 #include <Glove.h>
 #include <Movement.h>
 #include <Utils.h>
 #include <WiFi.h>
 
-#define SSID "Ensalada tomate y cebolla"  //"GAP Ocampo"   //"BULL SHIP";
-#define PASSWORD "greta2012"              //"eribri11"   //"eribri11";
 WiFiServer wifiServer(8080);
 WiFiClient client;
 int eventCount;
