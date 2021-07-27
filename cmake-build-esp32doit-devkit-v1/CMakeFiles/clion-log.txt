@@ -1,1 +1,0 @@
-CMakeLists.txt not found in /Users/jazminferreiro/Documents/PlatformIO/Projects/esp32_glove Select CMakeLists.txt
