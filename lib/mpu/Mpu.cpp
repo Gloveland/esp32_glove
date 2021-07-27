@@ -8,7 +8,7 @@ float gyroX, gyroY, gyroZ;
 float roll, pitch, yaw;
 float degreesX, degreesY, degreesZ;
 
-Mpu::Mpu(const std::string name, const int ad0) : name(name), ad0(ad0){}
+Mpu::Mpu(const std::string name, const int ad0) : name(name), ad0(ad0) {}
 
 void Mpu::beginCommunication() {
   this->checkAddress(mpuAddress::_OFF);
@@ -46,33 +46,32 @@ void Mpu::checkAddress(int address) {
 void Mpu::init() {
   this->beginCommunication();
   Wire.beginTransmission(mpuAddress::_ON);  // Start communication with MPU6050
-  Wire.write(0x6B);                        // Talk to the register 6B
+  Wire.write(0x6B);                         // Talk to the register 6B
   Wire.write(0x00);            // Make reset - place a 0 into the 6B register
   Wire.endTransmission(true);  // end the transmission
 
-  /*
-  // Configure Accelerometer Sensitivity - Full Scale Range (default +/- 2g)
-  Wire.beginTransmission(MPU_ADDRESS_ON);
-  Wire.write(ACC_CONFIG_REGISTER);                  //Talk to the ACCEL_CONFIG
-  register (1C hex) Wire.write(MPU6050_RANGE_2_G);                  //Set the
-  register bits as 00010000 = 0x10 (+/- 8g full scale range)
+  // Configure Accelerometer Sensitivity
+  Wire.beginTransmission(mpuAddress::_ON);
+  Wire.write(ACC_CONFIG_REGISTER);
+  Wire.write(mpuAccRange::_2_G);  // Set the register bits as 00010000 = 0x10
+                                  // (+/- 8g full scale range)
   Wire.endTransmission(true);
   delay(20);
 
-  // Configure Gyro Sensitivity - Full Scale Range (default +/- 250deg/s)
-  Wire.beginTransmission(MPU_ADDRESS_ON);
-  Wire.write(GYRO_CONFIG_REGISTER);                   // Talk to the GYRO_CONFIG
-  register (1B hex) Wire.write(MPU6050_RANGE_250_DEG);                   // Set
-  the register bits as 00010000 (1000deg/s full scale)
+  // Configure Gyro Sensitivity
+  Wire.beginTransmission(mpuAddress::_ON);
+  Wire.write(GYRO_CONFIG_REGISTER);
+  Wire.write(mpuGyroRange::_250_DEG);  // Set the register bits as 00010000
+                                       // (1000deg/s full scale)
   Wire.endTransmission(true);
   delay(20);
 
-  Wire.beginTransmission(MPU_ADDRESS_ON);
-  Wire.write(GENERAL_CONFIG);                   // Talk to the GYRO_CONFIG
-  register (1B hex) Wire.write(MPU6050_BAND_21_HZ);                   // Set the
-  register bits as 00010000 (1000deg/s full scale) Wire.endTransmission(true);
+  Wire.beginTransmission(mpuAddress::_ON);
+  Wire.write(GENERAL_CONFIG);
+  Wire.write(mpuBand::_21_HZ);  // Set the register bits as 00010000 (1000deg/s
+                                // full scale)
+  Wire.endTransmission(true);
   delay(20);
-  */
   this->endCommunication();
 }
 
