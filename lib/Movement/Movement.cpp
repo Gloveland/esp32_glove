@@ -21,26 +21,24 @@ void Movement::send(WiFiClient client) {
   Serial.println(jsonString);
   int bytes_sent = client.write(jsonString.c_str(), jsonString.length());
   Serial.print("bytes_sent: ");
+  client.write("\n");
   Serial.println(bytes_sent);
   delay(10);
 }
 
 JSONVar Movement::measurementToJSON(SensorMeasurement sensorMeasurement) {
   JSONVar jsonAcc;
-  jsonAcc["x"] = this->format(sensorMeasurement.acc.x).c_str();
-  jsonAcc["y"] = this->format(sensorMeasurement.acc.y).c_str();
-  jsonAcc["z"] = this->format(sensorMeasurement.acc.z).c_str();
+  jsonAcc["x"] = sensorMeasurement.acc.x;
+  jsonAcc["y"] = sensorMeasurement.acc.y;
+  jsonAcc["z"] = sensorMeasurement.acc.z;
   JSONVar jsonGyro;
-  jsonGyro["x"] = this->format(sensorMeasurement.gyro.x).c_str();
-  jsonGyro["y"] = this->format(sensorMeasurement.gyro.y).c_str();
-  jsonGyro["z"] = this->format(sensorMeasurement.gyro.z).c_str();
+  jsonGyro["x"] = sensorMeasurement.gyro.x;
+  jsonGyro["y"] = sensorMeasurement.gyro.y;
+  jsonGyro["z"] = sensorMeasurement.gyro.z;
   JSONVar jsonInclination;
-  jsonInclination["roll"] =
-      this->format(sensorMeasurement.inclination.roll).c_str();
-  jsonInclination["pith"] =
-      this->format(sensorMeasurement.inclination.pitch).c_str();
-  jsonInclination["yaw"] =
-      this->format(sensorMeasurement.inclination.yaw).c_str();
+  jsonInclination["roll"] = sensorMeasurement.inclination.roll;
+  jsonInclination["pitch"] =sensorMeasurement.inclination.pitch;
+  jsonInclination["yaw"] = sensorMeasurement.inclination.yaw;
   JSONVar jsonFinger;
   jsonFinger["acc"] = jsonAcc;
   jsonFinger["gyro"] = jsonGyro;
