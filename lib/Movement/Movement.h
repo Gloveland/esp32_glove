@@ -5,13 +5,14 @@
 #include <Arduino_JSON.h>
 #include <WiFi.h>
 
-
 struct Acceleration {
   float x, y, z;
+  Acceleration() : x(0.0), y(0.0), z(0.0) {}
 };
 
 struct Gyro {
   float x, y, z;
+  Gyro() : x(0.0), y(0.0), z(0.0) {}
 };
 
 struct Inclination {
@@ -24,6 +25,7 @@ struct SensorMeasurement {
   Acceleration acc;
   Gyro gyro;
   Inclination inclination;
+  float temperature;
 };
 
 struct HandMov {
