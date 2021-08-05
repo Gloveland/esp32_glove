@@ -106,12 +106,8 @@ void Mpu::calibrate() {
   float sumAngleFromAccX = 0.0, sumAngleFromAccY = 0.0;
   float sumGyroX = 0.0, sumGyroY = 0.0, sumGyroZ = 0.0;
 
-  float minGyroX = FLT_MAX;
-  float minGyroY = FLT_MAX;
-  float minGyroZ = FLT_MAX;
-  float maxGyroX = -FLT_MAX;
-  float maxGyroY = -FLT_MAX;
-  float maxGyroZ = -FLT_MAX;
+  float minGyroX = FLT_MAX, minGyroY = FLT_MAX, minGyroZ = FLT_MAX;
+  float maxGyroX = -FLT_MAX, maxGyroY = -FLT_MAX, maxGyroZ = -FLT_MAX;
 
   int times = 100.0;
   for (int i = 0; i <= times; i++) {
@@ -121,11 +117,6 @@ void Mpu::calibrate() {
     Gyro gyro = this->readGyro(raw.gyroX, raw.gyroY, raw.gyroZ, false);
     accAngleX = this->calculateAccAngleX(acc);
     accAngleY = this->calculateAccAngleY(acc);
-    Serial.print("  ");
-    Serial.print(accAngleX);
-    Serial.print("  ");
-    Serial.print(accAngleY);
-    Serial.println(".");
 
     sumAccX += acc.x;
     sumAccY += acc.y;
@@ -157,9 +148,28 @@ void Mpu::calibrate() {
     delay(20);
   }
   this->endCommunication();
+  this->setAccelerationError(times, sumAccX, sumAccY, sumAccZ);
+  this->logAccelerationError();
+
+  this->setInclinationError(times, sumAngleFromAccX, sumAngleFromAccY);
+  this->logInclinationError();
+
+  this->setGyroError(times, sumGyroX, sumGyroY, sumGyroZ);
+  this->logGyroError();
+
+  this->setDeviation(times, maxGyroX, maxGyroY, maxGyroZ, minGyroX, minGyroY,
+                     minGyroZ);
+  this->logDeviation();
+}
+
+void Mpu::setAccelerationError(int times, float sumAccX, float sumAccY,
+                               float sumAccZ) {
   this->accError.x = sumAccX / times;
   this->accError.y = sumAccY / times;
   this->accError.z = sumAccZ / times;
+}
+
+void Mpu::logAccelerationError() {
   Serial.println("");
   Serial.print("AccErrorX: ");
   Serial.println(this->accError.x);
@@ -167,18 +177,29 @@ void Mpu::calibrate() {
   Serial.println(this->accError.y);
   Serial.print("AccErrorZ: ");
   Serial.println(this->accError.z);
+}
 
+void Mpu::setInclinationError(int times, float sumAngleFromAccX,
+                              float sumAngleFromAccY) {
   this->inclinationfromAccError.x = sumAngleFromAccX / times;
   this->inclinationfromAccError.y = sumAngleFromAccY / times;
+}
+
+void Mpu::logInclinationError() {
   Serial.print("InclinationFromAccErrorX: ");
   Serial.println(this->inclinationfromAccError.x);
   Serial.print("InclinationFromAccErrorY: ");
   Serial.println(this->inclinationfromAccError.y);
+}
 
+void Mpu::setGyroError(int times, float sumGyroX, float sumGyroY,
+                       float sumGyroZ) {
   this->gyroError.x = sumGyroX / times;
   this->gyroError.y = sumGyroY / times;
   this->gyroError.z = sumGyroZ / times;
+}
 
+void Mpu::logGyroError() {
   Serial.println("");
   Serial.print("GyroErrorX: ");
   Serial.println(this->gyroError.x);
@@ -186,11 +207,16 @@ void Mpu::calibrate() {
   Serial.println(this->gyroError.y);
   Serial.print("GyroErrorZ: ");
   Serial.println(this->gyroError.z);
+}
 
-  this->deviation.x = (maxGyroX - minGyroX) / 2.0;
-  this->deviation.y = (maxGyroY - minGyroY) / 2.0;
-  this->deviation.z = (maxGyroZ - minGyroZ) / 2.0;
+void Mpu::setDeviation(int times, float maxX, float maxY, float maxZ,
+                       float minX, float minY, float minZ) {
+  this->deviation.x = (maxX - minX) / 2.0;
+  this->deviation.y = (maxY - minY) / 2.0;
+  this->deviation.z = (maxZ - minZ) / 2.0;
+}
 
+void Mpu::logDeviation() {
   Serial.print("DeviationX: ");
   Serial.println(this->deviation.x);
   Serial.print("DeviationY: ");
@@ -271,8 +297,13 @@ Acceleration Mpu::readAcc(const int16_t rawAccX, const int16_t rawAccY,
   acc.y = ((float)rawAccY / accScale) * GRAVITY_EARTH - this->accError.y;
   acc.z = ((float)rawAccZ / accScale) * GRAVITY_EARTH - this->accError.z;
 
+  this->log(debug, acc);
+  return acc;
+}
+
+void Mpu::log(const bool debug, Acceleration acc) {
   if (debug) {
-    Serial.print(name.c_str());
+    Serial.print(this->name.c_str());
     Serial.print("   aX: ");
     Serial.print(acc.x);
     Serial.print("   aY: ");
@@ -282,7 +313,6 @@ Acceleration Mpu::readAcc(const int16_t rawAccX, const int16_t rawAccY,
     Serial.print(",");
     Serial.print("   m/(seg)^2    ");
   }
-  return acc;
 }
 
 float Mpu::readTemperature(const int16_t rawTemp) {
@@ -318,7 +348,11 @@ Gyro Mpu::readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
     gyro.z = gyroZ - this->gyroError.z;
   }
   this->previousGyro.z = gyroZ;
+  this->log(debug, gyro);
+  return gyro;
+}
 
+void Mpu::log(const bool debug, const Gyro gyro) {
   if (debug) {
     Serial.print("   gX: ");
     Serial.print(gyro.x);
@@ -331,9 +365,8 @@ Gyro Mpu::readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
     Serial.print(",");
     Serial.print("   degrees/seg         ");
   }
-
-  return gyro;
 }
+
 /**
  *  We get the inclination angle from the gyroscope readings.
  *  The complete rotation angle is the accumulation of all the rotation angles
@@ -361,8 +394,7 @@ Inclination Mpu::readInclination(const Acceleration acc, const Gyro gyro,
       this->calculateAccAngleX(acc) - this->inclinationfromAccError.x;
   float inclinationfromAccY =
       this->calculateAccAngleY(acc) - this->inclinationfromAccError.y;
-  // Serial.print("   accAngleX: ");Serial.print(accAngleX );
-  // Serial.print("   accAngleY: ");Serial.print(accAngleY );
+  // this->log(inclinationfromAccX ,inclinationfromAccY);
 
   if (abs(inclinationfromAccX - this->inclinationAngle.x) > 5.0) {
     this->inclinationAngle.x = inclinationfromAccX;
@@ -374,6 +406,18 @@ Inclination Mpu::readInclination(const Acceleration acc, const Gyro gyro,
   inclination.roll = this->inclinationAngle.x;
   inclination.pitch = this->inclinationAngle.y;
   inclination.yaw = this->inclinationAngle.z;
+  this->log(debug, inclination);
+  return inclination;
+}
+
+void Mpu::log(const float accAngleX, const float accAngleY) {
+  Serial.print("   accAngleX: ");
+  Serial.print(accAngleX);
+  Serial.print("   accAngleY: ");
+  Serial.print(accAngleY);
+}
+
+void Mpu::log(const bool debug, const Inclination inclination) {
   if (debug) {
     Serial.print("  roll:");
     Serial.print(inclination.roll);
@@ -382,7 +426,6 @@ Inclination Mpu::readInclination(const Acceleration acc, const Gyro gyro,
     Serial.print("  yaw:");
     Serial.print(inclination.yaw);
   }
-  return inclination;
 }
 
 float Mpu::calculateAccAngleX(const Acceleration acc) {

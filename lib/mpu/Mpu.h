@@ -106,6 +106,26 @@ class Mpu {
   float readTemperature(const int16_t rawTemp);
   float calculateAccAngleX(const Acceleration acc);
   float calculateAccAngleY(const Acceleration acc);
+
+  void setAccelerationError(int times, float sumAccX, float sumAccY,
+                            float sumAccZ);
+
+  void setInclinationError(int times, float sumAngleFromAccX,
+                           float sumAngleFromAccY);
+
+  void setGyroError(int times, float sumGyroX, float sumGyroY, float sumGyroZ);
+
+  void setDeviation(int times, float maxX, float maxY, float maxZ, float minX,
+                    float minY, float minZ);
+
+  void logAccelerationError();
+  void logInclinationError();
+  void logGyroError();
+  void logDeviation();
+  void log(const bool debug, Acceleration acc);
+  void log(const bool debug, const Gyro gyro);
+  void log(const float accAngleX, const float accAngleY);
+  void log(const bool debug, const Inclination inclination);
 };
 
 #endif  // MPU_H
