@@ -83,6 +83,17 @@ void Mpu::init() {
   this->endCommunication();
 }
 
+/**
+ * The calibration consist in readings raw measurements values when the sensor
+ * is static in horizontal plane. The expected values for acceleration are 0.0
+ * in x, 0.0 in y and 9.8 in z. The error is the difference between the expected
+ * value and the value read. We sum all the errors and divede by the amount of
+ * measurement reads to get the average error in each axis. The same is done
+ * with de angle and the gyroscope readings The expected value for the angular
+ * velocity is 0.0 for each axis. We calculate the maximum and the minimum value
+ * read to get the deviation This way we can  avoid noise in future
+ * measurements.
+ */
 void Mpu::calibrate() {
   Serial.print("===================== Calibrating  ");
   Serial.print(this->name.c_str());
@@ -146,7 +157,6 @@ void Mpu::calibrate() {
     delay(20);
   }
   this->endCommunication();
-  // Divide the sum by 200 to get the error value
   this->accError.x = sumAccX / times;
   this->accError.y = sumAccY / times;
   this->accError.z = sumAccZ / times;
@@ -205,22 +215,20 @@ SensorMeasurement Mpu::read() {
   this->endCommunication();
   return result;
 }
-
+/**
+ * We read 14 registers from mpu (each value is stored in 2 registers)
+ * the registers order is: | ax | ay | az | temp | gx | gy | gz |
+ */
 RawMeasurement Mpu::readAllRaw() {
   Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(ACCEL_XOUT_H);  // Start with register 0x3B (ACCEL_XOUT_H)
+  Wire.write(ACCEL_XOUT_H);
   Wire.endTransmission(false);
-  // read 14 registers: | ax | ay | az | temp | gx | gy | gz |(each value is
-  // stored in 2 registers)
   Wire.requestFrom(mpuAddress::_ON, ALL_REGISTERS, true);
 
   RawMeasurement rawMeasurement;
-  rawMeasurement.accX =
-      (Wire.read() << BITS_IN_BYTE | Wire.read());  // X-axis value
-  rawMeasurement.accY =
-      (Wire.read() << BITS_IN_BYTE | Wire.read());  // Y-axis value
-  rawMeasurement.accZ =
-      (Wire.read() << BITS_IN_BYTE | Wire.read());  // Z-axis value
+  rawMeasurement.accX = (Wire.read() << BITS_IN_BYTE | Wire.read());
+  rawMeasurement.accY = (Wire.read() << BITS_IN_BYTE | Wire.read());
+  rawMeasurement.accZ = (Wire.read() << BITS_IN_BYTE | Wire.read());
 
   rawMeasurement.temp = (Wire.read() << BITS_IN_BYTE | Wire.read());
 
@@ -282,6 +290,12 @@ float Mpu::readTemperature(const int16_t rawTemp) {
   return temperature;
 }
 
+/**
+ * Get angular velocity of rotation from raw gyro readings.
+ * If the difference between the measurement and the previous mesurement
+ * is lower than the maximum deviation we dismiss the measurement because is
+ * considered noise
+ */
 Gyro Mpu::readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
                    const int16_t rawGyroZ, const bool debug) {
   float gyroScale = this->getGyroScale(this->gyroRange);
@@ -290,8 +304,6 @@ Gyro Mpu::readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
   float gyroZ = ((float)rawGyroZ / gyroScale);
 
   Gyro gyro;
-  // Si la diferencia absoluta entre esta medicion y la anterior es menor a la
-  // desviacion maxima lo desestimo.
   if (abs(this->previousGyro.x - gyroX) > this->deviation.x) {
     gyro.x = gyroX - this->gyroError.x;
   }
@@ -322,20 +334,29 @@ Gyro Mpu::readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
 
   return gyro;
 }
-
+/**
+ *  We get the inclination angle from the gyroscope readings.
+ *  The complete rotation angle is the accumulation of all the rotation angles
+ * over time. The rotation angle is calculated as the angular velocity by the
+ * time lapse between two successive measurements (Currently the raw values are
+ * in degrees per seconds [deg/s] so we need to multiply by seconds (s) to get
+ * the angle in degrees [deg/s * s = deg] ).
+ *
+ * The constant addition of this measurements could lead to accumulation of
+ * noise resulting in infinite values. In order to avoid this problem we could
+ * adjust the inclination in x and y axis using the gravity acceleration change.
+ * If the rotation angle calculated from gyroscope exceed the rotation angle
+ * calculated from acceleration by 5 units. we dismiss the  accumulated angle
+ * and use the acceleration calculated angle instead. Unfortunately this can't
+ * be done with z axis because if we rotate the in the x plane the gravity force
+ * direction doesn't change.
+ */
 Inclination Mpu::readInclination(const Acceleration acc, const Gyro gyro,
                                  const float elapsedTime, const bool debug) {
-  // Currently the raw values are in degrees per seconds, deg/s, so we need to
-  // multiply by sendonds (s) to get the angle in degrees,  deg/s * s = deg
   this->inclinationAngle.x = this->inclinationAngle.x + gyro.x * elapsedTime;
   this->inclinationAngle.y = this->inclinationAngle.y + gyro.y * elapsedTime;
   this->inclinationAngle.z = this->inclinationAngle.z + gyro.z * elapsedTime;
-  /*
-  Serial.print("   degX: ");Serial.print(this->inclinationAngle.x);
-  Serial.print("   degY: ");Serial.print(this->inclinationAngle.y);
-  Serial.print("   degZ: ");Serial.print(this->inclinationAngle.z);
-  */
-  // Calculating Roll and Pitch from the accelerometer data
+
   float inclinationfromAccX =
       this->calculateAccAngleX(acc) - this->inclinationfromAccError.x;
   float inclinationfromAccY =
@@ -343,7 +364,6 @@ Inclination Mpu::readInclination(const Acceleration acc, const Gyro gyro,
   // Serial.print("   accAngleX: ");Serial.print(accAngleX );
   // Serial.print("   accAngleY: ");Serial.print(accAngleY );
 
-  // ajustamos el angulo de inclinacion con la aceleracion
   if (abs(inclinationfromAccX - this->inclinationAngle.x) > 5.0) {
     this->inclinationAngle.x = inclinationfromAccX;
   }
@@ -351,12 +371,9 @@ Inclination Mpu::readInclination(const Acceleration acc, const Gyro gyro,
     this->inclinationAngle.y = inclinationfromAccY;
   }
   Inclination inclination;
-  // Complementary filter - combine acceleromter and gyro angle values
   inclination.roll = this->inclinationAngle.x;
   inclination.pitch = this->inclinationAngle.y;
   inclination.yaw = this->inclinationAngle.z;
-
-  // Print the values on the serial monitor
   if (debug) {
     Serial.print("  roll:");
     Serial.print(inclination.roll);
