@@ -3,3 +3,10 @@
 .vscode/c_cpp_properties.json
 .vscode/launch.json
 .vscode/ipch
+.vscode/*
+.idea/*
+CMakeListsPrivate.txt
+cmake-build-debug/*
+cmake-build-esp32doit-devkit-v1/*
+lib/Credentials/Credentials.h
+cmake-build-esp32doit-devkit-v1-xtensa
