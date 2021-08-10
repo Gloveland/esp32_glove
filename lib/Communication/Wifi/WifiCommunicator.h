@@ -5,6 +5,7 @@
 #include <Mpu.h>
 
 #include <utility>
+#include "../../Sensors/GloveMeasurements.h"
 
 /**
  * Class to handle the wifi communication between the device and the
@@ -12,7 +13,8 @@
  */
 class WifiCommunicator {
  public:
-  explicit WifiCommunicator(std::string device_id) : device_id_(std::move(device_id)) {
+  explicit WifiCommunicator(std::string device_id) :
+      kDeviceId(std::move(device_id)) {
     wifi_server_ = WiFiServer(kWifiPort);
   }
 
@@ -22,13 +24,14 @@ class WifiCommunicator {
 
   boolean clientIsConnected();
 
-  void send(std::map<Finger::Value, ImuSensorMeasurement> measurements);
+  void send(GloveMeasurements measurements);
 
  private:
   const uint16_t kWifiPort = 8080;
-  const std::string device_id_;
+  const std::string kDeviceId;
   long events_count_ = 0;
   WiFiServer wifi_server_;
+
   WiFiClient wifi_client_;
 };
 #endif // WIFI_COMMUNICATOR_H_

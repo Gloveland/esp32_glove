@@ -1,5 +1,8 @@
 #include <Credentials.h>
 #include "WifiCommunicator.h"
+#include "../../Sensors/GloveMeasurements.h"
+
+#define TASK_DELAY_MS 500;
 
 /**
  * Connects the device to the wifi network specified by the
@@ -7,7 +10,7 @@
  */
 void WifiCommunicator::connectToNetwork() {
   WiFi.begin(NETWORK_SSID, NETWORK_PASSWORD);
-  while (WiFi.status() != WL_CONNECTED) {
+  while (WiFiClass::status() != WL_CONNECTED) {
     delay(1000);
     Serial.println("Connecting to WiFi..");
   }
@@ -16,6 +19,7 @@ void WifiCommunicator::connectToNetwork() {
   this->wifi_server_.begin();
 }
 
+//TODO(Darius): Rename method below, as this doesn't await, it times out and returns.
 boolean WifiCommunicator::awaitForClient() {
   Serial.println("...............................................");
   Serial.println("waiting for new connection");
@@ -28,17 +32,10 @@ boolean WifiCommunicator::awaitForClient() {
   return false;
 }
 
-void WifiCommunicator::send(std::map<Finger::Value,
-                                           ImuSensorMeasurement> measurements) {
-  JSONVar jsonHand;
-  for (const auto& pair : measurements) {
-    const std::string fingerName = Finger::getName(pair.first);
-    const JSONVar measurement = pair.second.toJson();
-    jsonHand[fingerName.c_str()] = measurement;
-  }
-
+void WifiCommunicator::send(GloveMeasurements measurements) {
+  JSONVar jsonHand = measurements.toJson();
   JSONVar jsonMovement;
-  jsonMovement["device_id_"] = this->device_id_.c_str();
+  jsonMovement["kDeviceId"] = this->kDeviceId.c_str();
   jsonMovement["event_num"] = this->events_count_;
   jsonMovement["hand"] = jsonHand;
   Serial.print("  sending value via wifi: ");

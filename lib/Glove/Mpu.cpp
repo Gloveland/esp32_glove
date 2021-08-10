@@ -207,6 +207,7 @@ void Mpu::logDeviation() {
   Serial.print("DeviationZ: ");
   Serial.println(this->deviation_.z);
 }
+
 ImuSensorMeasurement Mpu::read() {
   this->beginCommunication();
   const bool debug = true;
@@ -275,7 +276,7 @@ Acceleration Mpu::readAcc(const int16_t rawAccX, const int16_t rawAccY,
   acc.y = ((float) rawAccY / accScale) * GRAVITY_EARTH - this->accError_.y;
   acc.z = ((float) rawAccZ / accScale) * GRAVITY_EARTH - this->accError_.z;
 
-  this->log(debug, acc);
+//  this->log(debug, acc);
   return acc;
 }
 
@@ -326,7 +327,7 @@ Gyro Mpu::readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
     gyro.z = gyroZ - this->gyroError_.z;
   }
   this->previousGyro_.z = gyroZ;
-  this->log(debug, gyro);
+//  this->log(debug, gyro);
   return gyro;
 }
 

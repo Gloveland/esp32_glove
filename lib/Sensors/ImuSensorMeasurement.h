@@ -13,7 +13,7 @@ struct ImuSensorMeasurement {
   Acceleration acc;
   Gyro gyro;
   Inclination inclination;
-  float temperature;
+  float temperature{};
 
   JSONVar toJson() const {
     JSONVar json_acc;
@@ -36,8 +36,10 @@ struct ImuSensorMeasurement {
     json_measurement["acc"] = json_acc;
     json_measurement["gyro"] = json_gyro;
     json_measurement["inclination"] = json_inclination;
-    //TODO(Darius): enable temperature below
+
+    //TODO(Darius): enable temperature below when it's ready in the app.
     //  json_measurement["temperature"] = temperature;
+
     return json_measurement;
   }
 };

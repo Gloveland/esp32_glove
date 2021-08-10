@@ -1,6 +1,3 @@
-//
-// Created by ekumen on 18/7/21.
-//
 
 #include "CharacteristicCallbacks.h"
 
@@ -10,13 +7,13 @@ void CharacteristicCallbacks::onWrite(BLECharacteristic *pCharacteristic) {
   BLECharacteristicCallbacks::onWrite(pCharacteristic);
   std::string value = pCharacteristic->getValue();
   Serial.println(">> onWrite callback run: " + String(value.c_str()));
-  if (value == "stop" && taskHandler != nullptr) {
+  if (value == kStop_ && task_handler_ != nullptr) {
     Serial.println(">> Received stop");
-    vTaskSuspend(taskHandler);
+    vTaskSuspend(task_handler_);
     return;
   }
 
-  if (value == "start" && taskHandler != nullptr) {
-    vTaskResume(taskHandler);
+  if (value == kStart_ && task_handler_ != nullptr) {
+    vTaskResume(task_handler_);
   }
 }

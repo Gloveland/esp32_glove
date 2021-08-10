@@ -1,12 +1,8 @@
 #include <Glove.h>
 
-Glove::Glove() {
-  this->chipId = this->getDeviceId();
+void Glove::init() {
   setUpSensors();
   Wire.begin(kSdaPin, kSclPin);
-}
-
-void Glove::init() {
   Serial.println(
       "\nType key when all sensors are placed over an horizontal plane:"
       "\n X = 0g, Y = 0g, Z = +1g orientation");
@@ -25,25 +21,25 @@ std::string Glove::getDeviceId() {
   return chipIdString;
 }
 
-Glove::~Glove() {}
+Glove::~Glove() = default;
 
 void Glove::setUpSensors() {
-  for (Mpu mpu : sensors_) {
-    mpu.setWriteMode();
+  for (auto sensor : sensors_) {
+    sensor.second.setWriteMode();
   }
 }
 
 void Glove::calibrateSensors() {
-  for (Mpu mpu : sensors_) {
-    mpu.calibrate();
+  for (auto sensor : sensors_) {
+    sensor.second.calibrate();
   }
 }
 
-std::map<Finger::Value, ImuSensorMeasurement> Glove::readSensors() {
-  std::map<Finger::Value, ImuSensorMeasurement> measurements;
-  for (Mpu mpu : sensors_) {
-    ImuSensorMeasurement measurement = mpu.read();
-    measurements[mpu.getFinger()] = measurement;
+GloveMeasurements Glove::readSensors() {
+  GloveMeasurements measurements;
+  for (auto sensor : sensors_) {
+    ImuSensorMeasurement measurement = sensor.second.read();
+    measurements.setSensorMeasurement(sensor.first, measurement);
   }
   return measurements;
 }

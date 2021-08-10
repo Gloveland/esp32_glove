@@ -3,24 +3,28 @@
 
 #include <Mpu.h>
 #include <map>
+#include <esp_task.h>
+#include "../Sensors/GloveMeasurements.h"
 
 class Glove {
  public:
-  Glove();
+  Glove() {
+    this->chip_id_ = this->getDeviceId();
+  }
+
   void init();
-  std::map<Finger::Value, ImuSensorMeasurement> readSensors();
-  std::string getDeviceId();
+  GloveMeasurements readSensors();
+  static std::string getDeviceId();
+
   ~Glove();
 
  private:
   const int kSclPin = 22;
   const int kSdaPin = 21;
-  std::string chipId;
-
-  Mpu sensors_[2] = {
-      Mpu(Finger::Value::kPinky),
-      Mpu(Finger::Value::kThumb)
-  };
+  std::string chip_id_;
+  const std::map<Finger::Value, Mpu> sensors_
+      {{Finger::Value::kPinky, Mpu(Finger::Value::kPinky)},
+       {Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}};
   void setUpSensors();
   void calibrateSensors();
 };
