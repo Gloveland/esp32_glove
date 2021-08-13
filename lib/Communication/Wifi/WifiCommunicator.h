@@ -20,7 +20,7 @@ class WifiCommunicator {
 
   void connectToNetwork();
 
-  boolean awaitForClient();
+  boolean listenForClients();
 
   boolean clientIsConnected();
 
@@ -31,7 +31,6 @@ class WifiCommunicator {
   const std::string kDeviceId;
   long events_count_ = 0;
   WiFiServer wifi_server_;
-
   WiFiClient wifi_client_;
 };
 #endif // WIFI_COMMUNICATOR_H_

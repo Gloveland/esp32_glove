@@ -6,7 +6,6 @@
 #include <Utils.h>
 
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
-
 #define TASK_DELAY_MS 500
 
 [[noreturn]] void taskReadSensors(void *pvParameters);
@@ -38,6 +37,9 @@ void setup() {
   }
 
   setUpGlove();
+
+   // In order to switch between communication modes, comment and uncomment
+   // the lines below:
 //  setUpWifiCommunicator();
   setUpBleCommunicator();
 }
@@ -93,7 +95,7 @@ void loop() { // loop() runs on core 1
     for (int i = 0; i < kQueueSize; i++) {
       GloveMeasurements measurements = glove.readSensors();
       xQueueSend(queue, &measurements, portMAX_DELAY);
-      delay(100);  //
+      delay(100);
     }
     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
   }
@@ -103,8 +105,7 @@ void loop() { // loop() runs on core 1
   Serial.println("Task 'Bluetooth transmission' running on core ");
   Serial.println(xPortGetCoreID());
   GloveMeasurements glove_measurements;
-  for (;;) {  // loop in thread
-    // bluetooth.notify(START_SENDING_MEASUREMENTS);
+  for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
       xQueueReceive(queue, &glove_measurements, portMAX_DELAY);
       bleCommunicator.send(glove_measurements);
@@ -115,14 +116,14 @@ void loop() { // loop() runs on core 1
 
 [[noreturn]] void taskWifiCommunication(void *pvParameters) {
   while (true) {
-    wifiCommunicator.awaitForClient();
+    wifiCommunicator.listenForClients();
     for (int i = 0; i < kQueueSize && wifiCommunicator.clientIsConnected();
          i++) {
       GloveMeasurements glove_measurements;
       xQueueReceive(queue, &glove_measurements, portMAX_DELAY);
       wifiCommunicator.send(glove_measurements);
     }
-    vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);  // v
+    vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
     delay(500);
   }
 }

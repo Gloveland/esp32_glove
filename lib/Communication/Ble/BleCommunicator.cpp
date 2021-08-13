@@ -33,6 +33,6 @@ BleCommunicator::~BleCommunicator() = default;
 
 void BleCommunicator::send(GloveMeasurements measurements) {
   ImuSensorMeasurement thumb_measurement = measurements.thumb_imu_measurement;
-  //TODO(Darius): send the whole glove measurements
+  //TODO(Darius): send the whole glove measurements.
   notify(JSONVar::stringify(thumb_measurement.toJson()).c_str());
 }

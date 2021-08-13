@@ -23,7 +23,6 @@ class BleCommunicator {
 
   void init(const std::string &name,
             TaskHandle_t &ble_communicator_task_handler);
-
   void send(GloveMeasurements measurements);
   ~BleCommunicator();
 
