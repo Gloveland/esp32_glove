@@ -4,7 +4,7 @@
 #include <BLECharacteristic.h>
 
 /**
- * Callbacks to handle characteristic events such as onWrite or onNotify.
+ * Callbacks to handle characteristic events such as onWrite.
  */
 class CharacteristicCallbacks : public BLECharacteristicCallbacks {
  public:
@@ -15,8 +15,9 @@ class CharacteristicCallbacks : public BLECharacteristicCallbacks {
 
  private:
   /**
-   * Handler of the Read sensors task. This handler will be suspended upon
-   * receiving a command and restarted when receiving a "start" command.
+   * Handler of the Read sensors task. The task associated to this 
+   * handler will be suspended upon receiving a command and restarted 
+   * when receiving a "start" command.
    */
   TaskHandle_t read_sensors_task_handler_;
 
