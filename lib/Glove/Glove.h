@@ -1,35 +1,35 @@
 #ifndef GLOVE_H
 #define GLOVE_H
 
-
-#include <Movement.h>
 #include <Mpu.h>
-
-enum mpuAddressPin { 
-  PINKY = 17, 
-  RING = 27, 
-  MIDDLE = 26, 
-  INDEX = 32 , 
-  THUMB = 33
-};
+#include <map>
+#include <esp_task.h>
+#include "../Sensors/GloveMeasurements.h"
 
 class Glove {
  public:
-  Glove();
+  Glove() {
+    this->chip_id_ = Glove::getDeviceId();
+  }
+
   void init();
-  Movement readMovement(const int eventNum);
+  GloveMeasurements readSensors();
+  static std::string getDeviceId();
+
   ~Glove();
 
  private:
-  const int I2C_SCL = 22;
-  const int I2C_SDA = 21;
-  std::string  chipId;
-  Mpu pinkySensor;
-  // Mpu ringSensor;
-  // Mpu middleSensor;
-  // Mpu indexSensor;
-  Mpu thumbSensor;
-  std::string  getChipId();
+  const int kSclPin = 22;
+  const int kSdaPin = 21;
+  std::string chip_id_;
+
+  /** Enabled sensors of the glove. */
+  const std::map<Finger::Value, Mpu> sensors_
+      {{Finger::Value::kPinky, Mpu(Finger::Value::kPinky)},
+       {Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}};
+
+  void setUpSensors();
+  void calibrateSensors();
 };
 
 #endif  // GLOVE_H

@@ -1,30 +1,27 @@
 #include <Mpu.h>
 
-float accX, accY, accZ;
-
-Mpu::Mpu(const std::string name, const int ad0)
-    : name(name),
-      ad0(ad0),
-      accRange(mpuAccRange::_2_G),
-      gyroRange(mpuGyroRange::_250_DEG),
-      accError(),
-      gyroError(),
-      previousGyro(),
-      deviation(),
-      inclinationfromAccError(),
-      inclinationAngle(),
-      previousTime(millis()) {}
+Mpu::Mpu(const Finger::Value &finger) :
+    finger_(finger),
+    ad0_(Finger::getAd0Pin(finger)),
+    accRange_(mpuAccRange::_2_G),
+    gyroRange_(mpuGyroRange::_250_DEG),
+    accError_(),
+    gyroError_(),
+    previousGyro_(),
+    deviation_(),
+    previousTime_(millis()) {
+}
 
 void Mpu::beginCommunication() {
   this->checkAddress(mpuAddress::_OFF);
-  digitalWrite(this->ad0, LOW);
+  digitalWrite(this->ad0_, LOW);
   delay(100);
   this->checkAddress(mpuAddress::_ON);
 }
 
 void Mpu::endCommunication() {
   this->checkAddress(mpuAddress::_ON);
-  digitalWrite(this->ad0, HIGH);
+  digitalWrite(this->ad0_, HIGH);
   delay(100);
   this->checkAddress(mpuAddress::_OFF);
 }
@@ -49,12 +46,12 @@ void Mpu::checkAddress(int address) {
   }
   assert(error == 0);
 }
-
 void Mpu::init(const mpuAccRange accRange, const mpuGyroRange gyroRange) {
-  this->accRange = accRange;
-  this->gyroRange = gyroRange;
+  this->accRange_ = accRange;
+  this->gyroRange_ = gyroRange;
   this->init();
 }
+
 void Mpu::init() {
   this->beginCommunication();
 
@@ -65,13 +62,13 @@ void Mpu::init() {
 
   Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(ACC_CONFIG_REGISTER);
-  Wire.write(this->accRange);  // ex 00010000 = 0x10  (+/- 8g full scale range)
+  Wire.write(this->accRange_);  // ex 00010000 = 0x10  (+/- 8g full scale range)
   Wire.endTransmission(true);
   delay(20);
 
   Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(GYRO_CONFIG_REGISTER);
-  Wire.write(this->gyroRange);  // ex: 00010000 (1000deg/s full scale)
+  Wire.write(this->gyroRange_);  // ex: 00010000 (1000deg/s full scale)
   Wire.endTransmission(true);
   delay(20);
 
@@ -96,7 +93,7 @@ void Mpu::init() {
  */
 void Mpu::calibrate() {
   Serial.print("===================== Calibrating  ");
-  Serial.print(this->name.c_str());
+  Serial.print(Finger::getName(this->finger_).c_str());
   Serial.println(" ====================");
 
   this->beginCommunication();
@@ -151,8 +148,7 @@ void Mpu::calibrate() {
   this->setAccelerationError(times, sumAccX, sumAccY, sumAccZ);
   this->logAccelerationError();
 
-  this->setInclinationError(times, sumAngleFromAccX, sumAngleFromAccY);
-  this->logInclinationError();
+  this->inclination_.setInclinationError(times, sumAngleFromAccX, sumAngleFromAccY);
 
   this->setGyroError(times, sumGyroX, sumGyroY, sumGyroZ);
   this->logGyroError();
@@ -164,83 +160,71 @@ void Mpu::calibrate() {
 
 void Mpu::setAccelerationError(int times, float sumAccX, float sumAccY,
                                float sumAccZ) {
-  this->accError.x = sumAccX / times;
-  this->accError.y = sumAccY / times;
-  this->accError.z = sumAccZ / times;
+  this->accError_.x = sumAccX / times;
+  this->accError_.y = sumAccY / times;
+  this->accError_.z = sumAccZ / times;
 }
 
 void Mpu::logAccelerationError() {
   Serial.println("");
   Serial.print("AccErrorX: ");
-  Serial.println(this->accError.x);
+  Serial.println(this->accError_.x);
   Serial.print("AccErrorY: ");
-  Serial.println(this->accError.y);
+  Serial.println(this->accError_.y);
   Serial.print("AccErrorZ: ");
-  Serial.println(this->accError.z);
-}
-
-void Mpu::setInclinationError(int times, float sumAngleFromAccX,
-                              float sumAngleFromAccY) {
-  this->inclinationfromAccError.x = sumAngleFromAccX / times;
-  this->inclinationfromAccError.y = sumAngleFromAccY / times;
-}
-
-void Mpu::logInclinationError() {
-  Serial.print("InclinationFromAccErrorX: ");
-  Serial.println(this->inclinationfromAccError.x);
-  Serial.print("InclinationFromAccErrorY: ");
-  Serial.println(this->inclinationfromAccError.y);
+  Serial.println(this->accError_.z);
 }
 
 void Mpu::setGyroError(int times, float sumGyroX, float sumGyroY,
                        float sumGyroZ) {
-  this->gyroError.x = sumGyroX / times;
-  this->gyroError.y = sumGyroY / times;
-  this->gyroError.z = sumGyroZ / times;
+  this->gyroError_.x = sumGyroX / times;
+  this->gyroError_.y = sumGyroY / times;
+  this->gyroError_.z = sumGyroZ / times;
 }
 
 void Mpu::logGyroError() {
   Serial.println("");
   Serial.print("GyroErrorX: ");
-  Serial.println(this->gyroError.x);
+  Serial.println(this->gyroError_.x);
   Serial.print("GyroErrorY: ");
-  Serial.println(this->gyroError.y);
+  Serial.println(this->gyroError_.y);
   Serial.print("GyroErrorZ: ");
-  Serial.println(this->gyroError.z);
+  Serial.println(this->gyroError_.z);
 }
 
 void Mpu::setDeviation(int times, float maxX, float maxY, float maxZ,
                        float minX, float minY, float minZ) {
-  this->deviation.x = (maxX - minX) / 2.0;
-  this->deviation.y = (maxY - minY) / 2.0;
-  this->deviation.z = (maxZ - minZ) / 2.0;
+  this->deviation_.x = (maxX - minX) / 2.0;
+  this->deviation_.y = (maxY - minY) / 2.0;
+  this->deviation_.z = (maxZ - minZ) / 2.0;
 }
 
 void Mpu::logDeviation() {
   Serial.print("DeviationX: ");
-  Serial.println(this->deviation.x);
+  Serial.println(this->deviation_.x);
   Serial.print("DeviationY: ");
-  Serial.println(this->deviation.y);
+  Serial.println(this->deviation_.y);
   Serial.print("DeviationZ: ");
-  Serial.println(this->deviation.z);
+  Serial.println(this->deviation_.z);
 }
 
-SensorMeasurement Mpu::read() {
+ImuSensorMeasurement Mpu::read() {
   this->beginCommunication();
   const bool debug = true;
   float currentTime = millis();  // Divide by 1000 to get seconds
-  float elapsedTime = (currentTime - this->previousTime) / 1000;
-  this->previousTime = currentTime;
+  float elapsedTime = (currentTime - this->previousTime_) / 1000;
+  this->previousTime_ = currentTime;
   RawMeasurement raw = this->readAllRaw();
-  SensorMeasurement result;
+  ImuSensorMeasurement result;
   result.acc = this->readAcc(raw.accX, raw.accY, raw.accZ, debug);
   result.gyro = this->readGyro(raw.gyroX, raw.gyroY, raw.gyroZ, debug);
   result.inclination =
-      this->readInclination(result.acc, result.gyro, elapsedTime, debug);
+      inclination_.computeInclination(result.acc, result.gyro, elapsedTime);
   result.temperature = this->readTemperature(raw.temp);
   this->endCommunication();
   return result;
 }
+
 /**
  * We read 14 registers from mpu (each value is stored in 2 registers)
  * the registers order is: | ax | ay | az | temp | gx | gy | gz |
@@ -263,47 +247,42 @@ RawMeasurement Mpu::readAllRaw() {
   rawMeasurement.gyroZ = (Wire.read() << BITS_IN_BYTE | Wire.read());
   return rawMeasurement;
 }
-
 float Mpu::getAccScale(const mpuAccRange accRange) {
   switch (accRange) {
-    case mpuAccRange::_16_G:
-      return (float)mpuAccScale::_16;
-    case mpuAccRange::_8_G:
-      return (float)mpuAccScale::_8;
-    case mpuAccRange::_4_G:
-      return (float)mpuAccScale::_4;
-    default:
-      return (float)mpuAccScale::_2;
+    case mpuAccRange::_16_G:return (float) mpuAccScale::_16;
+    case mpuAccRange::_8_G:return (float) mpuAccScale::_8;
+    case mpuAccRange::_4_G:return (float) mpuAccScale::_4;
+    default:return (float) mpuAccScale::_2;
   }
 }
+
 float Mpu::getGyroScale(const mpuGyroRange gyroRange) {
   switch (gyroRange) {
     case mpuGyroRange::_2000_DEG:
-      return (float)mpuGyroScaleX10::_2000 / GYRO_SCALE_DIVISOR;
+      return (float) mpuGyroScaleX10::_2000 / GYRO_SCALE_DIVISOR;
     case mpuGyroRange::_1000_DEG:
-      return (float)mpuGyroScaleX10::_1000 / GYRO_SCALE_DIVISOR;
+      return (float) mpuGyroScaleX10::_1000 / GYRO_SCALE_DIVISOR;
     case mpuGyroRange::_500_DEG:
-      return (float)mpuGyroScaleX10::_500 / GYRO_SCALE_DIVISOR;
-    default:
-      return (float)mpuGyroScaleX10::_250 / GYRO_SCALE_DIVISOR;
+      return (float) mpuGyroScaleX10::_500 / GYRO_SCALE_DIVISOR;
+    default:return (float) mpuGyroScaleX10::_250 / GYRO_SCALE_DIVISOR;
   }
 }
 
 Acceleration Mpu::readAcc(const int16_t rawAccX, const int16_t rawAccY,
                           const int16_t rawAccZ, const bool debug) {
   Acceleration acc;
-  float accScale = this->getAccScale(this->accRange);
-  acc.x = ((float)rawAccX / accScale) * GRAVITY_EARTH - this->accError.x;
-  acc.y = ((float)rawAccY / accScale) * GRAVITY_EARTH - this->accError.y;
-  acc.z = ((float)rawAccZ / accScale) * GRAVITY_EARTH - this->accError.z;
+  float accScale = this->getAccScale(this->accRange_);
+  acc.x = ((float) rawAccX / accScale) * GRAVITY_EARTH - this->accError_.x;
+  acc.y = ((float) rawAccY / accScale) * GRAVITY_EARTH - this->accError_.y;
+  acc.z = ((float) rawAccZ / accScale) * GRAVITY_EARTH - this->accError_.z;
 
-  this->log(debug, acc);
+//  this->log(debug, acc);
   return acc;
 }
 
 void Mpu::log(const bool debug, Acceleration acc) {
   if (debug) {
-    Serial.print(this->name.c_str());
+    Serial.print(Finger::getName(this->finger_).c_str());
     Serial.print("   aX: ");
     Serial.print(acc.x);
     Serial.print("   aY: ");
@@ -328,27 +307,27 @@ float Mpu::readTemperature(const int16_t rawTemp) {
  */
 Gyro Mpu::readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
                    const int16_t rawGyroZ, const bool debug) {
-  float gyroScale = this->getGyroScale(this->gyroRange);
-  float gyroX = ((float)rawGyroX / gyroScale);
-  float gyroY = ((float)rawGyroY / gyroScale);
-  float gyroZ = ((float)rawGyroZ / gyroScale);
+  float gyroScale = this->getGyroScale(this->gyroRange_);
+  float gyroX = ((float) rawGyroX / gyroScale);
+  float gyroY = ((float) rawGyroY / gyroScale);
+  float gyroZ = ((float) rawGyroZ / gyroScale);
 
   Gyro gyro;
-  if (abs(this->previousGyro.x - gyroX) > this->deviation.x) {
-    gyro.x = gyroX - this->gyroError.x;
+  if (abs(this->previousGyro_.x - gyroX) > this->deviation_.x) {
+    gyro.x = gyroX - this->gyroError_.x;
   }
-  this->previousGyro.x = gyroX;
+  this->previousGyro_.x = gyroX;
 
-  if (abs(this->previousGyro.y - gyroY) > this->deviation.y) {
-    gyro.y = gyroY - this->gyroError.y;
+  if (abs(this->previousGyro_.y - gyroY) > this->deviation_.y) {
+    gyro.y = gyroY - this->gyroError_.y;
   }
-  this->previousGyro.y = gyroY;
+  this->previousGyro_.y = gyroY;
 
-  if (abs(this->previousGyro.z - gyroZ) > this->deviation.z) {
-    gyro.z = gyroZ - this->gyroError.z;
+  if (abs(this->previousGyro_.z - gyroZ) > this->deviation_.z) {
+    gyro.z = gyroZ - this->gyroError_.z;
   }
-  this->previousGyro.z = gyroZ;
-  this->log(debug, gyro);
+  this->previousGyro_.z = gyroZ;
+//  this->log(debug, gyro);
   return gyro;
 }
 
@@ -365,49 +344,6 @@ void Mpu::log(const bool debug, const Gyro gyro) {
     Serial.print(",");
     Serial.print("   degrees/seg         ");
   }
-}
-
-/**
- *  We get the inclination angle from the gyroscope readings.
- *  The complete rotation angle is the accumulation of all the rotation angles
- * over time. The rotation angle is calculated as the angular velocity by the
- * time lapse between two successive measurements (Currently the raw values are
- * in degrees per seconds [deg/s] so we need to multiply by seconds (s) to get
- * the angle in degrees [deg/s * s = deg] ).
- *
- * The constant addition of this measurements could lead to accumulation of
- * noise resulting in infinite values. In order to avoid this problem we could
- * adjust the inclination in x and y axis using the gravity acceleration change.
- * If the rotation angle calculated from gyroscope exceed the rotation angle
- * calculated from acceleration by 5 units. we dismiss the  accumulated angle
- * and use the acceleration calculated angle instead. Unfortunately this can't
- * be done with z axis because if we rotate the in the x plane the gravity force
- * direction doesn't change.
- */
-Inclination Mpu::readInclination(const Acceleration acc, const Gyro gyro,
-                                 const float elapsedTime, const bool debug) {
-  this->inclinationAngle.x = this->inclinationAngle.x + gyro.x * elapsedTime;
-  this->inclinationAngle.y = this->inclinationAngle.y + gyro.y * elapsedTime;
-  this->inclinationAngle.z = this->inclinationAngle.z + gyro.z * elapsedTime;
-
-  float inclinationfromAccX =
-      this->calculateAccAngleX(acc) - this->inclinationfromAccError.x;
-  float inclinationfromAccY =
-      this->calculateAccAngleY(acc) - this->inclinationfromAccError.y;
-  // this->log(inclinationfromAccX ,inclinationfromAccY);
-
-  if (abs(inclinationfromAccX - this->inclinationAngle.x) > 5.0) {
-    this->inclinationAngle.x = inclinationfromAccX;
-  }
-  if (abs(inclinationfromAccY - this->inclinationAngle.y) > 5.0) {
-    this->inclinationAngle.y = inclinationfromAccY;
-  }
-  Inclination inclination;
-  inclination.roll = this->inclinationAngle.x;
-  inclination.pitch = this->inclinationAngle.y;
-  inclination.yaw = this->inclinationAngle.z;
-  this->log(debug, inclination);
-  return inclination;
 }
 
 void Mpu::log(const float accAngleX, const float accAngleY) {
@@ -434,6 +370,15 @@ float Mpu::calculateAccAngleX(const Acceleration acc) {
 
 float Mpu::calculateAccAngleY(const Acceleration acc) {
   return (atan(-1 * acc.x / sqrt(pow(acc.y, 2) + pow(acc.z, 2))) * 180 / PI);
+}
+
+void Mpu::setWriteMode() {
+  pinMode(this->ad0_, OUTPUT);
+  digitalWrite(this->ad0_, HIGH);
+}
+
+Finger::Value Mpu::getFinger() {
+  return this->finger_;
 }
 
 Mpu::~Mpu() {}

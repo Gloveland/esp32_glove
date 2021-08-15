@@ -2,9 +2,14 @@
 #define MPU_H
 
 #include <Arduino.h>
-#include <Movement.h>
 #include <Wire.h>
 #include <float.h>
+#include <map>
+#include "Finger.h"
+#include "../Sensors/Accelerometer.h"
+#include "../Sensors/Gyroscope.h"
+#include "../Sensors/Inclination.h"
+#include "../Sensors/ImuSensorMeasurement.h"
 
 enum mpuBand {
   _260_HZ = 0x00,
@@ -61,11 +66,14 @@ struct RawMeasurement {
 
 class Mpu {
  public:
-  Mpu(const std::string name, const int ad0);
+
+  Mpu(const Finger::Value& finger);
   void init(const mpuAccRange accRange, const mpuGyroRange gyroRange);
   void init();
+  void setWriteMode();
   void calibrate();
-  SensorMeasurement read();
+  ImuSensorMeasurement read();
+  Finger::Value getFinger();
   ~Mpu();
 
  private:
@@ -80,17 +88,21 @@ class Mpu {
   const float GYRO_SCALE_DIVISOR = 10.0;
   const int ALL_REGISTERS = 14;
   const int BITS_IN_BYTE = 8;
-  const std::string name;
-  const int ad0;
-  mpuAccRange accRange;
-  mpuGyroRange gyroRange;
-  Acceleration accError;
-  Gyro gyroError;
-  Gyro previousGyro;
-  Gyro deviation;
-  Acceleration inclinationfromAccError;
-  Gyro inclinationAngle;
-  float previousTime;
+
+  Finger::Value finger_;
+  u_int ad0_{};
+
+  mpuAccRange accRange_;
+  mpuGyroRange gyroRange_;
+  Acceleration accError_;
+
+  Gyro gyroError_;
+  Gyro previousGyro_;
+  Gyro deviation_;
+
+  Inclination inclination_;
+  float previousTime_;
+
   float getAccScale(const mpuAccRange accRange);
   float getGyroScale(const mpuGyroRange gyroRange);
   void beginCommunication();
@@ -101,8 +113,6 @@ class Mpu {
                        const int16_t rawAccZ, const bool debug);
   Gyro readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
                 const int16_t rawGyroZ, const bool debug);
-  Inclination readInclination(const Acceleration acc, const Gyro gyro,
-                              const float elapsedTime, const bool debug);
   float readTemperature(const int16_t rawTemp);
   float calculateAccAngleX(const Acceleration acc);
   float calculateAccAngleY(const Acceleration acc);
@@ -110,16 +120,12 @@ class Mpu {
   void setAccelerationError(int times, float sumAccX, float sumAccY,
                             float sumAccZ);
 
-  void setInclinationError(int times, float sumAngleFromAccX,
-                           float sumAngleFromAccY);
-
   void setGyroError(int times, float sumGyroX, float sumGyroY, float sumGyroZ);
 
   void setDeviation(int times, float maxX, float maxY, float maxZ, float minX,
                     float minY, float minZ);
 
   void logAccelerationError();
-  void logInclinationError();
   void logGyroError();
   void logDeviation();
   void log(const bool debug, Acceleration acc);

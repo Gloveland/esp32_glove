@@ -1,6 +1,3 @@
-//
-// Created by ekumen on 18/7/21.
-//
 
 #include "ServerCallbacks.h"
 

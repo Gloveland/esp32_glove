@@ -1,48 +1,18 @@
 #include <Glove.h>
 
-Glove::Glove() : pinkySensor("pinky", mpuAddressPin::PINKY), thumbSensor("thumb", mpuAddressPin::THUMB) {
-  this->chipId = this->getChipId();
-  pinMode(PINKY, OUTPUT);
-  digitalWrite(PINKY, HIGH);
-  // pinMode(RING, OUTPUT);
-  // digitalWrite(RING, HIGH);
-  // pinMode(MIDDLE, OUTPUT);
-  // digitalWrite(MIDDLE, HIGH);
-  // pinMode(INDEX, OUTPUT);
-  // digitalWrite(INDEX, HIGH);
-  pinMode(THUMB, OUTPUT);
-  digitalWrite(THUMB, HIGH);
-  Wire.begin(I2C_SDA, I2C_SCL);  // Initialize  i2c bus comunication
-}
-
 void Glove::init() {
-  Serial.println();
-  Serial.print(
-      "Type key when all sensors are placed over an horizontal plane:");
-  Serial.println(" X = 0g, Y = 0g, Z = +1g orientation");
+  setUpSensors();
+  Wire.begin(kSdaPin, kSclPin);
+  Serial.println(
+      "\nType key when all sensors are placed over an horizontal plane:"
+      "\n X = 0g, Y = 0g, Z = +1g orientation");
   while (!Serial.available()) {
-    // wait for a character
+    // Wait for a character.
   }
-  // === Calibration === //
-  pinkySensor.calibrate();
-  // ringSensor.calibrate();
-  // middleSensor.calibrate();
-  // indexSensor.calibrate();
-  thumbSensor.calibrate();
+  calibrateSensors();
 }
 
-Movement Glove::readMovement(const int eventCount) {
-  SensorMeasurement pinky = pinkySensor.read();
-  SensorMeasurement thumb = thumbSensor.read();
-  HandMov hand = {
-      .pinky = pinky,
-      .thumb = thumb,
-  };
-  Movement movement(eventCount, this->chipId, hand);
-  return movement;
-}
-
-std::string Glove::getChipId() {
+std::string Glove::getDeviceId() {
   uint8_t chipid[6];
   esp_efuse_mac_get_default(chipid);
   char chipIdString[17];
@@ -51,4 +21,25 @@ std::string Glove::getChipId() {
   return chipIdString;
 }
 
-Glove::~Glove() {}
+Glove::~Glove() = default;
+
+void Glove::setUpSensors() {
+  for (auto sensor : sensors_) {
+    sensor.second.setWriteMode();
+  }
+}
+
+void Glove::calibrateSensors() {
+  for (auto sensor : sensors_) {
+    sensor.second.calibrate();
+  }
+}
+
+GloveMeasurements Glove::readSensors() {
+  GloveMeasurements measurements;
+  for (auto sensor : sensors_) {
+    ImuSensorMeasurement measurement = sensor.second.read();
+    measurements.setSensorMeasurement(sensor.first, measurement);
+  }
+  return measurements;
+}
