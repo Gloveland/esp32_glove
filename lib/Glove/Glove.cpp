@@ -1,8 +1,8 @@
 #include <Glove.h>
 
 void Glove::init() {
-  setUpSensors();
   Wire.begin(kSdaPin, kSclPin);
+  setUpSensors();
   Serial.println(
       "\nType key when all sensors are placed over an horizontal plane:"
       "\n X = 0g, Y = 0g, Z = +1g orientation");
@@ -26,6 +26,7 @@ Glove::~Glove() = default;
 void Glove::setUpSensors() {
   for (auto sensor : sensors_) {
     sensor.second.setWriteMode();
+    sensor.second.init();
   }
 }
 
