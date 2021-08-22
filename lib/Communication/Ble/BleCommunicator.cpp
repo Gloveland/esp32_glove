@@ -26,13 +26,17 @@ void BleCommunicator::init(const std::string &name,
 void BleCommunicator::notify(const std::string &value) {
   this->profile_characteristic_->setValue(value);
   this->profile_characteristic_->notify();
-  Serial.println("BLECommunicator: value sent");
+  Serial.println();
+  Serial.print("BLECommunicator sent: ");
+  Serial.println(value.c_str());
 }
 
 BleCommunicator::~BleCommunicator() = default;
 
 void BleCommunicator::send(GloveMeasurements measurements) {
-  ImuSensorMeasurement thumb_measurement = measurements.thumb_imu_measurement;
+  //ImuSensorMeasurement thumb_measurement = measurements.thumb_imu_measurement;
   //TODO(Darius): send the whole glove measurements.
-  notify(JSONVar::stringify(thumb_measurement.toJson()).c_str());
+  //notify(JSONVar::stringify(thumb_measurement.toJson()).c_str());
+  ImuSensorMeasurement pinky_measurement = measurements.pinky_imu_measurement;
+  notify(JSONVar::stringify(pinky_measurement.toJson()).c_str());
 }

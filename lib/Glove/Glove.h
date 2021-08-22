@@ -25,8 +25,10 @@ class Glove {
 
   /** Enabled sensors of the glove. */
   const std::map<Finger::Value, Mpu> sensors_
-      {{Finger::Value::kPinky, Mpu(Finger::Value::kPinky)},
-       {Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}};
+      {
+        {Finger::Value::kPinky, Mpu(Finger::Value::kPinky)} //,
+        //{Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}
+      };
 
   void setUpSensors();
   void calibrateSensors();

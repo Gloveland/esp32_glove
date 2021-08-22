@@ -1,9 +1,10 @@
 
-#include "../lib/Communication/Ble/BleCommunicator.h"
-#include "../lib/Communication/Wifi/WifiCommunicator.h"
-#include "../lib/Communication/Ble/CharacteristicCallbacks.h"
 #include <Glove.h>
 #include <Utils.h>
+
+#include "../lib/Communication/Ble/BleCommunicator.h"
+#include "../lib/Communication/Ble/CharacteristicCallbacks.h"
+#include "../lib/Communication/Wifi/WifiCommunicator.h"
 
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
 #define TASK_DELAY_MS 500
@@ -38,9 +39,9 @@ void setup() {
 
   setUpGlove();
 
-   // In order to switch between communication modes, comment and uncomment
-   // the lines below:
-//  setUpWifiCommunicator();
+  // In order to switch between communication modes, comment and uncomment
+  // the lines below:
+  //  setUpWifiCommunicator();
   setUpBleCommunicator();
 }
 
@@ -48,26 +49,28 @@ void setUpGlove() {
   glove.init();
   waitAnyUserInput("Type key to start measuring movements...");
   xTaskCreatePinnedToCore(
-      taskReadSensors,               // Task function
-      "readSensors",         // Name of the task
-      10000,             // Stack size of task
-      NULL,              // Parameter of the task
-      1,                    // Priority of the task
-      &readSenorsTaskHandler,        // Task handle to keep track of created task
-      0                      // Pin task to core 0
+      taskReadSensors,         // Task function
+      "readSensors",           // Name of the task
+      10000,                   // Stack size of task
+      NULL,                    // Parameter of the task
+      1,                       // Priority of the task
+      &readSenorsTaskHandler,  // Task handle to keep track of created task
+      0                        // Pin task to core 0
   );
+  vTaskSuspend(readSenorsTaskHandler);
 }
 
 void setUpBleCommunicator() {
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, readSenorsTaskHandler);
   xTaskCreatePinnedToCore(
-      taskBleCommunication,               // Task function
-      "bleCommunication",         // Name of the task
-      10000,                  // Stack size of task
-      NULL,                   // Parameter of the task
-      1,                         // Priority of the task
-      &bleCommunicationTaskHandler,       // Task handle to keep track of created task
-      1                           // Pin task to core 0
+      taskBleCommunication,          // Task function
+      "bleCommunication",            // Name of the task
+      10000,                         // Stack size of task
+      NULL,                          // Parameter of the task
+      1,                             // Priority of the task
+      &bleCommunicationTaskHandler,  // Task handle to keep track of created
+                                     // task
+      1                              // Pin task to core 0
   );
 }
 
@@ -76,16 +79,15 @@ void setUpWifiCommunicator() {
   xTaskCreatePinnedToCore(
       taskWifiCommunication,          // Task function
       "wifiCommunication",            // Name of the task
-      10000,                       // Stack size of task
-      NULL,                        // Parameter of the task
-      1,                           // Priority of the task
-      &wifiCommunicationTaskHandler,  // Task handle to keep track of created task
-      1
-  );
+      10000,                          // Stack size of task
+      NULL,                           // Parameter of the task
+      1,                              // Priority of the task
+      &wifiCommunicationTaskHandler,  // Task handle to keep track of created
+                                      // task
+      1);
 }
 
-void loop() { // loop() runs on core 1
-
+void loop() {  // loop() runs on core 1
 }
 
 [[noreturn]] void taskReadSensors(void *pvParameters) {
