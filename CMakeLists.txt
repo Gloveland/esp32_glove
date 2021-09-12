@@ -37,4 +37,4 @@ add_executable(Z_DUMMY_TARGET ${SRC_LIST}
         lib/Sensors/Inclination.h
         lib/Communication/Wifi/WifiCommunicator.cpp
         lib/Communication/Wifi/WifiCommunicator.h
-        lib/Glove/Finger.h lib/Sensors/Gyroscope.h lib/Sensors/Accelerometer.h lib/Sensors/GloveMeasurements.h)
+        lib/Glove/Finger.h lib/Sensors/Gyroscope.h lib/Sensors/Accelerometer.h lib/Sensors/GloveMeasurements.h lib/Communication/Ble/BleSpecification.h)
