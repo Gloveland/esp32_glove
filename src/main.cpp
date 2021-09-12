@@ -1,16 +1,16 @@
 
 #include <Glove.h>
 #include <Utils.h>
+#include <sstream>
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
-#include "../lib/Communication/Ble/CharacteristicCallbacks.h"
 #include "../lib/Communication/Wifi/WifiCommunicator.h"
 
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
 #define TASK_DELAY_MS 500
 
-[[noreturn]] void taskReadSensors(void *pvParameters);
-TaskHandle_t readSenorsTaskHandler;
+[[noreturn]] void taskDataCollection(void *pvParameters);
+TaskHandle_t dataCollectionTaskHandler;
 
 [[noreturn]] void taskWifiCommunication(void *pvParameters);
 TaskHandle_t wifiCommunicationTaskHandler;
@@ -18,12 +18,16 @@ TaskHandle_t wifiCommunicationTaskHandler;
 [[noreturn]] void taskBleCommunication(void *pvParameters);
 TaskHandle_t bleCommunicationTaskHandler;
 
+[[noreturn]] void taskInterpretation(void *pvParameters);
+TaskHandle_t interpretationTaskHandler;
+
 QueueHandle_t queue;
 const int kQueueSize = 100;
 
 Glove glove;
 WifiCommunicator wifiCommunicator(Glove::getDeviceId());
 BleCommunicator bleCommunicator;
+TasksControllerCallback *tasksControllerCallback;
 
 void setUpGlove();
 void setUpBleCommunicator();
@@ -49,19 +53,32 @@ void setUpGlove() {
   glove.init();
   waitAnyUserInput("Type key to start measuring movements...");
   xTaskCreatePinnedToCore(
-      taskReadSensors,         // Task function
-      "readSensors",           // Name of the task
-      10000,                   // Stack size of task
-      NULL,                    // Parameter of the task
-      1,                       // Priority of the task
-      &readSenorsTaskHandler,  // Task handle to keep track of created task
-      0                        // Pin task to core 0
+      taskDataCollection,         // Task function
+      "readSensors",              // Name of the task
+      10000,                      // Stack size of task
+      NULL,                       // Parameter of the task
+      1,                          // Priority of the task
+      &dataCollectionTaskHandler, // Task handle to keep track of created task
+      0                           // Pin task to core 0
   );
-  vTaskSuspend(readSenorsTaskHandler);
+  vTaskSuspend(dataCollectionTaskHandler);
+  xTaskCreatePinnedToCore(
+      taskInterpretation,         // Task function
+      "Interpretation task",      // Name of the task
+      10000,                      // Stack size of task
+      NULL,                       // Parameter of the task
+      1,                          // Priority of the task
+      &interpretationTaskHandler, // Task handle to keep track of created task
+      0                           // Pin task to core 0
+  );
+  vTaskSuspend(interpretationTaskHandler);
 }
 
 void setUpBleCommunicator() {
-  bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, readSenorsTaskHandler);
+  tasksControllerCallback = new TasksControllerCallback(
+      dataCollectionTaskHandler,
+      interpretationTaskHandler);
+  bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
   xTaskCreatePinnedToCore(
       taskBleCommunication,          // Task function
       "bleCommunication",            // Name of the task
@@ -87,16 +104,30 @@ void setUpWifiCommunicator() {
       1);
 }
 
-void loop() {  // loop() runs on core 1
-}
+void loop() {}  // loop() runs on core 1
 
-[[noreturn]] void taskReadSensors(void *pvParameters) {
+[[noreturn]] void taskDataCollection(void *pvParameters) {
   Serial.println("Task 'read gloves' running on core ");
   Serial.println(xPortGetCoreID());
   for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
       GloveMeasurements measurements = glove.readSensors();
       xQueueSend(queue, &measurements, portMAX_DELAY);
+      delay(100);
+    }
+    vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
+  }
+}
+
+[[noreturn]] void taskInterpretation(void *pvParameters) {
+  Serial.println("Task 'Interpretation' running on core ");
+  Serial.println(xPortGetCoreID());
+  for (;;) {
+    for (int i = 0; i < 5; i++) {
+      //TODO(https://git.io/Ju6I7): Implement translation task.
+      std::stringstream mock_interpretation_stream;
+      mock_interpretation_stream << "Interpretation " << i;
+      bleCommunicator.sendInterpretation(mock_interpretation_stream.str());
       delay(100);
     }
     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
@@ -110,7 +141,7 @@ void loop() {  // loop() runs on core 1
   for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
       xQueueReceive(queue, &glove_measurements, portMAX_DELAY);
-      bleCommunicator.send(glove_measurements);
+      bleCommunicator.sendMeasurements(glove_measurements);
     }
     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
   }
