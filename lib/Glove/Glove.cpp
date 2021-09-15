@@ -1,5 +1,6 @@
 #include <Glove.h>
 
+
 void Glove::init() {
   Wire.begin(kSdaPin, kSclPin);
   setUpSensors();
@@ -21,7 +22,6 @@ std::string Glove::getDeviceId() {
   return chipIdString;
 }
 
-Glove::~Glove() = default;
 
 void Glove::setUpSensors() {
   for (auto sensor : sensors_) {
@@ -44,3 +44,5 @@ GloveMeasurements Glove::readSensors() {
   }
   return measurements;
 }
+
+Glove::~Glove() = default;

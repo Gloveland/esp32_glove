@@ -4,18 +4,13 @@
 #include <Mpu.h>
 #include <map>
 #include <esp_task.h>
-#include "../Sensors/GloveMeasurements.h"
+#include <GloveMeasurements.h>
 
 class Glove {
  public:
-  Glove() {
-    this->chip_id_ = Glove::getDeviceId();
-  }
-
   void init();
   GloveMeasurements readSensors();
   static std::string getDeviceId();
-
   ~Glove();
 
  private:

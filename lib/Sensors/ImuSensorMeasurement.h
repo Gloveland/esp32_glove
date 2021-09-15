@@ -1,11 +1,12 @@
 #ifndef IMU_SENSOR_MEASUREMENT_H_
 #define IMU_SENSOR_MEASUREMENT_H_
 
+#include <Arduino_JSON.h>
 
 #include "Acceleration.h"
 #include "Gyro.h"
 #include "Inclination.h"
-#include <Arduino_JSON.h>
+
 
 /**
  * The measurement of an IMU sensor.
