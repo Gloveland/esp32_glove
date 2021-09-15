@@ -1,45 +1,73 @@
 #include <GloveMeasurements.h>
 
-GloveMeasurements::GloveMeasurements(){}
+const std::string GloveMeasurements::kglove_mesurements_packet_format =
+    "%d\nP%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nR%.3f,%.3f,%.3f,%.3f,%."
+    "3f,%.3f,%.3f,%.3f,%.3f\nM%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nI%."
+    "3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nT%.3f,%.3f,%.3f,%.3f,%.3f,%."
+    "3f,%.3f,%.3f,%.3f;";
+
+GloveMeasurements::GloveMeasurements() {}
 
 void GloveMeasurements::setSensorMeasurement(const Finger::Value &value,
-                            ImuSensorMeasurement measurement) {
-
-    switch (value) {
-      case Finger::kPinky:pinky_imu_measurement = &measurement;
-        break;
-      case Finger::kRing:ring_imu_measurement = &measurement;
-        break;
-      case Finger::kMiddle:middle_imu_measurement = &measurement;
-        break;
-      case Finger::kIndex:index_imu_measurement = &measurement;
-        break;
-      case Finger::kThumb:thumb_imu_measurement = &measurement;
-        break;
-      default:
-        Serial.println(
-            "[ERROR] Error setting a measurement in GloveMeasurements.");
-    }
+                                             ImuSensorMeasurement measurement) {
+  switch (value) {
+    case Finger::kPinky:
+      pinky_imu_measurement = &measurement;
+      break;
+    case Finger::kRing:
+      ring_imu_measurement = &measurement;
+      break;
+    case Finger::kMiddle:
+      middle_imu_measurement = &measurement;
+      break;
+    case Finger::kIndex:
+      index_imu_measurement = &measurement;
+      break;
+    case Finger::kThumb:
+      thumb_imu_measurement = &measurement;
+      break;
+    default:
+      Serial.println(
+          "[ERROR] Error setting a measurement in GloveMeasurements.");
   }
+}
 
-/*
-  JSONVar GloveMeasurements::toJson() const {
-    JSONVar json;
-
-    JSONVar pinky_json = (*this->pinky_imu_measurement).toJson();
-    JSONVar thumb_json = (*this->thumb_imu_measurement).toJson();
-    JSONVar ring_json = (*this->ring_imu_measurement).toJson();
-    JSONVar index_json = (*this->index_imu_measurement).toJson();
-    JSONVar middle_json = (*this->middle_imu_measurement).toJson();
-
-    json[Finger::getName(Finger::kPinky).c_str()] = pinky_json;
-    json[Finger::getName(Finger::kThumb).c_str()] = thumb_json;
-    json[Finger::getName(Finger::kRing).c_str()] = ring_json;
-    json[Finger::getName(Finger::kIndex).c_str()] = index_json;
-    json[Finger::getName(Finger::kMiddle).c_str()] = middle_json;
-
-    return json;
+void GloveMeasurements::toPackage(int events_count,
+                                  char *glove_measurement_buffer, const int size) {
+  ImuSensorMeasurement pinky = *this->pinky_imu_measurement;
+  ImuSensorMeasurement ring = *this->ring_imu_measurement;
+  ImuSensorMeasurement middle = *this->middle_imu_measurement;
+  ImuSensorMeasurement index = *this->index_imu_measurement;
+  ImuSensorMeasurement thump = *this->thumb_imu_measurement;
+  int size_written = sprintf(
+      glove_measurement_buffer,
+      GloveMeasurements::kglove_mesurements_packet_format.c_str(), events_count,
+      pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(),
+      pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(),
+      pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
+      pinky.getInclination().getYaw(), pinky.getAcc().getX(),
+      pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(),
+      pinky.getGyro().getY(), pinky.getGyro().getZ(),
+      pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
+      pinky.getInclination().getYaw(), pinky.getAcc().getX(),
+      pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(),
+      pinky.getGyro().getY(), pinky.getGyro().getZ(),
+      pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
+      pinky.getInclination().getYaw(), pinky.getAcc().getX(),
+      pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(),
+      pinky.getGyro().getY(), pinky.getGyro().getZ(),
+      pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
+      pinky.getInclination().getYaw(), pinky.getAcc().getX(),
+      pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(),
+      pinky.getGyro().getY(), pinky.getGyro().getZ(),
+      pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
+      pinky.getInclination().getYaw());
+  Serial.print("size_written: ");
+  Serial.println(size_written);
+  if (size_written > size) {
+    Serial.print("Error size is bigger than 512!!");
   }
-  */
+  Serial.println(String(glove_measurement_buffer));
+}
 
 GloveMeasurements::~GloveMeasurements() = default;

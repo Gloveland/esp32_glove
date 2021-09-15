@@ -26,18 +26,18 @@ void Mpu::endCommunication() {
 void Mpu::checkAddress(int address) {
   Wire.beginTransmission(address);
   byte error = Wire.endTransmission();
-  if (error != 0) {
+  if (error != this->OK) {
     Serial.print("Error checking address: ");
     Serial.print(" 0x");
-    if (address < 16) {
+    if (address < this->HEX_ADDRESS) {
       Serial.print("0");
     }
     Serial.println(address, HEX);
-    if (error == 1) {
+    if (error == this->DATA_BUFFER_ERROR) {
       Serial.print(" Data too long to fit in transmit buffer. ");
       Serial.println(" Is i2c bus initialize?");
     }
-    if (error == 4) {
+    if (error == this->UNKNOWN_ERROR) {
       Serial.println(" Unknow error");
     }
   }

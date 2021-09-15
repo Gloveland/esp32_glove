@@ -27,7 +27,6 @@ class BleCommunicator {
   ~BleCommunicator();
 
  private:
-  const static std::string kglove_mesurements_packet_format;
   const static int kmtu = 512;
   char glove_measurement_buffer[kmtu];
   long events_count_;

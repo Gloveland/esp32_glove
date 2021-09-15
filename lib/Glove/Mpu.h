@@ -56,6 +56,10 @@ class Mpu {
   ~Mpu();
 
  private:
+  const int HEX_ADDRESS = 16;
+  const int OK = 0;
+  const int DATA_BUFFER_ERROR = 1;
+  const int UNKNOWN_ERROR = 4;
   const int GRAVITY_EARTH = 9.80665F;
   const int GENERAL_CONFIG = 0x1A;  ///< General configuration register
   const int PWR_MGMT_1 = 0x6B;
@@ -66,6 +70,7 @@ class Mpu {
   const int GYRO_XOUT_H = 0x43;
   const int ALL_REGISTERS = 14;
   const int BITS_IN_BYTE = 8;
+
 
   
   Finger::Value finger_;
