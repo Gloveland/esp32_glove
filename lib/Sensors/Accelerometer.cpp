@@ -6,14 +6,15 @@ Range Accelerometer::getRange(){
     return this->range;
 }
 
-void Accelerometer::calibrate(int times, float sum_acc_x, float sum_acc_y, float sum_acc_z) {
+void Accelerometer::setError(int times, float sum_acc_x, float sum_acc_y, float sum_acc_z){
   float acc_error_x = sum_acc_x / times;
   float acc_error_y = sum_acc_y / times;
   float acc_error_z = sum_acc_z / times;
-  if(debug){
+  this->acc_error = Acceleration(acc_error_x, acc_error_y, acc_error_z);
+  if(this->debug){
       this->logError();
   }
-  this->acc_error = Acceleration(acc_error_x, acc_error_y, acc_error_z);
+  
 }
 
 Acceleration Accelerometer::readAcc(const int16_t raw_acc_x, const int16_t raw_acc_y, const int16_t raw_acc_z) {

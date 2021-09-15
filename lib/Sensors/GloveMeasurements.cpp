@@ -33,7 +33,8 @@ void GloveMeasurements::setSensorMeasurement(const Finger::Value &value,
 }
 
 void GloveMeasurements::toPackage(int events_count,
-                                  char *glove_measurement_buffer, const int size) {
+                                  char *glove_measurement_buffer,
+                                  const int size) {
   ImuSensorMeasurement pinky = *this->pinky_imu_measurement;
   ImuSensorMeasurement ring = *this->ring_imu_measurement;
   ImuSensorMeasurement middle = *this->middle_imu_measurement;
@@ -45,6 +46,8 @@ void GloveMeasurements::toPackage(int events_count,
       pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(),
       pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(),
       pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
+
+      // TO DO replace with different fingers
       pinky.getInclination().getYaw(), pinky.getAcc().getX(),
       pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(),
       pinky.getGyro().getY(), pinky.getGyro().getZ(),

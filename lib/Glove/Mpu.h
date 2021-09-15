@@ -34,13 +34,13 @@ enum mpuAddress {
 };
 
 struct RawMeasurement {
-  int16_t accX;
-  int16_t accY;
-  int16_t accZ;
+  int16_t acc_x;
+  int16_t acc_y;
+  int16_t acc_z;
   int16_t temp;
-  int16_t gyroX;
-  int16_t gyroY;
-  int16_t gyroZ;
+  int16_t gyro_x;
+  int16_t gyro_y;
+  int16_t gyro_z;
 };
 
 class Mpu {
@@ -56,20 +56,25 @@ class Mpu {
   ~Mpu();
 
  private:
-  const int HEX_ADDRESS = 16;
-  const int OK = 0;
-  const int DATA_BUFFER_ERROR = 1;
-  const int UNKNOWN_ERROR = 4;
-  const int GRAVITY_EARTH = 9.80665F;
-  const int GENERAL_CONFIG = 0x1A;  ///< General configuration register
-  const int PWR_MGMT_1 = 0x6B;
-  const int RESET = 0x00;
-  const int ACC_CONFIG_REGISTER = 0x1C;
-  const int GYRO_CONFIG_REGISTER = 0x1C;
-  const int ACCEL_XOUT_H = 0x3B;
-  const int GYRO_XOUT_H = 0x43;
-  const int ALL_REGISTERS = 14;
-  const int BITS_IN_BYTE = 8;
+  static const int HEX_ADDRESS;
+  static const int OK;
+  static const int DATA_BUFFER_ERROR;
+  static const int UNKNOWN_ERROR;
+  static const int GRAVITY_EARTH;
+  static const int GENERAL_CONFIG;  ///< General configuration register
+  static const int PWR_MGMT_1;
+  static const int RESET;
+  static const int ACC_CONFIG_REGISTER;
+  static const int GYRO_CONFIG_REGISTER;
+  static const int ACCEL_XOUT_H;
+  static const int GYRO_XOUT_H;
+  static const int ALL_REGISTERS;
+  static const int BITS_IN_BYTE;
+
+  static const int TEMP_DIVISOR;
+  static const int TEMP_OFFSET;
+
+
 
 
   

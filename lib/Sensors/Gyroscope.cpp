@@ -7,11 +7,11 @@ Gyroscope::Gyroscope(const GyroRange gyro_range, const bool debug)
       previous_gyro_(Gyro(0, 0, 0)),
       deviation_(Gyro(0, 0, 0)) {}
 
-void Gyroscope::setGyroError(int times, float sumGyroX, float sumGyroY,
-                             float sumGyroZ) {
-  float x = sumGyroX / times;
-  float y = sumGyroY / times;
-  float z = sumGyroZ / times;
+void Gyroscope::setGyroError(int times, float sumGyro_x, float sumGyro_y,
+                             float sumGyro_z) {
+  float x = sumGyro_x / times;
+  float y = sumGyro_y / times;
+  float z = sumGyro_z / times;
   this->gyro_error_ = Gyro(x, y, z);
   if (this->debug) {
     this->logGyroError();
@@ -23,7 +23,7 @@ void Gyroscope::setDeviation(int times, float maxX, float maxY, float maxZ,
   float x = (maxX - minX) / 2.0;
   float y = (maxY - minY) / 2.0;
   float z = (maxZ - minZ) / 2.0;
-  this->gyro_error_ = Gyro(x, y, z);
+  this->deviation_= Gyro(x, y, z);
   if (this->debug) {
     this->logDeviation();
   }
@@ -37,12 +37,12 @@ GyroRange Gyroscope::getGyroRange() { return this->gyro_range_; }
  * is lower than the maximum deviation we dismiss the measurement because is
  * considered noise
  */
-Gyro Gyroscope::readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
-                         const int16_t rawGyroZ) {
+Gyro Gyroscope::readGyro(const int16_t rawGyro_x, const int16_t rawGyro_y,
+                         const int16_t rawGyro_z) {
   float gyro_scale = this->getGyroScale(this->gyro_range_);
-  float gyro_x = ((float)rawGyroX / gyro_scale);
-  float gyro_y = ((float)rawGyroY / gyro_scale);
-  float gyro_z = ((float)rawGyroZ / gyro_scale);
+  float gyro_x = ((float)rawGyro_x / gyro_scale);
+  float gyro_y = ((float)rawGyro_y / gyro_scale);
+  float gyro_z = ((float)rawGyro_z / gyro_scale);
 
   float x_value, y_value, z_value = 0.0;
   if (abs(this->previous_gyro_.getX() - gyro_x) > this->deviation_.getX()) {

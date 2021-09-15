@@ -33,11 +33,11 @@ class Gyroscope {
 
  public:
   Gyroscope(const GyroRange gyroRange, const bool debug);
-  void setGyroError(int times, float sumGyroX, float sumGyroY, float sumGyroZ);
+  void setGyroError(int times, float sumGyro_x, float sumGyro_y, float sumGyro_z);
   void setDeviation(int times, float maxX, float maxY, float maxZ, float minX,
                     float minY, float minZ);
-  Gyro readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
-                const int16_t rawGyroZ);
+  Gyro readGyro(const int16_t rawGyro_x, const int16_t rawGyro_y,
+                const int16_t rawGyro_z);
   GyroRange getGyroRange();
 
   ~Gyroscope();

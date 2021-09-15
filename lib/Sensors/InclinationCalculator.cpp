@@ -15,7 +15,7 @@ void InclinationCalculator::setError(int times, float sum_angle_from_acc_x,
 
 void InclinationCalculator::log(const float inclination_from_acc_x,
                                 const float inclination_from_acc_y) {
-  Serial.print("   : ");
+  Serial.print("   accAngleX: ");
   Serial.print(inclination_from_acc_x);
   Serial.print("   accAngleY: ");
   Serial.print(inclination_from_acc_y);

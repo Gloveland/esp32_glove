@@ -22,8 +22,6 @@ class GloveMeasurements {
     ImuSensorMeasurement &getSensor(Finger::Value value);
     void setSensorMeasurement(const Finger::Value &value, ImuSensorMeasurement measurement);
     ~GloveMeasurements();
-
-    //JSONVar toJson() const;
 };
 
 #endif // GLOVE_MEASUREMENT_H_

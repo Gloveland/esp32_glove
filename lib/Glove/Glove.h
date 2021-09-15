@@ -17,6 +17,9 @@ class Glove {
   ~Glove();
 
  private:
+  static const int kchip_id_str_size;
+  static const std::string kchip_id_format;
+  static const int kchip_id_size;
   const int kSclPin = 22;
   const int kSdaPin = 21;
   /** Enabled sensors of the glove. */

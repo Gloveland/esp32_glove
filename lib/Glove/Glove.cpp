@@ -1,5 +1,10 @@
 #include <Glove.h>
 
+const std::string Glove::kchip_id_format = "%02x:%02x:%02x:%02x:%02x:%02x\n";
+const int Glove::kchip_id_size = 6;
+const int Glove::kchip_id_str_size = 17;
+
+
 void Glove::init() {
   Wire.begin(kSdaPin, kSclPin);
   setUpSensors();
@@ -35,10 +40,10 @@ GloveMeasurements Glove::readSensors() {
 }
 
 std::string Glove::getDeviceId() {
-    uint8_t chipid[6];
+    uint8_t chipid[Glove::kchip_id_size];
     esp_efuse_mac_get_default(chipid);
-    char chipIdString[17];
-    snprintf(chipIdString, 17, "%02x:%02x:%02x:%02x:%02x:%02x\n", chipid[0],
+    char chipIdString[Glove::kchip_id_str_size];
+    snprintf(chipIdString, Glove::kchip_id_str_size, Glove::kchip_id_format.c_str(), chipid[0],
              chipid[1], chipid[2], chipid[3], chipid[4], chipid[5]);
     return chipIdString;
   }
