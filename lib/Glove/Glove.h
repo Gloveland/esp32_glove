@@ -7,10 +7,11 @@
 
 #include <map>
 
+typedef std::map<Finger::Value, Mpu> GloveSensors;
+
 class Glove {
  public:
   void init();
-  typedef std::map<Finger::Value, Mpu> GloveSensors;
   GloveMeasurements readSensors();
   static std::string getDeviceId();
   ~Glove();

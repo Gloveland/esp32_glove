@@ -22,6 +22,7 @@ void GloveMeasurements::setSensorMeasurement(const Finger::Value &value,
     }
   }
 
+/*
   JSONVar GloveMeasurements::toJson() const {
     JSONVar json;
 
@@ -39,5 +40,6 @@ void GloveMeasurements::setSensorMeasurement(const Finger::Value &value,
 
     return json;
   }
+  */
 
 GloveMeasurements::~GloveMeasurements() = default;

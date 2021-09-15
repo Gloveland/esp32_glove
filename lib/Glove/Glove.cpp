@@ -43,8 +43,8 @@ std::string Glove::getDeviceId() {
     return chipIdString;
   }
 
-const Glove::GloveSensors sensors_ = {
-    {Finger::Value::kPinky, Mpu(Finger::Value::kPinky)}  //,
+const GloveSensors Glove::sensors_ = {
+    {Finger::Value::kPinky, Mpu(Finger::Value::kPinky, true)}  //,
     //{Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}
 };
 

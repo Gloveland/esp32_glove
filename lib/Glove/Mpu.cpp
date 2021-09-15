@@ -1,9 +1,9 @@
 #include <Mpu.h>
 
 Mpu::Mpu(const Finger::Value &finger, bool debug):
-    finger_(*finger)
+    finger_(finger),
     ad0_(Finger::getAd0Pin(finger)),
-    debug(debug);
+    debug(debug),
     accelerometer(Accelerometer(Range::_2_G, debug)),
     gyroscope(Gyroscope(GyroRange::_250_DEG, debug)),
     inclination_calculator(InclinationCalculator(debug)),

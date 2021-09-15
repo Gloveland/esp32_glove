@@ -36,12 +36,14 @@ boolean WifiCommunicator::listenForClients() {
 
 /** Sends a GloveMeasurement via wifi. */
 void WifiCommunicator::send(GloveMeasurements measurements) {
-  JSONVar jsonHand = measurements.toJson();
+  /*JSONVar jsonHand = measurements.toJson();
   JSONVar jsonMovement;
   jsonMovement["kDeviceId"] = this->kDeviceId.c_str();
   jsonMovement["event_num"] = this->events_count_;
   jsonMovement["hand"] = jsonHand;
   String jsonString = JSON.stringify(jsonMovement);
+  */
+ String jsonString = "";
   Serial.print("[WifiCommunicator] Sending value via wifi: ");
   Serial.println(jsonString);
   wifi_client_.write("\n");

@@ -17,6 +17,8 @@ Inclination ImuSensorMeasurement::getInclination() const{
     return this->inclination;
 }
 
+/*
+
 JSONVar ImuSensorMeasurement::toJson() const {
     JSONVar json_acc;
     JSONVar json_gyro;
@@ -44,5 +46,6 @@ JSONVar ImuSensorMeasurement::toJson() const {
 
     return json_measurement;
   }
+  */
 
 ImuSensorMeasurement::~ImuSensorMeasurement() = default;

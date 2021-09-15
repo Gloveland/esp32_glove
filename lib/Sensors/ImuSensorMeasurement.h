@@ -1,7 +1,7 @@
 #ifndef IMU_SENSOR_MEASUREMENT_H_
 #define IMU_SENSOR_MEASUREMENT_H_
 
-#include <Arduino_JSON.h>
+//#include <Arduino_JSON.h>
 
 #include "Acceleration.h"
 #include "Gyro.h"
@@ -18,7 +18,7 @@ class ImuSensorMeasurement {
     Acceleration getAcc() const;
     Gyro getGyro() const;
     Inclination getInclination() const;
-    JSONVar toJson() const;
+    //JSONVar toJson() const;
     ~ImuSensorMeasurement();
 
   private: 

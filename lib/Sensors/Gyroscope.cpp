@@ -1,37 +1,35 @@
 #include <Gyroscope.h>
 
-Gyroscope::Gyroscope(const GyroRange gyro_range, const bool debug) :
-    debug(debug),
-    gyro_range_(gyro_range),
-    gyro_error_(Gyro(0,0,0)),
-    previous_gyro_(Gyro(0,0,0)),
-    deviation_(Gyro(0,0,0)){}
+Gyroscope::Gyroscope(const GyroRange gyro_range, const bool debug)
+    : debug(debug),
+      gyro_range_(gyro_range),
+      gyro_error_(Gyro(0, 0, 0)),
+      previous_gyro_(Gyro(0, 0, 0)),
+      deviation_(Gyro(0, 0, 0)) {}
 
 void Gyroscope::setGyroError(int times, float sumGyroX, float sumGyroY,
-                       float sumGyroZ) {
+                             float sumGyroZ) {
   float x = sumGyroX / times;
-  float y  = sumGyroY / times;
+  float y = sumGyroY / times;
   float z = sumGyroZ / times;
   this->gyro_error_ = Gyro(x, y, z);
-  if(this->debug){
-      this->logGyroError();
+  if (this->debug) {
+    this->logGyroError();
   }
 }
 
 void Gyroscope::setDeviation(int times, float maxX, float maxY, float maxZ,
-                       float minX, float minY, float minZ) {
+                             float minX, float minY, float minZ) {
   float x = (maxX - minX) / 2.0;
-  float y  = (maxY - minY) / 2.0;
+  float y = (maxY - minY) / 2.0;
   float z = (maxZ - minZ) / 2.0;
   this->gyro_error_ = Gyro(x, y, z);
-  if(this->debug){
-      this->logDeviation();
+  if (this->debug) {
+    this->logDeviation();
   }
 }
 
-GyroRange Gyroscope::getGyroRange() {
-  return this->gyro_range_;
-}
+GyroRange Gyroscope::getGyroRange() { return this->gyro_range_; }
 
 /**
  * Get angular velocity of rotation from raw gyro readings.
@@ -40,11 +38,11 @@ GyroRange Gyroscope::getGyroRange() {
  * considered noise
  */
 Gyro Gyroscope::readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
-                   const int16_t rawGyroZ, const bool debug) {
+                         const int16_t rawGyroZ) {
   float gyro_scale = this->getGyroScale(this->gyro_range_);
-  float gyro_x = ((float) rawGyroX / gyro_scale);
-  float gyro_y = ((float) rawGyroY / gyro_scale);
-  float gyro_z= ((float) rawGyroZ / gyro_scale);
+  float gyro_x = ((float)rawGyroX / gyro_scale);
+  float gyro_y = ((float)rawGyroY / gyro_scale);
+  float gyro_z = ((float)rawGyroZ / gyro_scale);
 
   float x_value, y_value, z_value = 0.0;
   if (abs(this->previous_gyro_.getX() - gyro_x) > this->deviation_.getX()) {
@@ -56,18 +54,15 @@ Gyro Gyroscope::readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
   }
 
   if (abs(this->previous_gyro_.getZ() - gyro_z) > this->deviation_.getZ()) {
-    z_value= gyro_z - this->gyro_error_.getZ();
+    z_value = gyro_z - this->gyro_error_.getZ();
   }
   this->previous_gyro_ = Gyro(gyro_x, gyro_y, gyro_z);
-  if(this->debug){
-    this->previous_gyro_.log(); 
+  if (this->debug) {
+    this->previous_gyro_.log();
   }
- 
+
   return Gyro(x_value, y_value, z_value);
 }
-
-
-
 
 void Gyroscope::logGyroError() {
   Serial.println("");
@@ -78,8 +73,6 @@ void Gyroscope::logGyroError() {
   Serial.print("GyroErrorZ: ");
   Serial.println(this->gyro_error_.getZ());
 }
-
-
 
 void Gyroscope::logDeviation() {
   Serial.print("DeviationX: ");
@@ -93,12 +86,13 @@ void Gyroscope::logDeviation() {
 float Gyroscope::getGyroScale(const GyroRange gyro_range) {
   switch (gyro_range) {
     case GyroRange::_2000_DEG:
-      return (float) GyroScaleX10::_2000 / GYRO_SCALE_DIVISOR;
+      return (float)GyroScaleX10::_2000 / GYRO_SCALE_DIVISOR;
     case GyroRange::_1000_DEG:
-      return (float) GyroScaleX10::_1000 / GYRO_SCALE_DIVISOR;
+      return (float)GyroScaleX10::_1000 / GYRO_SCALE_DIVISOR;
     case GyroRange::_500_DEG:
-      return (float) GyroScaleX10::_500 / GYRO_SCALE_DIVISOR;
-    default:return (float) GyroScaleX10::_250 / GYRO_SCALE_DIVISOR;
+      return (float)GyroScaleX10::_500 / GYRO_SCALE_DIVISOR;
+    default:
+      return (float)GyroScaleX10::_250 / GYRO_SCALE_DIVISOR;
   }
 }
 
