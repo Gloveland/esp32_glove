@@ -27,19 +27,6 @@ enum mpuBand {
   _5_HZ = 0x06,
 };
 
-enum mpuGyroRange {
-  _250_DEG = 0x00,   ///< +/- 250 deg/s (default value)
-  _500_DEG = 0x08,   ///< +/- 500 deg/s
-  _1000_DEG = 0x10,  ///< +/- 1000 deg/s
-  _2000_DEG = 0x18,  ///< +/- 2000 deg/s
-};
-
-enum mpuGyroScaleX10 {
-  _250 = 1310,  /// 131
-  _500 = 655,   /// 65.5
-  _1000 = 328,  /// 32.8
-  _2000 = 164,  /// 16.4
-};
 
 enum mpuAddress {
   _ON = 0x68,
@@ -62,10 +49,10 @@ class Mpu {
   void init();
   void setWriteMode();
   void calibrate();
+  void log();
   ImuSensorMeasurement read();
   Finger::Value getFinger();
-  float getGyroScale(const mpuGyroRange gyroRange);
-  void log(const bool debug, Acceleration acc);
+  float getGyroScale(const GyroRange gyroRange);
   ~Mpu();
 
  private:
@@ -77,42 +64,24 @@ class Mpu {
   const int GYRO_CONFIG_REGISTER = 0x1C;
   const int ACCEL_XOUT_H = 0x3B;
   const int GYRO_XOUT_H = 0x43;
-  const float GYRO_SCALE_DIVISOR = 10.0;
   const int ALL_REGISTERS = 14;
   const int BITS_IN_BYTE = 8;
 
+  bool debug;
   Finger::Value finger_;
   u_int ad0_{};
   Accelerometer accelerometer;
+  Gyroscope gyroscope;
   InclinationCalculator inclination_calculator;
-
-  mpuGyroRange gyroRange_;
-
-  Gyro gyroError_;
-  Gyro previousGyro_;
-  Gyro deviation_;
-  
   float previousTime_;
 
   void beginCommunication();
   void endCommunication();
   void checkAddress(int address);
   RawMeasurement readAllRaw();
-  Gyro readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
-                const int16_t rawGyroZ, const bool debug);
+ 
   float readTemperature(const int16_t rawTemp);
 
-  void setGyroError(int times, float sumGyroX, float sumGyroY, float sumGyroZ);
-
-  void setDeviation(int times, float maxX, float maxY, float maxZ, float minX,
-                    float minY, float minZ);
-
-  void logGyroError();
-  void logDeviation();
-
-  void log(const bool debug, const Gyro gyro);
-  void log(const float accAngleX, const float accAngleY);
-  void log(const bool debug, const Inclination inclination);
 };
 
 #endif  // MPU_H

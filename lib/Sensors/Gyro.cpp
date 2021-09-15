@@ -18,4 +18,17 @@ float Gyro::getZ() const{
     return this->z;
 }
 
+void Gyro::log() const{
+    Serial.print("   gX: ");
+    Serial.print(this->getX());
+    Serial.print(",");
+    Serial.print("   gY: ");
+    Serial.print(this->getY());
+    Serial.print(",");
+    Serial.print("   gZ: ");
+    Serial.print(this->getZ());
+    Serial.print(",");
+    Serial.print("   degrees/seg         ");
+}
+
 Gyro::~Gyro() = default;

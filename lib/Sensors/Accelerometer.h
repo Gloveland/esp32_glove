@@ -31,7 +31,6 @@ class Accelerometer {
 
  private:
   const int GRAVITY_EARTH = 9.80665F;
-
   Range range;
   bool debug;
   Acceleration acc_error;

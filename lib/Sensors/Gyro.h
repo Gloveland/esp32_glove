@@ -1,6 +1,7 @@
 #ifndef GYRO_H_
 #define GYRO_H_
 
+#include <Arduino.h>
 /**
  * Measurement of the gyroscope from the IMU sensor.
  */
@@ -13,6 +14,7 @@ class Gyro {
     float getX() const;
     float getY() const;
     float getZ() const;
+    void log() const;
     ~Gyro();
 };
 
