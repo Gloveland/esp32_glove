@@ -1,6 +1,5 @@
 #include <Glove.h>
 
-
 void Glove::init() {
   Wire.begin(kSdaPin, kSclPin);
   setUpSensors();
@@ -12,16 +11,6 @@ void Glove::init() {
   }
   calibrateSensors();
 }
-
-std::string Glove::getDeviceId() {
-  uint8_t chipid[6];
-  esp_efuse_mac_get_default(chipid);
-  char chipIdString[17];
-  snprintf(chipIdString, 17, "%02x:%02x:%02x:%02x:%02x:%02x\n", chipid[0],
-           chipid[1], chipid[2], chipid[3], chipid[4], chipid[5]);
-  return chipIdString;
-}
-
 
 void Glove::setUpSensors() {
   for (auto sensor : sensors_) {
@@ -44,5 +33,19 @@ GloveMeasurements Glove::readSensors() {
   }
   return measurements;
 }
+
+std::string Glove::getDeviceId() {
+    uint8_t chipid[6];
+    esp_efuse_mac_get_default(chipid);
+    char chipIdString[17];
+    snprintf(chipIdString, 17, "%02x:%02x:%02x:%02x:%02x:%02x\n", chipid[0],
+             chipid[1], chipid[2], chipid[3], chipid[4], chipid[5]);
+    return chipIdString;
+  }
+
+const Glove::GloveSensors sensors_ = {
+    {Finger::Value::kPinky, Mpu(Finger::Value::kPinky)}  //,
+    //{Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}
+};
 
 Glove::~Glove() = default;
