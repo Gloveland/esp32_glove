@@ -24,7 +24,7 @@ class Accelerometer {
 
  public:;
   Accelerometer(const Range range, const bool debug = false);
-  Acceleration readAcc(const int16_t rawAccX, const int16_t rawAccY, const int16_t rawAccZ, const bool debug);
+  Acceleration readAcc(const int16_t rawAccX, const int16_t rawAccY, const int16_t rawAccZ);
   Range getRange();
   void calibrate(int times, float sumAccX, float sumAccY, float sumAccZ);
   ~Accelerometer();

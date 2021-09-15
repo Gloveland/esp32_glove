@@ -196,9 +196,9 @@ ImuSensorMeasurement Mpu::read() {
   RawMeasurement raw = this->readAllRaw();
   this->endCommunication();
 
-  Acceleration acc = this->accelerometer.readAcc(raw.accX, raw.accY, raw.accZ, debug);
+  Acceleration acc = this->accelerometer.readAcc(raw.accX, raw.accY, raw.accZ);
   Gyro gyro = this->readGyro(raw.gyroX, raw.gyroY, raw.gyroZ, debug);
-  Inclination inclination = this->inclination_calculator.calculateInclination(result.acc, result.gyro, elapsedTime);
+  Inclination inclination = this->inclination_calculator.calculateInclination(acc, gyro, elapsedTime);
   float temperature = this->readTemperature(raw.temp);
   ImuSensorMeasurement result = ImuSensorMeasurement(acc, gyro, inclination);
   return result;
