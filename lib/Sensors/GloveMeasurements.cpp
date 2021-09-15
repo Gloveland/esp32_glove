@@ -12,18 +12,23 @@ void GloveMeasurements::setSensorMeasurement(const Finger::Value &value,
                                              ImuSensorMeasurement measurement) {
   switch (value) {
     case Finger::kPinky:
+      Serial.println("P");
       pinky_imu_measurement = &measurement;
       break;
     case Finger::kRing:
+      Serial.println("R");
       ring_imu_measurement = &measurement;
       break;
     case Finger::kMiddle:
+      Serial.println("M");
       middle_imu_measurement = &measurement;
       break;
     case Finger::kIndex:
+      Serial.println("I");
       index_imu_measurement = &measurement;
       break;
     case Finger::kThumb:
+      Serial.println("T");
       thumb_imu_measurement = &measurement;
       break;
     default:
@@ -33,19 +38,20 @@ void GloveMeasurements::setSensorMeasurement(const Finger::Value &value,
 }
 
 void GloveMeasurements::toPackage(int events_count,
-                                  char *glove_measurement_buffer,
+                                  char glove_measurement_buffer[],
                                   const int size) {
   memset(glove_measurement_buffer, 0, size);
 
-  if (this->isComplete()) {
-    Serial.println("Glove measurements is not complete, skip package converion");
+  if (this->isNotComplete()) {
+    Serial.println(
+        "Glove measurements is not complete, skip package converion");
     return;
   }
   ImuSensorMeasurement pinky = *(this->pinky_imu_measurement);
-  ImuSensorMeasurement ring = *(this->ring_imu_measurement);
-  ImuSensorMeasurement middle = *(this->middle_imu_measurement);
-  ImuSensorMeasurement index = *(this->index_imu_measurement);
-  ImuSensorMeasurement thump = *(this->thumb_imu_measurement);
+  //ImuSensorMeasurement ring = *(this->ring_imu_measurement);
+  //ImuSensorMeasurement middle = *(this->middle_imu_measurement);
+  //ImuSensorMeasurement index = *(this->index_imu_measurement);
+  //ImuSensorMeasurement thump = *(this->thumb_imu_measurement);
 
   int size_written = sprintf(
       glove_measurement_buffer,
@@ -80,7 +86,7 @@ void GloveMeasurements::toPackage(int events_count,
   Serial.println(String(glove_measurement_buffer));
 }
 
-bool GloveMeasurements::isComplete() {
-  return (this->pinky_imu_measurement != nullptr);
+bool GloveMeasurements::isNotComplete() {
+  return (this->pinky_imu_measurement == nullptr);
 }
 GloveMeasurements::~GloveMeasurements() = default;

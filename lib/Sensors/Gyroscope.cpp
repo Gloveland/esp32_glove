@@ -9,14 +9,9 @@ Gyroscope::Gyroscope(const GyroRange gyro_range, const bool debug)
 
 void Gyroscope::setGyroError(int times, float sum_gyro_x, float sum_gyro_y,
                              float sum_gyro_z) {
-
   float x = sum_gyro_x / times;
   float y = sum_gyro_y / times;
   float z = sum_gyro_z / times;
-  Serial.println(" set gyro error:");
-  Serial.println(x);
-  Serial.println(y);
-  Serial.println(z);
   this->gyro_error_ = Gyro(x, y, z);
   this->logGyroError();
 }

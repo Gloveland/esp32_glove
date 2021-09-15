@@ -20,7 +20,7 @@ class GloveMeasurements {
     void toPackage(int events_count,
                                   char *glove_measurement_buffer, const int size) ;
     ImuSensorMeasurement &getSensor(Finger::Value value);
-    bool isComplete();
+    bool isNotComplete();
     void setSensorMeasurement(const Finger::Value &value, ImuSensorMeasurement measurement);
     ~GloveMeasurements();
 
