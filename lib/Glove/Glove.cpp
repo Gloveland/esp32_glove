@@ -49,8 +49,8 @@ std::string Glove::getDeviceId() {
   }
 
 const GloveSensors Glove::sensors_ = {
-    {Finger::Value::kPinky, Mpu(Finger::Value::kPinky, true)}  //,
-    //{Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}
+    {Finger::Value::kPinky, Mpu(Finger::Value::kPinky, false)}  //,
+    //{Finger::Value::kThumb, Mpu(Finger::Value::kThumb, false)}
 };
 
 Glove::~Glove() = default;

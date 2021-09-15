@@ -11,9 +11,7 @@ void Accelerometer::setError(int times, float sum_acc_x, float sum_acc_y, float 
   float acc_error_y = sum_acc_y / times;
   float acc_error_z = sum_acc_z / times;
   this->acc_error = Acceleration(acc_error_x, acc_error_y, acc_error_z);
-  if(this->debug){
-      this->logError();
-  }
+  this->logError();
   
 }
 

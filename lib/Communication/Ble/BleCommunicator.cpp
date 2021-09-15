@@ -36,9 +36,10 @@ void BleCommunicator::init(const std::string &name,
 }
 
 void BleCommunicator::sendMeasurements(GloveMeasurements measurements) {
+  
   measurements.toPackage(this->events_count_, this->glove_measurement_buffer, this->kmtu);
   this->events_count_ += 1;
-  this->data_collection_characteristic_->setValue(glove_measurement_buffer);
+  this->data_collection_characteristic_->setValue(this->glove_measurement_buffer);
   this->data_collection_characteristic_->notify();
 
 }

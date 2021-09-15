@@ -7,15 +7,18 @@ Gyroscope::Gyroscope(const GyroRange gyro_range, const bool debug)
       previous_gyro_(Gyro(0, 0, 0)),
       deviation_(Gyro(0, 0, 0)) {}
 
-void Gyroscope::setGyroError(int times, float sumGyro_x, float sumGyro_y,
-                             float sumGyro_z) {
-  float x = sumGyro_x / times;
-  float y = sumGyro_y / times;
-  float z = sumGyro_z / times;
+void Gyroscope::setGyroError(int times, float sum_gyro_x, float sum_gyro_y,
+                             float sum_gyro_z) {
+
+  float x = sum_gyro_x / times;
+  float y = sum_gyro_y / times;
+  float z = sum_gyro_z / times;
+  Serial.println(" set gyro error:");
+  Serial.println(x);
+  Serial.println(y);
+  Serial.println(z);
   this->gyro_error_ = Gyro(x, y, z);
-  if (this->debug) {
-    this->logGyroError();
-  }
+  this->logGyroError();
 }
 
 void Gyroscope::setDeviation(int times, float maxX, float maxY, float maxZ,
@@ -23,10 +26,8 @@ void Gyroscope::setDeviation(int times, float maxX, float maxY, float maxZ,
   float x = (maxX - minX) / 2.0;
   float y = (maxY - minY) / 2.0;
   float z = (maxZ - minZ) / 2.0;
-  this->deviation_= Gyro(x, y, z);
-  if (this->debug) {
-    this->logDeviation();
-  }
+  this->deviation_ = Gyro(x, y, z);
+  this->logDeviation();
 }
 
 GyroRange Gyroscope::getGyroRange() { return this->gyro_range_; }

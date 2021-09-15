@@ -35,11 +35,18 @@ void GloveMeasurements::setSensorMeasurement(const Finger::Value &value,
 void GloveMeasurements::toPackage(int events_count,
                                   char *glove_measurement_buffer,
                                   const int size) {
-  ImuSensorMeasurement pinky = *this->pinky_imu_measurement;
-  ImuSensorMeasurement ring = *this->ring_imu_measurement;
-  ImuSensorMeasurement middle = *this->middle_imu_measurement;
-  ImuSensorMeasurement index = *this->index_imu_measurement;
-  ImuSensorMeasurement thump = *this->thumb_imu_measurement;
+  memset(glove_measurement_buffer, 0, size);
+
+  if (this->isComplete()) {
+    Serial.println("Glove measurements is not complete, skip package converion");
+    return;
+  }
+  ImuSensorMeasurement pinky = *(this->pinky_imu_measurement);
+  ImuSensorMeasurement ring = *(this->ring_imu_measurement);
+  ImuSensorMeasurement middle = *(this->middle_imu_measurement);
+  ImuSensorMeasurement index = *(this->index_imu_measurement);
+  ImuSensorMeasurement thump = *(this->thumb_imu_measurement);
+
   int size_written = sprintf(
       glove_measurement_buffer,
       GloveMeasurements::kglove_mesurements_packet_format.c_str(), events_count,
@@ -73,4 +80,7 @@ void GloveMeasurements::toPackage(int events_count,
   Serial.println(String(glove_measurement_buffer));
 }
 
+bool GloveMeasurements::isComplete() {
+  return (this->pinky_imu_measurement != nullptr);
+}
 GloveMeasurements::~GloveMeasurements() = default;
