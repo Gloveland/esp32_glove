@@ -29,6 +29,7 @@ class Finger {
       case kMiddle:return "middle";
       case kIndex:return "index";
       case kThumb:return "thumb";
+      default: return "";
     }
   }
 

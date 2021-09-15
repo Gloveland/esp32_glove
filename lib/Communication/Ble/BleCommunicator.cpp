@@ -2,6 +2,8 @@
 #include "ServerCallbacks.h"
 #include "TasksControllerCallback.h"
 
+const std::string BleCommunicator::kglove_mesurements_packet_format = "%d\nP%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nR%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nM%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nI%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nT%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f;";
+
 void BleCommunicator::init(const std::string &name,
                            TasksControllerCallback *tasks_controller_callback) {
   this->name_ = name;
@@ -35,13 +37,29 @@ void BleCommunicator::init(const std::string &name,
 }
 
 void BleCommunicator::sendMeasurements(GloveMeasurements measurements) {
-  //ImuSensorMeasurement thumb_measurement = measurements.thumb_imu_measurement;
-  //TODO(Darius): sendMeasurements the whole glove measurements.
-  //notify(JSONVar::stringify(thumb_measurement.toJson()).c_str());
-  ImuSensorMeasurement pinky_measurement = measurements.pinky_imu_measurement;
-  this->data_collection_characteristic_->setValue(JSONVar::stringify(
-      pinky_measurement.toJson()).c_str());
+  ImuSensorMeasurement pinky = *measurements.pinky_imu_measurement;
+  ImuSensorMeasurement ring = *measurements.ring_imu_measurement;
+  ImuSensorMeasurement middle = *measurements.middle_imu_measurement;
+  ImuSensorMeasurement index = *measurements.index_imu_measurement;
+  ImuSensorMeasurement thump = *measurements.thumb_imu_measurement;
+
+  int size_written =  sprintf(glove_measurement_buffer, BleCommunicator::kglove_mesurements_packet_format.c_str(),
+          this->events_count_,
+          pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(), pinky.getInclination().getRoll(),  pinky.getInclination().getPitch(),  pinky.getInclination().getYaw(),
+          pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(), pinky.getInclination().getRoll(),  pinky.getInclination().getPitch(),  pinky.getInclination().getYaw(),
+          pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(), pinky.getInclination().getRoll(),  pinky.getInclination().getPitch(),  pinky.getInclination().getYaw(),
+          pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(), pinky.getInclination().getRoll(),  pinky.getInclination().getPitch(),  pinky.getInclination().getYaw(),
+          pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(), pinky.getInclination().getRoll(),  pinky.getInclination().getPitch(),  pinky.getInclination().getYaw());
+  this->events_count_ += 1;
+
+  Serial.print("size_written: "); Serial.println(size_written);
+  if(size_written > this->kmtu){
+    Serial.print("Error size is bigger than 512!!");
+  }    
+  Serial.println(String(glove_measurement_buffer));
+  this->data_collection_characteristic_->setValue(glove_measurement_buffer);
   this->data_collection_characteristic_->notify();
+
 }
 
 void BleCommunicator::sendInterpretation(const std::string& interpretation) {

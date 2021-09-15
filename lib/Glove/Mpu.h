@@ -6,8 +6,14 @@
 #include <float.h>
 #include <map>
 #include "Finger.h"
+
 #include "../Sensors/Accelerometer.h"
+#include "../Sensors/Acceleration.h"
+
 #include "../Sensors/Gyroscope.h"
+#include "../Sensors/Gyro.h"
+
+#include "../Sensors/InclinationCalculator.h"
 #include "../Sensors/Inclination.h"
 #include "../Sensors/ImuSensorMeasurement.h"
 
@@ -19,20 +25,6 @@ enum mpuBand {
   _21_HZ = 0x04,
   _10_HZ = 0x05,
   _5_HZ = 0x06,
-};
-
-enum mpuAccRange {
-  _2_G = 0x00,   /// 00000   +/- 2g (default value)
-  _4_G = 0x08,   /// 01000   +/- 4g
-  _8_G = 0x10,   /// 10000   +/- 8g
-  _16_G = 0x18,  /// 11000   +/- 16g
-};
-
-enum mpuAccScale {
-  _2 = 16384,
-  _4 = 8192,
-  _8 = 4096,
-  _16 = 2048,
 };
 
 enum mpuGyroRange {
@@ -66,14 +58,14 @@ struct RawMeasurement {
 
 class Mpu {
  public:
-
   Mpu(const Finger::Value& finger);
-  void init(const mpuAccRange accRange, const mpuGyroRange gyroRange);
   void init();
   void setWriteMode();
   void calibrate();
   ImuSensorMeasurement read();
   Finger::Value getFinger();
+  float getGyroScale(const mpuGyroRange gyroRange);
+  void log(const bool debug, Acceleration acc);
   ~Mpu();
 
  private:
@@ -91,44 +83,33 @@ class Mpu {
 
   Finger::Value finger_;
   u_int ad0_{};
+  Accelerometer accelerometer;
+  InclinationCalculator inclination_calculator;
 
-  mpuAccRange accRange_;
   mpuGyroRange gyroRange_;
-  Acceleration accError_;
 
   Gyro gyroError_;
   Gyro previousGyro_;
   Gyro deviation_;
-
-  Inclination inclination_;
+  
   float previousTime_;
 
-  float getAccScale(const mpuAccRange accRange);
-  float getGyroScale(const mpuGyroRange gyroRange);
   void beginCommunication();
   void endCommunication();
   void checkAddress(int address);
   RawMeasurement readAllRaw();
-  Acceleration readAcc(const int16_t rawAccX, const int16_t rawAccY,
-                       const int16_t rawAccZ, const bool debug);
   Gyro readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
                 const int16_t rawGyroZ, const bool debug);
   float readTemperature(const int16_t rawTemp);
-  float calculateAccAngleX(const Acceleration acc);
-  float calculateAccAngleY(const Acceleration acc);
-
-  void setAccelerationError(int times, float sumAccX, float sumAccY,
-                            float sumAccZ);
 
   void setGyroError(int times, float sumGyroX, float sumGyroY, float sumGyroZ);
 
   void setDeviation(int times, float maxX, float maxY, float maxZ, float minX,
                     float minY, float minZ);
 
-  void logAccelerationError();
   void logGyroError();
   void logDeviation();
-  void log(const bool debug, Acceleration acc);
+
   void log(const bool debug, const Gyro gyro);
   void log(const float accAngleX, const float accAngleY);
   void log(const bool debug, const Inclination inclination);
