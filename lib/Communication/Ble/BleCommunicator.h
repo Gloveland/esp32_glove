@@ -24,6 +24,7 @@ class BleCommunicator {
             TasksControllerCallback *tasks_controller_callback);
   void sendMeasurements(GloveMeasurements measurements);
   void sendInterpretation(const std::string &interpretation);
+  void advertiseAgain();
   ~BleCommunicator();
 
  private:
