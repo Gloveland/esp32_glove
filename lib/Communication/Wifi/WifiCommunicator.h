@@ -29,8 +29,8 @@ class WifiCommunicator {
  private:
   const uint16_t kWifiPort = 8080;
   const std::string kDeviceId;
-  const static int kmtu = 512;
-  char glove_measurement_buffer[kmtu];
+  const static int kMtu = 512;
+  char glove_measurement_buffer_[kMtu];
   long events_count_ = 0;
   WiFiServer wifi_server_;
   WiFiClient wifi_client_;

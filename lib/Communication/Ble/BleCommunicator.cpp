@@ -43,11 +43,11 @@ void BleCommunicator::advertiseAgain() {
 }
 
 void BleCommunicator::sendMeasurements(GloveMeasurements measurements) {
-  measurements.toPackage(this->events_count_, this->glove_measurement_buffer,
-                         this->kmtu);
+  measurements.toPackage(this->events_count_, this->glove_measurement_buffer_,
+                         this->kMtu);
   this->events_count_ += 1;
   this->data_collection_characteristic_->setValue(
-      this->glove_measurement_buffer);
+      this->glove_measurement_buffer_);
   this->data_collection_characteristic_->notify();
 }
 

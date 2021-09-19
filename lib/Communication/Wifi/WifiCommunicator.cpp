@@ -36,9 +36,9 @@ boolean WifiCommunicator::listenForClients() {
 
 /** Sends a GloveMeasurement via wifi. */
 void WifiCommunicator::send(GloveMeasurements measurements) {
-  measurements.toPackage(this->events_count_, this->glove_measurement_buffer, this->kmtu);
+  measurements.toPackage(this->events_count_, this->glove_measurement_buffer_, this->kMtu);
   Serial.print("[WifiCommunicator] Sending value via wifi: ");
-  wifi_client_.write(this->glove_measurement_buffer);
+  wifi_client_.write(this->glove_measurement_buffer_);
   Serial.print("[WifiCommunicator] Event count: ");
   Serial.println(events_count_);
   this->events_count_ += 1;
