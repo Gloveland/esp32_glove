@@ -1,8 +1,9 @@
 #include <Gyroscope.h>
 
-Gyroscope::Gyroscope(const GyroRange gyro_range, const bool debug)
-    : debug(debug),
-      gyro_range_(gyro_range),
+extern const bool KDebug;
+
+Gyroscope::Gyroscope(const GyroRange gyro_range)
+    : gyro_range_(gyro_range),
       gyro_error_(Gyro(0, 0, 0)),
       previous_gyro_(Gyro(0, 0, 0)),
       deviation_(Gyro(0, 0, 0)) {}
@@ -53,14 +54,15 @@ Gyro Gyroscope::readGyro(const int16_t rawGyro_x, const int16_t rawGyro_y,
     z_value = gyro_z - this->gyro_error_.getZ();
   }
   this->previous_gyro_ = Gyro(gyro_x, gyro_y, gyro_z);
-  if (this->debug) {
-    this->previous_gyro_.log();
-  }
+  this->previous_gyro_.log();
 
   return Gyro(x_value, y_value, z_value);
 }
 
 void Gyroscope::logGyroError() {
+  if(!KDebug){
+    return;
+  }
   Serial.println("");
   Serial.print("GyroErrorX: ");
   Serial.println(this->gyro_error_.getX());
@@ -71,6 +73,9 @@ void Gyroscope::logGyroError() {
 }
 
 void Gyroscope::logDeviation() {
+   if(!KDebug){
+    return;
+  }
   Serial.print("DeviationX: ");
   Serial.println(this->deviation_.getX());
   Serial.print("DeviationY: ");

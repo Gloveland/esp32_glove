@@ -45,7 +45,7 @@ struct RawMeasurement {
 
 class Mpu {
  public:
-  Mpu(const Finger::Value& finger, bool debug);
+  Mpu(const Finger::Value& finger);
   void init();
   void setWriteMode();
   void calibrate();
@@ -80,7 +80,6 @@ class Mpu {
   
   Finger::Value finger_;
   u_int ad0_;
-  bool debug;
   Accelerometer accelerometer;
   Gyroscope gyroscope;
   InclinationCalculator inclination_calculator;

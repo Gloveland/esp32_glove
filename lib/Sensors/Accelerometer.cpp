@@ -1,6 +1,8 @@
 #include <Accelerometer.h>
 
-Accelerometer::Accelerometer(const Range range, const bool debug): range(range), debug(debug), acc_error(Acceleration(0,0,0)){}
+extern const bool KDebug;
+
+Accelerometer::Accelerometer(const Range range): range(range), acc_error(Acceleration(0,0,0)){}
 
 Range Accelerometer::getRange(){
     return this->range;
@@ -21,9 +23,8 @@ Acceleration Accelerometer::readAcc(const int16_t raw_acc_x, const int16_t raw_a
   float y_value = ((float) raw_acc_y / accScale) * GRAVITY_EARTH - this->acc_error.getY();
   float z_value = ((float) raw_acc_z / accScale) * GRAVITY_EARTH - this->acc_error.getZ();
   Acceleration current_acceleration = Acceleration(x_value, y_value, z_value);
-  if(this->debug){
-      current_acceleration.log();
-  }
+  current_acceleration.log();
+  
   return current_acceleration;
 }
 
@@ -37,6 +38,9 @@ float Accelerometer::getScale(const Range range) {
 }
 
 void Accelerometer::logError() {
+  if(!KDebug){
+    return;
+  }
   Serial.println("");
   Serial.print("AccErrorX: ");
   Serial.println(this->acc_error.getX());

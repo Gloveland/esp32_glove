@@ -22,7 +22,6 @@ enum GyroScaleX10 {
 class Gyroscope {
  private:
   const float GYRO_SCALE_DIVISOR = 10.0;
-  bool debug;
   GyroRange gyro_range_;
   Gyro gyro_error_;
   Gyro previous_gyro_;
@@ -32,7 +31,7 @@ class Gyroscope {
   void logDeviation();
 
  public:
-  Gyroscope(const GyroRange gyroRange, const bool debug);
+  Gyroscope(const GyroRange gyroRange);
   void setGyroError(int times, float sumGyro_x, float sumGyro_y, float sumGyro_z);
   void setDeviation(int times, float maxX, float maxY, float maxZ, float minX,
                     float minY, float minZ);

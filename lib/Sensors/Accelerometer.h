@@ -23,7 +23,7 @@ enum Scale {
 class Accelerometer {
 
  public:;
-  Accelerometer(const Range range, const bool debug = false);
+  Accelerometer(const Range range);
   Acceleration readAcc(const int16_t rawAccX, const int16_t rawAccY, const int16_t rawAccZ);
   Range getRange();
   void setError(int times, float sum_acc_x, float sum_acc_y, float sum_acc_z);
@@ -32,7 +32,6 @@ class Accelerometer {
  private:
   const int GRAVITY_EARTH = 9.80665F;
   Range range;
-  bool debug;
   Acceleration acc_error;
  
   float getScale(const Range range);

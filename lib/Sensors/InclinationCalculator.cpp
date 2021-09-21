@@ -1,8 +1,9 @@
 #include "InclinationCalculator.h"
 
-InclinationCalculator::InclinationCalculator(bool debug)
-    : debug(debug),
-      inclination_angle_from_acc_error(Acceleration(0, 0, 0)),
+extern const bool KDebug;
+
+InclinationCalculator::InclinationCalculator()
+    : inclination_angle_from_acc_error(Acceleration(0, 0, 0)),
       previous_inclination(Inclination(0, 0, 0)) {}
 
 void InclinationCalculator::setError(int times, float sum_angle_from_acc_x,
@@ -15,6 +16,9 @@ void InclinationCalculator::setError(int times, float sum_angle_from_acc_x,
 
 void InclinationCalculator::log(const float inclination_from_acc_x,
                                 const float inclination_from_acc_y) {
+  if (!KDebug) {
+    return;
+  }
   Serial.print("   accAngleX: ");
   Serial.print(inclination_from_acc_x);
   Serial.print("   accAngleY: ");
@@ -55,9 +59,8 @@ Inclination InclinationCalculator::calculateInclination(
   float inclination_from_acc_y = current_acc.calculateAngleY() -
                                  this->inclination_angle_from_acc_error.getY();
 
-  if (this->debug) {
-    this->log(inclination_from_acc_x, inclination_from_acc_y);
-  }
+  this->log(inclination_from_acc_x, inclination_from_acc_y);
+
   if (abs(inclination_from_acc_x - current_inclination_angle_x) > 5.0) {
     current_inclination_angle_x = inclination_from_acc_x;
   }
@@ -68,9 +71,8 @@ Inclination InclinationCalculator::calculateInclination(
       Inclination(current_inclination_angle_x, current_inclination_angle_y,
                   current_inclination_angle_z);
 
-  if (debug) {
-    this->previous_inclination.log();
-  }
+  this->previous_inclination.log();
+
   return this->previous_inclination;
 }
 

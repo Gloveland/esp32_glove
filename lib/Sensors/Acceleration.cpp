@@ -1,6 +1,9 @@
 #include <Acceleration.h>
 #define PI 3.1415926535897932384626433832795
 
+extern const bool KDebug;
+
+
 Acceleration::Acceleration(float x_value, float y_value, float z_value)
     : x(x_value), y(y_value), z(z_value) {}
 
@@ -19,6 +22,9 @@ float Acceleration::calculateAngleY() const {
 }
 
 void Acceleration::log() {
+  if(!KDebug){
+    return;
+  }
   Serial.print("   aX: ");
   Serial.print(this->getX());
   Serial.print("   aY: ");

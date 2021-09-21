@@ -10,7 +10,7 @@
 
 class InclinationCalculator {
  public:
-  InclinationCalculator(bool debug);
+  InclinationCalculator();
   Inclination calculateInclination(const Acceleration current_acc,
                                    const Gyro current_gyro,
                                    const float elapsedTime);
@@ -21,7 +21,6 @@ class InclinationCalculator {
   ~InclinationCalculator();
 
  private:
-  bool debug;
   Acceleration inclination_angle_from_acc_error;
   Inclination previous_inclination;
 };

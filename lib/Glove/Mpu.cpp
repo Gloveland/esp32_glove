@@ -17,13 +17,14 @@ const int Mpu::BITS_IN_BYTE = 8;
 const int Mpu::TEMP_DIVISOR = 340.0;
 const int Mpu::TEMP_OFFSET = 36.53;
 
-Mpu::Mpu(const Finger::Value &finger, bool debug)
+extern const bool KDebug;
+
+Mpu::Mpu(const Finger::Value &finger)
     : finger_(finger),
       ad0_(Finger::getAd0Pin(finger)),
-      debug(debug),
-      accelerometer(Accelerometer(Range::_2_G, debug)),
-      gyroscope(Gyroscope(GyroRange::_250_DEG, debug)),
-      inclination_calculator(InclinationCalculator(debug)),
+      accelerometer(Accelerometer(Range::_2_G)),
+      gyroscope(Gyroscope(GyroRange::_250_DEG)),
+      inclination_calculator(InclinationCalculator()),
       previousTime_(millis()) {}
 
 void Mpu::beginCommunication() {
@@ -155,6 +156,9 @@ void Mpu::calibrate() {
     sum_gyro_y += gyro.getY();
     sum_gyro_z += gyro.getZ();
     delay(20);
+    if(KDebug){
+      Serial.println();
+    }
   }
   this->endCommunication();
   this->accelerometer.setError(times, sum_acc_x, sum_acc_y, sum_acc_z);
@@ -173,7 +177,7 @@ ImuSensorMeasurement Mpu::read() {
   RawMeasurement raw = this->readAllRaw();
   this->endCommunication();
 
-  if (this->debug) {
+  if (KDebug) {
     Serial.print(Finger::getName(this->finger_).c_str());
   }
   Acceleration acc = this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
