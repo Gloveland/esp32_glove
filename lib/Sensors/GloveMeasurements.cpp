@@ -10,7 +10,8 @@ const std::string GloveMeasurements::kglove_mesurements_packet_format =
 GloveMeasurements::GloveMeasurements() = default;
 
 ImuSensorMeasurement GloveMeasurements::getSensor(const Finger::Value finger) {
-   std::map<const Finger::Value,ImuSensorMeasurement>::iterator it = this->imuSensorMeasurementMap_.find(finger);
+  std::map<const Finger::Value, ImuSensorMeasurement>::iterator it =
+      this->imuSensorMeasurementMap_.find(finger);
   if (it == this->imuSensorMeasurementMap_.end()) {
     Serial.println("[ERROR] Error getting a finger measurement");
     ImuSensorMeasurement zeroMesurement(finger, Acceleration(0, 0, 0),
@@ -63,10 +64,9 @@ void GloveMeasurements::toPackage(int events_count,
       pinky.getInclination().getYaw());
 
   if (size_written > size) {
-     Serial.println("Error size is bigger than 512!!");
+    Serial.println("Error size is bigger than 512!!");
     Serial.print("size_written: ");
     Serial.println(size_written);
-   
   }
 }
 
