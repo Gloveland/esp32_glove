@@ -185,7 +185,7 @@ ImuSensorMeasurement Mpu::read() {
   Inclination inclination =
       this->inclination_calculator.calculateInclination(acc, gyro, elapsedTime);
   float temperature = this->readTemperature(raw.temp);
-  ImuSensorMeasurement result = ImuSensorMeasurement(acc, gyro, inclination);
+  ImuSensorMeasurement result = ImuSensorMeasurement(this->finger_, acc, gyro, inclination, temperature);
   return result;
 }
 

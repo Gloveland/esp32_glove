@@ -4,24 +4,26 @@
 #include "Acceleration.h"
 #include "Gyro.h"
 #include "Inclination.h"
+#include "Finger.h"
 
 /**
  * The measurement of an IMU sensor.
  */
 class ImuSensorMeasurement {
  public:
-  ImuSensorMeasurement(Acceleration acceleration, Gyro gyro,
-                       Inclination inclination);
+  ImuSensorMeasurement(Finger::Value finger, Acceleration acceleration, Gyro gyro,
+                       Inclination inclination, float temperature);
   Acceleration getAcc() const;
   Gyro getGyro() const;
   Inclination getInclination() const;
   ~ImuSensorMeasurement();
 
  private:
-  Acceleration acc;
-  Gyro gyro;
-  Inclination inclination;
-  float temperature;
+  Finger::Value finger_;
+  Acceleration acc_;
+  Gyro gyro_;
+  Inclination inclination_;
+  float temperature_;
 };
 
 #endif  // IMU_SENSOR_MEASUREMENT_H_

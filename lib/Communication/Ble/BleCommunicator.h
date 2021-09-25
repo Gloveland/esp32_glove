@@ -6,10 +6,8 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
-#include <Finger.h>
 #include "BleSpecification.h"
-#include "../../Sensors/ImuSensorMeasurement.h"
-#include "../../Sensors/GloveMeasurements.h"
+#include "GloveMeasurements.h"
 #include "TasksControllerCallback.h"
 
 /**
