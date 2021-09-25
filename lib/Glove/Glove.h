@@ -1,34 +1,29 @@
 #ifndef GLOVE_H
 #define GLOVE_H
 
+#include <GloveMeasurements.h>
 #include <Mpu.h>
-#include <map>
 #include <esp_task.h>
-#include "../Sensors/GloveMeasurements.h"
+
+#include <map>
+
+typedef std::map<Finger::Value, Mpu> GloveSensors;
 
 class Glove {
  public:
-  Glove() {
-    this->chip_id_ = Glove::getDeviceId();
-  }
-
   void init();
   GloveMeasurements readSensors();
   static std::string getDeviceId();
-
   ~Glove();
 
  private:
+  static const int kchip_id_str_size;
+  static const std::string kchip_id_format;
+  static const int kchip_id_size;
   const int kSclPin = 22;
   const int kSdaPin = 21;
-  std::string chip_id_;
-
   /** Enabled sensors of the glove. */
-  const std::map<Finger::Value, Mpu> sensors_
-      {
-        {Finger::Value::kPinky, Mpu(Finger::Value::kPinky)} //,
-        //{Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}
-      };
+  static const GloveSensors sensors_;
 
   void setUpSensors();
   void calibrateSensors();

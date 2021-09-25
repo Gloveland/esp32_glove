@@ -15,6 +15,12 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
 
   void onWrite(BLECharacteristic *pCharacteristic) override;
 
+  /**
+   * Stop the ongoing task, either the interpretation task or the data
+   * collection task. Nothing happens if there is not an ongoing task.
+   */
+  void stopRunningTask();
+
  private:
   /**
    * The task handler of the running task. If neither the interpretation task
@@ -23,8 +29,8 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
   TaskHandle_t running_task_handler_ = nullptr;
 
   /**
-   * Handler of the Read sensors task. The task associated to this 
-   * handler will be suspended upon receiving a command and restarted 
+   * Handler of the Read sensors task. The task associated to this
+   * handler will be suspended upon receiving a command and restarted
    * when receiving a "start" command.
    */
   TaskHandle_t &data_collection_task_handler_;
@@ -49,12 +55,6 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
 
   /** Starts the interpretation task. */
   void startInterpretationTask();
-
-  /**
-   * Stop the ongoing task, either the interpretation task or the data
-   * collection task. Nothing happens if there is not an ongoing task.
-   */
-  void stopRunningTask();
 };
 
 #endif  // ESP32_GLOVE_CHARACTERISTIC_CALLBACKS_H

@@ -6,8 +6,14 @@
 #include <float.h>
 #include <map>
 #include "Finger.h"
+
 #include "../Sensors/Accelerometer.h"
+#include "../Sensors/Acceleration.h"
+
 #include "../Sensors/Gyroscope.h"
+#include "../Sensors/Gyro.h"
+
+#include "../Sensors/InclinationCalculator.h"
 #include "../Sensors/Inclination.h"
 #include "../Sensors/ImuSensorMeasurement.h"
 
@@ -21,33 +27,6 @@ enum mpuBand {
   _5_HZ = 0x06,
 };
 
-enum mpuAccRange {
-  _2_G = 0x00,   /// 00000   +/- 2g (default value)
-  _4_G = 0x08,   /// 01000   +/- 4g
-  _8_G = 0x10,   /// 10000   +/- 8g
-  _16_G = 0x18,  /// 11000   +/- 16g
-};
-
-enum mpuAccScale {
-  _2 = 16384,
-  _4 = 8192,
-  _8 = 4096,
-  _16 = 2048,
-};
-
-enum mpuGyroRange {
-  _250_DEG = 0x00,   ///< +/- 250 deg/s (default value)
-  _500_DEG = 0x08,   ///< +/- 500 deg/s
-  _1000_DEG = 0x10,  ///< +/- 1000 deg/s
-  _2000_DEG = 0x18,  ///< +/- 2000 deg/s
-};
-
-enum mpuGyroScaleX10 {
-  _250 = 1310,  /// 131
-  _500 = 655,   /// 65.5
-  _1000 = 328,  /// 32.8
-  _2000 = 164,  /// 16.4
-};
 
 enum mpuAddress {
   _ON = 0x68,
@@ -55,83 +34,64 @@ enum mpuAddress {
 };
 
 struct RawMeasurement {
-  int16_t accX;
-  int16_t accY;
-  int16_t accZ;
+  int16_t acc_x;
+  int16_t acc_y;
+  int16_t acc_z;
   int16_t temp;
-  int16_t gyroX;
-  int16_t gyroY;
-  int16_t gyroZ;
+  int16_t gyro_x;
+  int16_t gyro_y;
+  int16_t gyro_z;
 };
 
 class Mpu {
  public:
-
   Mpu(const Finger::Value& finger);
-  void init(const mpuAccRange accRange, const mpuGyroRange gyroRange);
   void init();
   void setWriteMode();
   void calibrate();
+  void log();
   ImuSensorMeasurement read();
   Finger::Value getFinger();
+  float getGyroScale(const GyroRange gyroRange);
   ~Mpu();
 
  private:
-  const int GRAVITY_EARTH = 9.80665F;
-  const int GENERAL_CONFIG = 0x1A;  ///< General configuration register
-  const int PWR_MGMT_1 = 0x6B;
-  const int RESET = 0x00;
-  const int ACC_CONFIG_REGISTER = 0x1C;
-  const int GYRO_CONFIG_REGISTER = 0x1C;
-  const int ACCEL_XOUT_H = 0x3B;
-  const int GYRO_XOUT_H = 0x43;
-  const float GYRO_SCALE_DIVISOR = 10.0;
-  const int ALL_REGISTERS = 14;
-  const int BITS_IN_BYTE = 8;
+  static const int HEX_ADDRESS;
+  static const int OK;
+  static const int DATA_BUFFER_ERROR;
+  static const int UNKNOWN_ERROR;
+  static const int GRAVITY_EARTH;
+  static const int GENERAL_CONFIG;  ///< General configuration register
+  static const int PWR_MGMT_1;
+  static const int RESET;
+  static const int ACC_CONFIG_REGISTER;
+  static const int GYRO_CONFIG_REGISTER;
+  static const int ACCEL_XOUT_H;
+  static const int GYRO_XOUT_H;
+  static const int ALL_REGISTERS;
+  static const int BITS_IN_BYTE;
 
+  static const int TEMP_DIVISOR;
+  static const int TEMP_OFFSET;
+
+
+
+
+  
   Finger::Value finger_;
-  u_int ad0_{};
-
-  mpuAccRange accRange_;
-  mpuGyroRange gyroRange_;
-  Acceleration accError_;
-
-  Gyro gyroError_;
-  Gyro previousGyro_;
-  Gyro deviation_;
-
-  Inclination inclination_;
+  u_int ad0_;
+  Accelerometer accelerometer;
+  Gyroscope gyroscope;
+  InclinationCalculator inclination_calculator;
   float previousTime_;
 
-  float getAccScale(const mpuAccRange accRange);
-  float getGyroScale(const mpuGyroRange gyroRange);
   void beginCommunication();
   void endCommunication();
   void checkAddress(int address);
   RawMeasurement readAllRaw();
-  Acceleration readAcc(const int16_t rawAccX, const int16_t rawAccY,
-                       const int16_t rawAccZ, const bool debug);
-  Gyro readGyro(const int16_t rawGyroX, const int16_t rawGyroY,
-                const int16_t rawGyroZ, const bool debug);
+ 
   float readTemperature(const int16_t rawTemp);
-  float calculateAccAngleX(const Acceleration acc);
-  float calculateAccAngleY(const Acceleration acc);
 
-  void setAccelerationError(int times, float sumAccX, float sumAccY,
-                            float sumAccZ);
-
-  void setGyroError(int times, float sumGyroX, float sumGyroY, float sumGyroZ);
-
-  void setDeviation(int times, float maxX, float maxY, float maxZ, float minX,
-                    float minY, float minZ);
-
-  void logAccelerationError();
-  void logGyroError();
-  void logDeviation();
-  void log(const bool debug, Acceleration acc);
-  void log(const bool debug, const Gyro gyro);
-  void log(const float accAngleX, const float accAngleY);
-  void log(const bool debug, const Inclination inclination);
 };
 
 #endif  // MPU_H

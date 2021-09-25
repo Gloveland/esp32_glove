@@ -36,18 +36,12 @@ boolean WifiCommunicator::listenForClients() {
 
 /** Sends a GloveMeasurement via wifi. */
 void WifiCommunicator::send(GloveMeasurements measurements) {
-  JSONVar jsonHand = measurements.toJson();
-  JSONVar jsonMovement;
-  jsonMovement["kDeviceId"] = this->kDeviceId.c_str();
-  jsonMovement["event_num"] = this->events_count_;
-  jsonMovement["hand"] = jsonHand;
-  String jsonString = JSON.stringify(jsonMovement);
+  measurements.toPackage(this->events_count_, this->glove_measurement_buffer_, this->kMtu);
   Serial.print("[WifiCommunicator] Sending value via wifi: ");
-  Serial.println(jsonString);
-  wifi_client_.write("\n");
-  events_count_++;
+  wifi_client_.write(this->glove_measurement_buffer_);
   Serial.print("[WifiCommunicator] Event count: ");
   Serial.println(events_count_);
+  this->events_count_ += 1;
 }
 
 boolean WifiCommunicator::clientIsConnected() {

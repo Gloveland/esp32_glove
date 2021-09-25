@@ -6,8 +6,12 @@
 #include "../lib/Communication/Ble/BleCommunicator.h"
 #include "../lib/Communication/Wifi/WifiCommunicator.h"
 
+
+
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
 #define TASK_DELAY_MS 500
+
+extern const bool KDebug = true;
 
 [[noreturn]] void taskDataCollection(void *pvParameters);
 TaskHandle_t dataCollectionTaskHandler;
@@ -23,6 +27,7 @@ TaskHandle_t interpretationTaskHandler;
 
 QueueHandle_t queue;
 const int kQueueSize = 100;
+
 
 Glove glove;
 WifiCommunicator wifiCommunicator(Glove::getDeviceId());

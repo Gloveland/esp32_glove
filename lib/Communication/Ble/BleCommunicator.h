@@ -24,9 +24,13 @@ class BleCommunicator {
             TasksControllerCallback *tasks_controller_callback);
   void sendMeasurements(GloveMeasurements measurements);
   void sendInterpretation(const std::string &interpretation);
+  void advertiseAgain();
   ~BleCommunicator();
 
  private:
+  const static int kMtu = 512;
+  char glove_measurement_buffer_[kMtu];
+  long events_count_;
   std::string name_;
   BLEServer *profile_server_{};
   BLEService *profile_service_{};
