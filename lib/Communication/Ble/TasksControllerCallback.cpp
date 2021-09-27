@@ -25,6 +25,11 @@ void TasksControllerCallback::onWrite(BLECharacteristic *pCharacteristic) {
     return;
   }
 
+  if (value == kCalibrate_) {
+    startCalibration();
+    return;
+  }
+
   Serial.println("[TasksControllerCallback] Dropping command: "
                      + String(value.c_str()));
 }
@@ -57,4 +62,12 @@ void TasksControllerCallback::stopRunningTask() {
   }
   Serial.println(
       "[TasksControllerCallback] Dropping stop command: no task was running.");
+}
+
+void TasksControllerCallback::startCalibration() {
+  if (running_task_handler_ != nullptr) {
+    stopRunningTask();
+  }
+  Serial.println("[TasksControllerCallback] Starting calibration.");
+  glove_.calibrateSensors();
 }

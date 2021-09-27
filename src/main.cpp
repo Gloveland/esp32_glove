@@ -56,7 +56,7 @@ void setup() {
 
 void setUpGlove() {
   glove.init();
-  waitAnyUserInput("Type key to start measuring movements...");
+  // waitAnyUserInput("Type key to start measuring movements...");
   xTaskCreatePinnedToCore(
       taskDataCollection,         // Task function
       "readSensors",              // Name of the task
@@ -80,7 +80,7 @@ void setUpGlove() {
 }
 
 void setUpBleCommunicator() {
-  tasksControllerCallback = new TasksControllerCallback(
+  tasksControllerCallback = new TasksControllerCallback(glove,
       dataCollectionTaskHandler,
       interpretationTaskHandler);
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
