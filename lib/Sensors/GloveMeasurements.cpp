@@ -1,5 +1,5 @@
 #include <GloveMeasurements.h>
-const int GloveMeasurements::MAP_SIZE = 5;
+const int GloveMeasurements::kImuSensorsAmount = 5;
 
 const std::string GloveMeasurements::kglove_mesurements_packet_format =
     "%d\nP%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nR%.3f,%.3f,%.3f,%.3f,%."

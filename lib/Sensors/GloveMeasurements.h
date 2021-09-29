@@ -11,7 +11,7 @@ class GloveMeasurements {
   std::map<const Finger::Value, ImuSensorMeasurement> imuSensorMeasurementMap_;
 
  public:
-  static const int MAP_SIZE;
+  static const int kImuSensorsAmount;
   GloveMeasurements();
   void toPackage(int events_count, char *glove_measurement_buffer_,
                  const int size);
