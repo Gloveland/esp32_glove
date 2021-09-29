@@ -25,6 +25,9 @@ TaskHandle_t bleCommunicationTaskHandler;
 [[noreturn]] void taskInterpretation(void *pvParameters);
 TaskHandle_t interpretationTaskHandler;
 
+[[noreturn]] void taskCalibration(void *pvParameters);
+TaskHandle_t calibrationTaskHandler;
+
 QueueHandle_t queue;
 const int kQueueSize = 100;
 
@@ -56,7 +59,6 @@ void setup() {
 
 void setUpGlove() {
   glove.init();
-  waitAnyUserInput("Type key to start measuring movements...");
   xTaskCreatePinnedToCore(
       taskDataCollection,         // Task function
       "readSensors",              // Name of the task
@@ -77,12 +79,23 @@ void setUpGlove() {
       0                           // Pin task to core 0
   );
   vTaskSuspend(interpretationTaskHandler);
+  xTaskCreatePinnedToCore(
+      taskCalibration,         // Task function
+      "Calibration task",      // Name of the task
+      10000,                      // Stack size of task
+      NULL,                       // Parameter of the task
+      1,                          // Priority of the task
+      &calibrationTaskHandler, // Task handle to keep track of created task
+      0                           // Pin task to core 0
+      );
+  vTaskSuspend(calibrationTaskHandler);
 }
 
 void setUpBleCommunicator() {
   tasksControllerCallback = new TasksControllerCallback(
       dataCollectionTaskHandler,
-      interpretationTaskHandler);
+      interpretationTaskHandler,
+      calibrationTaskHandler);
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
   xTaskCreatePinnedToCore(
       taskBleCommunication,          // Task function
@@ -136,6 +149,17 @@ void loop() {}  // loop() runs on core 1
       delay(100);
     }
     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
+  }
+}
+
+[[noreturn]] void taskCalibration(void *pvParameters) {
+  Serial.println("Task 'Calibration' running on core ");
+  Serial.println(xPortGetCoreID());
+  for (;;) {
+    glove.calibrateSensors();
+    // The task suspends itself in order to perform only a single calibration
+    // per request.
+    vTaskSuspend(calibrationTaskHandler);
   }
 }
 

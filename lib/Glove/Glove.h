@@ -1,11 +1,11 @@
 #ifndef GLOVE_H
 #define GLOVE_H
 
-#include <GloveMeasurements.h>
 #include <Mpu.h>
 #include <esp_task.h>
 
 #include <map>
+#include "../Sensors/GloveMeasurements.h"
 
 typedef std::map<Finger::Value, Mpu> GloveSensors;
 
@@ -14,6 +14,7 @@ class Glove {
   void init();
   GloveMeasurements readSensors();
   static std::string getDeviceId();
+  void calibrateSensors();
   ~Glove();
 
  private:
@@ -26,7 +27,6 @@ class Glove {
   static const GloveSensors sensors_;
 
   void setUpSensors();
-  void calibrateSensors();
 };
 
 #endif  // GLOVE_H
