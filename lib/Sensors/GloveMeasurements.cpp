@@ -71,7 +71,8 @@ void GloveMeasurements::toPackage(int events_count,
 }
 
 bool GloveMeasurements::isNotComplete() {
-  return this->imuSensorMeasurementMap_.size() < GloveMeasurements::MAP_SIZE;
+  return this->imuSensorMeasurementMap_.size() <
+         GloveMeasurements::kImuSensorsAmount;
 }
 
 GloveMeasurements::~GloveMeasurements() = default;
