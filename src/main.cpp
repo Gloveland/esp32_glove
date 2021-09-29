@@ -59,7 +59,6 @@ void setup() {
 
 void setUpGlove() {
   glove.init();
-  // waitAnyUserInput("Type key to start measuring movements...");
   xTaskCreatePinnedToCore(
       taskDataCollection,         // Task function
       "readSensors",              // Name of the task

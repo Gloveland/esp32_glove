@@ -8,13 +8,6 @@ const int Glove::kchip_id_str_size = 17;
 void Glove::init() {
   Wire.begin(kSdaPin, kSclPin);
   setUpSensors();
-  // Serial.println(
-  //     "\nType key when all sensors are placed over an horizontal plane:"
-  //     "\n X = 0g, Y = 0g, Z = +1g orientation");
-  // while (!Serial.available()) {
-  //   // Wait for a character.
-  // }
-  // calibrateSensors();
 }
 
 void Glove::setUpSensors() {
