@@ -25,6 +25,11 @@ void TasksControllerCallback::onWrite(BLECharacteristic *pCharacteristic) {
     return;
   }
 
+  if (value == kCalibrate_) {
+    startCalibrationTask();
+    return;
+  }
+
   Serial.println("[TasksControllerCallback] Dropping command: "
                      + String(value.c_str()));
 }
@@ -43,6 +48,15 @@ void TasksControllerCallback::startInterpretationTask() {
     stopRunningTask();
     running_task_handler_ = interpretation_task_handler_;
     Serial.println("[TasksControllerCallback] Starting interpretation task.");
+    vTaskResume(running_task_handler_);
+  }
+}
+
+void TasksControllerCallback::startCalibrationTask() {
+  if (this->calibration_task_handler_ != nullptr) {
+    stopRunningTask();
+    running_task_handler_ = calibration_task_handler_;
+    Serial.println("[TasksControllerCallback] Starting calibration.");
     vTaskResume(running_task_handler_);
   }
 }
