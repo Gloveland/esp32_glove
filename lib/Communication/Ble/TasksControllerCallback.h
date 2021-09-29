@@ -67,11 +67,8 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
   /** Starts the interpretation task. */
   void startInterpretationTask();
 
-  /**
-   * Starts the calibration of the glove. Notice the calibration doesn't run
-   * on a task on its own.
-   */
-  void startCalibration();
+  /** Starts the calibration task. */
+  void startCalibrationTask();
 };
 
 #endif  // ESP32_GLOVE_CHARACTERISTIC_CALLBACKS_H

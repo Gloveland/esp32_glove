@@ -26,7 +26,7 @@ void TasksControllerCallback::onWrite(BLECharacteristic *pCharacteristic) {
   }
 
   if (value == kCalibrate_) {
-    startCalibration();
+    startCalibrationTask();
     return;
   }
 
@@ -52,7 +52,7 @@ void TasksControllerCallback::startInterpretationTask() {
   }
 }
 
-void TasksControllerCallback::startCalibration() {
+void TasksControllerCallback::startCalibrationTask() {
   if (this->calibration_task_handler_ != nullptr) {
     stopRunningTask();
     running_task_handler_ = calibration_task_handler_;
