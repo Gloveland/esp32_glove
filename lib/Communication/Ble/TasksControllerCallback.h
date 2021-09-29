@@ -9,11 +9,13 @@
  */
 class TasksControllerCallback : public BLECharacteristicCallbacks {
  public:
-  explicit TasksControllerCallback(Glove &glove, TaskHandle_t &data_collection_task_handler,
-                                   TaskHandle_t &interpretation_task_handler)
-      : glove_(glove),
+  explicit TasksControllerCallback(TaskHandle_t &data_collection_task_handler,
+                                   TaskHandle_t &interpretation_task_handler,
+                                   TaskHandle_t &calibration_task_handler)
+      :
         data_collection_task_handler_(data_collection_task_handler),
-        interpretation_task_handler_(interpretation_task_handler) {}
+        interpretation_task_handler_(interpretation_task_handler),
+        calibration_task_handler_(calibration_task_handler) {}
 
   void onWrite(BLECharacteristic *pCharacteristic) override;
 
@@ -24,8 +26,6 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
   void stopRunningTask();
 
  private:
-
-  Glove glove_;
 
   /**
    * The task handler of the running task. If neither the interpretation task
@@ -42,6 +42,9 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
 
   /** Handler of the interpretation task. */
   TaskHandle_t &interpretation_task_handler_;
+
+  /** Handler of the calibration task. */
+  TaskHandle_t &calibration_task_handler_;
 
   /** Command to start the data collection task. */
   const std::string kStartDC_ = "startdc";

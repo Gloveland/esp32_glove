@@ -52,6 +52,15 @@ void TasksControllerCallback::startInterpretationTask() {
   }
 }
 
+void TasksControllerCallback::startCalibration() {
+  if (this->calibration_task_handler_ != nullptr) {
+    stopRunningTask();
+    running_task_handler_ = calibration_task_handler_;
+    Serial.println("[TasksControllerCallback] Starting calibration.");
+    vTaskResume(running_task_handler_);
+  }
+}
+
 void TasksControllerCallback::stopRunningTask() {
   if (running_task_handler_ != nullptr) {
     Serial.println("[TasksControllerCallback] Stopping running task.");
@@ -62,12 +71,4 @@ void TasksControllerCallback::stopRunningTask() {
   }
   Serial.println(
       "[TasksControllerCallback] Dropping stop command: no task was running.");
-}
-
-void TasksControllerCallback::startCalibration() {
-  if (running_task_handler_ != nullptr) {
-    stopRunningTask();
-  }
-  Serial.println("[TasksControllerCallback] Starting calibration.");
-  glove_.calibrateSensors();
 }
