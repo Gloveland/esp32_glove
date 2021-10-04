@@ -10,8 +10,6 @@
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
 #define TASK_DELAY_MS 500
 
-extern const bool KDebug = true;
-
 [[noreturn]] void taskDataCollection(void *pvParameters);
 TaskHandle_t dataCollectionTaskHandler;
 
@@ -83,14 +81,14 @@ void setUpGlove() {
   );
   vTaskSuspend(interpretationTaskHandler);
   xTaskCreatePinnedToCore(
-      taskCalibration,         // Task function
-      "Calibration task",      // Name of the task
-      10000,                      // Stack size of task
-      NULL,                       // Parameter of the task
-      1,                          // Priority of the task
-      &calibrationTaskHandler, // Task handle to keep track of created task
-      0                           // Pin task to core 0
-      );
+      taskCalibration,          // Task function
+      "Calibration task",       // Name of the task
+      10000,                    // Stack size of task
+      NULL,                     // Parameter of the task
+      1,                        // Priority of the task
+      &calibrationTaskHandler,  // Task handle to keep track of created task
+      0                         // Pin task to core 0
+  );
   vTaskSuspend(calibrationTaskHandler);
 }
 

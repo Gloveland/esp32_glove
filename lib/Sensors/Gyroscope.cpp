@@ -1,6 +1,5 @@
 #include <Gyroscope.h>
 
-extern const bool KDebug;
 
 Gyroscope::Gyroscope(const GyroRange gyro_range)
     : gyro_range_(gyro_range),
