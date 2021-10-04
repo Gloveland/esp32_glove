@@ -10,12 +10,12 @@ ServerCallbacks::ServerCallbacks(
 
 void ServerCallbacks::onConnect(BLEServer *pServer) {
   BLEServerCallbacks::onConnect(pServer);
-  Serial.println("********* Device Connected :) ************");
+  log_i("********* Device Connected :) ************");
 }
 
 void ServerCallbacks::onDisconnect(BLEServer *pServer) {
   BLEServerCallbacks::onDisconnect(pServer);
-  Serial.println("********* Device Disconnected :( ************");
+  log_i("********* Device Disconnected :( ************");
   this->tasks_controller_callback_->stopRunningTask();
   this->communicator_->advertiseAgain();
 }

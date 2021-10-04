@@ -1,7 +1,5 @@
 #include <Accelerometer.h>
 
-extern const bool KDebug;
-
 Accelerometer::Accelerometer(const Range range): range(range), acc_error(Acceleration(0,0,0)){}
 
 Range Accelerometer::getRange(){
@@ -38,16 +36,7 @@ float Accelerometer::getScale(const Range range) {
 }
 
 void Accelerometer::logError() {
-  if(!KDebug){
-    return;
-  }
-  Serial.println("");
-  Serial.print("AccErrorX: ");
-  Serial.println(this->acc_error.getX());
-  Serial.print("AccErrorY: ");
-  Serial.println(this->acc_error.getY());
-  Serial.print("AccErrorZ: ");
-  Serial.println(this->acc_error.getZ());
+  log_i("AccErrorX: %3.f  AccErrorY: %3.f  AccErrorZ: %3.f",this->acc_error.getX(), this->acc_error.getY(), this->acc_error.getZ());
 }
 
 

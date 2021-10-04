@@ -30,8 +30,8 @@ Mpu::Mpu(const Finger::Value &finger)
 void Mpu::beginCommunication() {
   this->checkAddress(mpuAddress::_OFF);
   digitalWrite(this->ad0_, LOW);
-  while(digitalRead(this->ad0_) != LOW){
-    delay(10); 
+  while (digitalRead(this->ad0_) != LOW) {
+    delay(10);
   }
   this->checkAddress(mpuAddress::_ON);
 }
@@ -39,8 +39,8 @@ void Mpu::beginCommunication() {
 void Mpu::endCommunication() {
   this->checkAddress(mpuAddress::_ON);
   digitalWrite(this->ad0_, HIGH);
-  while(digitalRead(this->ad0_) != HIGH){
-    delay(10); 
+  while (digitalRead(this->ad0_) != HIGH) {
+    delay(10);
   }
   this->checkAddress(mpuAddress::_OFF);
 }
@@ -49,18 +49,13 @@ void Mpu::checkAddress(int address) {
   Wire.beginTransmission(address);
   byte error = Wire.endTransmission();
   if (error != this->OK) {
-    Serial.print("Error checking address: ");
-    Serial.print(" 0x");
-    if (address < Mpu::HEX_ADDRESS) {
-      Serial.print("0");
-    }
-    Serial.println(address, HEX);
+    log_e("Error checking address: 0x%X ", address);
     if (error == Mpu::DATA_BUFFER_ERROR) {
-      Serial.print(" Data too long to fit in transmit buffer. ");
-      Serial.println(" Is i2c bus initialize?");
+      log_e(" Data too long to fit in transmit buffer. ");
+      log_e(" Is i2c bus initialize?");
     }
     if (error == Mpu::UNKNOWN_ERROR) {
-      Serial.println(" Unknow error");
+      log_e(" Unknow error");
     }
   }
   assert(error == 0);
@@ -108,10 +103,7 @@ void Mpu::init() {
  * measurements.
  */
 void Mpu::calibrate() {
-  Serial.print("===================== Calibrating  ");
-  Serial.print(Finger::getName(this->finger_).c_str());
-  Serial.println(" ====================");
-
+  log_i("===================== Calibrating %s ====================", Finger::getName(this->finger_).c_str());
   this->beginCommunication();
 
   float sum_acc_x = 0.0, sum_acc_y = 0.0, sum_acc_z = 0.0;
@@ -135,7 +127,7 @@ void Mpu::calibrate() {
     sum_acc_x += acc.getX();
     sum_acc_y += acc.getY();
     sum_acc_z += (acc.getZ() - this->GRAVITY_EARTH);
-    sum_angle_from_acc_x  += acc_angle_x;
+    sum_angle_from_acc_x += acc_angle_x;
     sum_angle_from_acc_y += acc_angle_y;
 
     if (gyro.getX() < min_gyro_x) {
@@ -160,17 +152,15 @@ void Mpu::calibrate() {
     sum_gyro_y += gyro.getY();
     sum_gyro_z += gyro.getZ();
     delay(20);
-    if(KDebug){
-      Serial.println();
-    }
+    log_i("");
   }
   this->endCommunication();
   this->accelerometer.setError(times, sum_acc_x, sum_acc_y, sum_acc_z);
   this->gyroscope.setGyroError(times, sum_gyro_x, sum_gyro_y, sum_gyro_z);
-  this->gyroscope.setDeviation(times, max_gyro_x, max_gyro_y, max_gyro_z, min_gyro_x,
-                               min_gyro_y, min_gyro_z);
-  this->inclination_calculator.setError(times,  sum_angle_from_acc_x,
-                                         sum_angle_from_acc_y);
+  this->gyroscope.setDeviation(times, max_gyro_x, max_gyro_y, max_gyro_z,
+                               min_gyro_x, min_gyro_y, min_gyro_z);
+  this->inclination_calculator.setError(times, sum_angle_from_acc_x,
+                                        sum_angle_from_acc_y);
 }
 
 ImuSensorMeasurement Mpu::read() {
@@ -180,16 +170,15 @@ ImuSensorMeasurement Mpu::read() {
   this->previousTime_ = currentTime;
   RawMeasurement raw = this->readAllRaw();
   this->endCommunication();
-
-  if (KDebug) {
-    Serial.print(Finger::getName(this->finger_).c_str());
-  }
-  Acceleration acc = this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
+  this->log();
+  Acceleration acc =
+      this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
   Gyro gyro = this->gyroscope.readGyro(raw.gyro_x, raw.gyro_y, raw.gyro_z);
   Inclination inclination =
       this->inclination_calculator.calculateInclination(acc, gyro, elapsedTime);
   float temperature = this->readTemperature(raw.temp);
-  ImuSensorMeasurement result = ImuSensorMeasurement(this->finger_, acc, gyro, inclination, temperature);
+  ImuSensorMeasurement result =
+      ImuSensorMeasurement(this->finger_, acc, gyro, inclination, temperature);
   return result;
 }
 
@@ -216,7 +205,7 @@ RawMeasurement Mpu::readAllRaw() {
   return rawMeasurement;
 }
 
-void Mpu::log() { Serial.print(Finger::getName(this->finger_).c_str()); }
+void Mpu::log() { log_i("%s", Finger::getName(this->finger_).c_str()); }
 
 float Mpu::readTemperature(const int16_t rawTemp) {
   float temperature = (rawTemp / Mpu::TEMP_DIVISOR) + Mpu::TEMP_OFFSET;
@@ -226,8 +215,8 @@ float Mpu::readTemperature(const int16_t rawTemp) {
 void Mpu::setWriteMode() {
   pinMode(this->ad0_, OUTPUT);
   digitalWrite(this->ad0_, HIGH);
-  while(digitalRead(this->ad0_) != HIGH){
-    delay(10); 
+  while (digitalRead(this->ad0_) != HIGH) {
+    delay(10);
   }
 }
 

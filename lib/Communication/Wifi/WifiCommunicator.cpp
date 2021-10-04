@@ -10,10 +10,9 @@ void WifiCommunicator::connectToNetwork() {
   WiFi.begin(NETWORK_SSID, NETWORK_PASSWORD);
   while (WiFiClass::status() != WL_CONNECTED) {
     delay(1000);
-    Serial.println("Connecting to WiFi..");
+    log_i("Connecting to WiFi..");
   }
-  Serial.print("Connected to the WiFi network: ");
-  Serial.print(WiFi.localIP());
+  log_i("Connected to the WiFi network: %s ", WiFi.localIP());
   this->wifi_server_.begin();
 }
 
@@ -24,10 +23,10 @@ void WifiCommunicator::connectToNetwork() {
  * called iteratively until a connection happens.
  */
 boolean WifiCommunicator::listenForClients() {
-  Serial.println("[WifiCommunicator] Waiting for new connection.");
+  log_i("Waiting for new connection.");
   wifi_client_ = this->wifi_server_.available();
   if (wifi_client_) {
-    Serial.println("[WifiCommunicator] New client connected.");
+    log_i("New client connected.");
     events_count_ = 0;
     return true;
   }
@@ -37,10 +36,9 @@ boolean WifiCommunicator::listenForClients() {
 /** Sends a GloveMeasurement via wifi. */
 void WifiCommunicator::send(GloveMeasurements measurements) {
   measurements.toPackage(this->events_count_, this->glove_measurement_buffer_, this->kMtu);
-  Serial.print("[WifiCommunicator] Sending value via wifi: ");
+  log_i("Sending value via wifi: ");
   wifi_client_.write(this->glove_measurement_buffer_);
-  Serial.print("[WifiCommunicator] Event count: ");
-  Serial.println(events_count_);
+  log_i("Event count: %d", events_count_);
   this->events_count_ += 1;
 }
 
