@@ -1,7 +1,5 @@
 #include "InclinationCalculator.h"
 
-extern const bool KDebug;
-
 InclinationCalculator::InclinationCalculator()
     : inclination_angle_from_acc_error(Acceleration(0, 0, 0)),
       previous_inclination(Inclination(0, 0, 0)) {}
@@ -16,13 +14,8 @@ void InclinationCalculator::setError(int times, float sum_angle_from_acc_x,
 
 void InclinationCalculator::log(const float inclination_from_acc_x,
                                 const float inclination_from_acc_y) {
-  if (!KDebug) {
-    return;
-  }
-  Serial.print("   accAngleX: ");
-  Serial.print(inclination_from_acc_x);
-  Serial.print("   accAngleY: ");
-  Serial.print(inclination_from_acc_y);
+  log_i(" accAngleX: %.2f  accAngleY: %.2f ", inclination_from_acc_x,
+        inclination_from_acc_y);
 }
 
 /**

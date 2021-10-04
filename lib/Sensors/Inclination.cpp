@@ -1,6 +1,5 @@
 #include "Inclination.h"
 
-extern const bool KDebug;
 
 Inclination::Inclination(const float roll_value, const float pitch_value,
                          const float yaw_value)
@@ -11,16 +10,8 @@ float Inclination::getPitch() const { return this->pitch; }
 float Inclination::getYaw() const { return this->yaw; }
 
 void Inclination::log() {
-   if (!KDebug) {
-    return;
-  }
-  Serial.print("  roll:");
-  Serial.print(this->getRoll());
-  Serial.print("  pitch:");
-  Serial.print(this->getPitch());
-  Serial.print("  yaw:");
-  Serial.print(this->getYaw());
-  Serial.println();
+  log_i(" roll: %.2f  pitch: %.2f  yaw: %.2f ", this->getRoll(),
+        this->getPitch(), this->getYaw());
 }
 
 Inclination::~Inclination() = default;

@@ -1,6 +1,5 @@
 #include <Gyroscope.h>
 
-extern const bool KDebug;
 
 Gyroscope::Gyroscope(const GyroRange gyro_range)
     : gyro_range_(gyro_range),
@@ -60,28 +59,17 @@ Gyro Gyroscope::readGyro(const int16_t rawGyro_x, const int16_t rawGyro_y,
 }
 
 void Gyroscope::logGyroError() {
-  if(!KDebug){
-    return;
-  }
-  Serial.println("");
-  Serial.print("GyroErrorX: ");
-  Serial.println(this->gyro_error_.getX());
-  Serial.print("GyroErrorY: ");
-  Serial.println(this->gyro_error_.getY());
-  Serial.print("GyroErrorZ: ");
-  Serial.println(this->gyro_error_.getZ());
+  log_i("GyroErrorX:: %.2f  GyroErrorY: %.2f  GyroErrorXZ: %.2f",
+        this->gyro_error_.getX(),
+        this->gyro_error_.getY(),
+        this->gyro_error_.getZ());
 }
 
 void Gyroscope::logDeviation() {
-   if(!KDebug){
-    return;
-  }
-  Serial.print("DeviationX: ");
-  Serial.println(this->deviation_.getX());
-  Serial.print("DeviationY: ");
-  Serial.println(this->deviation_.getY());
-  Serial.print("DeviationZ: ");
-  Serial.println(this->deviation_.getZ());
+  log_i("DeviationX:: %.2f  DeviationY: %.2f  DeviationZ: %.2f",
+        this->deviation_.getX(),
+        this->deviation_.getY(),
+        this->deviation_.getZ());
 }
 
 float Gyroscope::getGyroScale(const GyroRange gyro_range) {

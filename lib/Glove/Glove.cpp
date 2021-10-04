@@ -12,6 +12,8 @@ void Glove::init() {
 void Glove::setUpSensors() {
   for (auto sensor : sensors_) {
     sensor.second.setWriteMode();
+  }
+  for (auto sensor : sensors_) {
     sensor.second.init();
   }
 }
@@ -47,8 +49,11 @@ std::string Glove::getDeviceId() {
 }
 
 const GloveSensors Glove::sensors_ = {
-    {Finger::Value::kPinky, Mpu(Finger::Value::kPinky)}  //,
-    //{Finger::Value::kThumb, Mpu(Finger::Value::kThumb, false)}
+    {Finger::Value::kPinky, Mpu(Finger::Value::kPinky)},
+    {Finger::Value::kRing, Mpu(Finger::Value::kRing)},
+    {Finger::Value::kMiddle,Mpu(Finger::Value::kMiddle)},
+    {Finger::Value::kIndex, Mpu(Finger::Value::kIndex)},
+    {Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}
 };
 
 Glove::~Glove() = default;

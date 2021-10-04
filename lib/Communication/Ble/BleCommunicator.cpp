@@ -2,7 +2,6 @@
 
 #include "ServerCallbacks.h"
 #include "TasksControllerCallback.h"
-extern const bool KDebug;
 
 void BleCommunicator::init(const std::string &name,
                            TasksControllerCallback *tasks_controller_callback) {
@@ -38,7 +37,7 @@ void BleCommunicator::init(const std::string &name,
 }
 
 void BleCommunicator::advertiseAgain() {
-  Serial.print("Advertising...");
+  log_i("Advertising...");
   this->profile_server_->startAdvertising();
   delay(500);
 }
@@ -50,19 +49,13 @@ void BleCommunicator::sendMeasurements(GloveMeasurements measurements) {
   this->data_collection_characteristic_->setValue(
       this->glove_measurement_buffer_);
   this->data_collection_characteristic_->notify();
-  if (KDebug) {
-    Serial.print("[BleCommunicator] Measurement sent: ");
-    Serial.println(String(this->glove_measurement_buffer_));
-  }
+  log_i("Measurement sent: %s ", this->glove_measurement_buffer_);
 }
 
 void BleCommunicator::sendInterpretation(const std::string &interpretation) {
   this->interpretation_characteristic_->setValue(interpretation);
   this->interpretation_characteristic_->notify();
-  if (KDebug) {
-    Serial.print("[BleCommunicator] Interpretation sent: ");
-    Serial.println(interpretation.c_str());
-  }
+  log_i("Interpretation sent: %s", interpretation.c_str());
 }
 
 BleCommunicator::~BleCommunicator() = default;

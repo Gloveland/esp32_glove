@@ -2,6 +2,7 @@
 #define FINGER_H_
 
 #include <map>
+#include <FingerConfiguration.h>
 
 /**
  * Struct containing the information associated to the fingers of the hand in
@@ -39,11 +40,11 @@ class Finger {
    */
   static u_int getAd0Pin(Value finger) {
     switch (finger) {
-      case kPinky:return 33;
-      case kRing:return 27;
-      case kMiddle:return 26;
-      case kIndex:return 32;
-      case kThumb:return 17;
+      case kPinky:return kPinkyAd0;
+      case kRing:return kRingAd0;
+      case kMiddle:return kMiddleAd0;
+      case kIndex:return kIndexAd0;
+      case kThumb:return kThumbAd0;
     }
   }
 
