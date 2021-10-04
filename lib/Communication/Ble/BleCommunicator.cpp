@@ -51,8 +51,8 @@ void BleCommunicator::sendMeasurements(GloveMeasurements measurements) {
       this->glove_measurement_buffer_);
   this->data_collection_characteristic_->notify();
   if (KDebug) {
-    Serial.print("[BleCommunicator] Measurement sent: ");
-    Serial.println(String(this->glove_measurement_buffer_));
+    //Serial.print("[BleCommunicator] Measurement sent: ");
+    //Serial.println(String(this->glove_measurement_buffer_));
   }
 }
 

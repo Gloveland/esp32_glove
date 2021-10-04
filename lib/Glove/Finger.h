@@ -39,11 +39,11 @@ class Finger {
    */
   static u_int getAd0Pin(Value finger) {
     switch (finger) {
-      case kPinky:return 33;
-      case kRing:return 27;
+      case kPinky:return 32;
+      case kRing:return 33;
       case kMiddle:return 26;
-      case kIndex:return 32;
-      case kThumb:return 17;
+      case kIndex:return 14;
+      case kThumb:return 13;
     }
   }
 

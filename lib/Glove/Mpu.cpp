@@ -30,14 +30,18 @@ Mpu::Mpu(const Finger::Value &finger)
 void Mpu::beginCommunication() {
   this->checkAddress(mpuAddress::_OFF);
   digitalWrite(this->ad0_, LOW);
-  delay(100);
+  while(digitalRead(this->ad0_) != LOW){
+    delay(10); 
+  }
   this->checkAddress(mpuAddress::_ON);
 }
 
 void Mpu::endCommunication() {
   this->checkAddress(mpuAddress::_ON);
   digitalWrite(this->ad0_, HIGH);
-  delay(100);
+  while(digitalRead(this->ad0_) != HIGH){
+    delay(10); 
+  }
   this->checkAddress(mpuAddress::_OFF);
 }
 
@@ -222,6 +226,9 @@ float Mpu::readTemperature(const int16_t rawTemp) {
 void Mpu::setWriteMode() {
   pinMode(this->ad0_, OUTPUT);
   digitalWrite(this->ad0_, HIGH);
+  while(digitalRead(this->ad0_) != HIGH){
+    delay(10); 
+  }
 }
 
 Finger::Value Mpu::getFinger() { return this->finger_; }

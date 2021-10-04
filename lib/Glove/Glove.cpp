@@ -12,6 +12,8 @@ void Glove::init() {
 void Glove::setUpSensors() {
   for (auto sensor : sensors_) {
     sensor.second.setWriteMode();
+  }
+  for (auto sensor : sensors_) {
     sensor.second.init();
   }
 }

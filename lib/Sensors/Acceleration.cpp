@@ -14,11 +14,19 @@ float Acceleration::getY() const { return this->y; }
 float Acceleration::getZ() const { return this->z; }
 
 float Acceleration::calculateAngleX() const {
-  return (atan(this->y / sqrt(pow(this->x, 2) + pow(this->z, 2))) * 180 / PI);
+  double divisor = sqrt(pow(this->x, 2) + pow(this->z, 2));
+  if(divisor == 0){ //probably sensor reading error
+    return 0; 
+  }
+  return (atan(this->y / divisor) * 180 / PI);
 }
 
 float Acceleration::calculateAngleY() const {
-  return (atan(-1 * this->x / sqrt(pow(this->y, 2) + pow(this->z, 2))) * 180 /PI);
+   double divisor = sqrt(pow(this->y, 2) + pow(this->z, 2));
+  if(divisor == 0){ //probably sensor reading error
+    return 0;
+  }
+  return (atan(-1 * this->x / divisor) * 180 /PI);
 }
 
 void Acceleration::log() {

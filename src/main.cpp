@@ -40,8 +40,14 @@ void setUpBleCommunicator();
 void setUpWifiCommunicator();
 
 void setup() {
-  pinMode(LED_BUILTIN, OUTPUT);
   Serial.begin(9600);
+  log_e("Test log level error -DCORE_DEBUG_LEVEL=1");
+  log_w("Test log level warnign -DCORE_DEBUG_LEVEL=2");
+  log_i("Test log level information -DCORE_DEBUG_LEVEL=3");
+  log_d("Test log level debug -DCORE_DEBUG_LEVEL=4");
+  log_v("Test log level verbose -DCORE_DEBUG_LEVEL=5");
+
+  pinMode(LED_BUILTIN, OUTPUT);
   queue = xQueueCreate(kQueueSize, sizeof(GloveMeasurements));
   if (queue == nullptr) {
     Serial.println("Error creating the queue.");
@@ -91,8 +97,7 @@ void setUpGlove() {
 
 void setUpBleCommunicator() {
   tasksControllerCallback = new TasksControllerCallback(
-      dataCollectionTaskHandler,
-      interpretationTaskHandler,
+      dataCollectionTaskHandler, interpretationTaskHandler,
       calibrationTaskHandler);
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
   xTaskCreatePinnedToCore(

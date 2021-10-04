@@ -24,7 +24,7 @@ void Gyro::log() const {
   Serial.print("   gZ: ");
   Serial.print(this->getZ());
   Serial.print(",");
-  Serial.print("   degrees/seg         ");
+  Serial.print("  degrees/seg    ");
 }
 
 Gyro::~Gyro() = default;
