@@ -50,7 +50,7 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   queue = xQueueCreate(kQueueSize, sizeof(GloveMeasurements));
   if (queue == nullptr) {
-    Serial.println("Error creating the queue.");
+    log_e("Error creating the queue.");
   }
 
   setUpGlove();
@@ -128,8 +128,7 @@ void setUpWifiCommunicator() {
 void loop() {}  // loop() runs on core 1
 
 [[noreturn]] void taskDataCollection(void *pvParameters) {
-  Serial.print("Task 'read gloves' running on core ");
-  Serial.println(xPortGetCoreID());
+  log_i("Task 'read gloves' running on core %d", xPortGetCoreID());
   for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
       GloveMeasurements measurements = glove.readSensors();
@@ -141,8 +140,7 @@ void loop() {}  // loop() runs on core 1
 }
 
 [[noreturn]] void taskInterpretation(void *pvParameters) {
-  Serial.print("Task 'Interpretation' running on core ");
-  Serial.println(xPortGetCoreID());
+  log_i("Task 'Interpretation' running on core %d", xPortGetCoreID());
   for (;;) {
     for (int i = 0; i < 5; i++) {
       // TODO(https://git.io/Ju6I7): Implement translation task.
@@ -156,8 +154,7 @@ void loop() {}  // loop() runs on core 1
 }
 
 [[noreturn]] void taskCalibration(void *pvParameters) {
-  Serial.println("Task 'Calibration' running on core ");
-  Serial.println(xPortGetCoreID());
+  log_i("Task 'Calibration' running on core %d", xPortGetCoreID());
   for (;;) {
     glove.calibrateSensors();
     // The task suspends itself in order to perform only a single calibration
@@ -167,16 +164,14 @@ void loop() {}  // loop() runs on core 1
 }
 
 [[noreturn]] void taskBleCommunication(void *pvParameters) {
-  Serial.print("Task 'Bluetooth transmission' running on core ");
-  Serial.println(xPortGetCoreID());
+  log_i("Task 'Bluetooth transmission' running on core %d", xPortGetCoreID());
   GloveMeasurements glove_measurements;
   for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
       if (xQueueReceive(queue, &glove_measurements, portMAX_DELAY) == pdPASS) {
         bleCommunicator.sendMeasurements(glove_measurements);
       } else {
-        Serial.println(
-            "[taskBleCommunication] fail to receive item from queue ");
+        log_e("Error: fail to receive item from queue ");
       }
     }
     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);

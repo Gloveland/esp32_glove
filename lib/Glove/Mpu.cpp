@@ -17,7 +17,6 @@ const int Mpu::BITS_IN_BYTE = 8;
 const int Mpu::TEMP_DIVISOR = 340.0;
 const int Mpu::TEMP_OFFSET = 36.53;
 
-extern const bool KDebug;
 
 Mpu::Mpu(const Finger::Value &finger)
     : finger_(finger),
