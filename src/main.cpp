@@ -46,7 +46,6 @@ void setup() {
   log_i("Test log level information -DCORE_DEBUG_LEVEL=3");
   log_d("Test log level debug -DCORE_DEBUG_LEVEL=4");
   log_v("Test log level verbose -DCORE_DEBUG_LEVEL=5");
-
   pinMode(LED_BUILTIN, OUTPUT);
   queue = xQueueCreate(kQueueSize, sizeof(GloveMeasurements));
   if (queue == nullptr) {
