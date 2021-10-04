@@ -1,12 +1,11 @@
 
 #include <Glove.h>
 #include <Utils.h>
+
 #include <sstream>
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
 #include "../lib/Communication/Wifi/WifiCommunicator.h"
-
-
 
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
 #define TASK_DELAY_MS 500
@@ -30,7 +29,6 @@ TaskHandle_t calibrationTaskHandler;
 
 QueueHandle_t queue;
 const int kQueueSize = 100;
-
 
 Glove glove;
 WifiCommunicator wifiCommunicator(Glove::getDeviceId());
@@ -60,23 +58,23 @@ void setup() {
 void setUpGlove() {
   glove.init();
   xTaskCreatePinnedToCore(
-      taskDataCollection,         // Task function
-      "readSensors",              // Name of the task
-      10000,                      // Stack size of task
-      NULL,                       // Parameter of the task
-      1,                          // Priority of the task
-      &dataCollectionTaskHandler, // Task handle to keep track of created task
-      0                           // Pin task to core 0
+      taskDataCollection,          // Task function
+      "readSensors",               // Name of the task
+      10000,                       // Stack size of task
+      NULL,                        // Parameter of the task
+      1,                           // Priority of the task
+      &dataCollectionTaskHandler,  // Task handle to keep track of created task
+      0                            // Pin task to core 0
   );
   vTaskSuspend(dataCollectionTaskHandler);
   xTaskCreatePinnedToCore(
-      taskInterpretation,         // Task function
-      "Interpretation task",      // Name of the task
-      10000,                      // Stack size of task
-      NULL,                       // Parameter of the task
-      1,                          // Priority of the task
-      &interpretationTaskHandler, // Task handle to keep track of created task
-      0                           // Pin task to core 0
+      taskInterpretation,          // Task function
+      "Interpretation task",       // Name of the task
+      10000,                       // Stack size of task
+      NULL,                        // Parameter of the task
+      1,                           // Priority of the task
+      &interpretationTaskHandler,  // Task handle to keep track of created task
+      0                            // Pin task to core 0
   );
   vTaskSuspend(interpretationTaskHandler);
   xTaskCreatePinnedToCore(
@@ -125,7 +123,7 @@ void setUpWifiCommunicator() {
 void loop() {}  // loop() runs on core 1
 
 [[noreturn]] void taskDataCollection(void *pvParameters) {
-  Serial.println("Task 'read gloves' running on core ");
+  Serial.print("Task 'read gloves' running on core ");
   Serial.println(xPortGetCoreID());
   for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
@@ -138,11 +136,11 @@ void loop() {}  // loop() runs on core 1
 }
 
 [[noreturn]] void taskInterpretation(void *pvParameters) {
-  Serial.println("Task 'Interpretation' running on core ");
+  Serial.print("Task 'Interpretation' running on core ");
   Serial.println(xPortGetCoreID());
   for (;;) {
     for (int i = 0; i < 5; i++) {
-      //TODO(https://git.io/Ju6I7): Implement translation task.
+      // TODO(https://git.io/Ju6I7): Implement translation task.
       std::stringstream mock_interpretation_stream;
       mock_interpretation_stream << "Interpretation " << i;
       bleCommunicator.sendInterpretation(mock_interpretation_stream.str());
@@ -164,13 +162,17 @@ void loop() {}  // loop() runs on core 1
 }
 
 [[noreturn]] void taskBleCommunication(void *pvParameters) {
-  Serial.println("Task 'Bluetooth transmission' running on core ");
+  Serial.print("Task 'Bluetooth transmission' running on core ");
   Serial.println(xPortGetCoreID());
   GloveMeasurements glove_measurements;
   for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
-      xQueueReceive(queue, &glove_measurements, portMAX_DELAY);
-      bleCommunicator.sendMeasurements(glove_measurements);
+      if (xQueueReceive(queue, &glove_measurements, portMAX_DELAY) == pdPASS) {
+        bleCommunicator.sendMeasurements(glove_measurements);
+      } else {
+        Serial.println(
+            "[taskBleCommunication] fail to receive item from queue ");
+      }
     }
     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
   }
@@ -179,11 +181,12 @@ void loop() {}  // loop() runs on core 1
 [[noreturn]] void taskWifiCommunication(void *pvParameters) {
   while (true) {
     wifiCommunicator.listenForClients();
+    GloveMeasurements glove_measurements;
     for (int i = 0; i < kQueueSize && wifiCommunicator.clientIsConnected();
          i++) {
-      GloveMeasurements glove_measurements;
-      xQueueReceive(queue, &glove_measurements, portMAX_DELAY);
-      wifiCommunicator.send(glove_measurements);
+      if (xQueueReceive(queue, &glove_measurements, portMAX_DELAY) == pdPASS) {
+        wifiCommunicator.send(glove_measurements);
+      }
     }
     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
     delay(500);
