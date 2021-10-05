@@ -32,36 +32,41 @@ void GloveMeasurements::toPackage(int events_count,
                                   const int size) {
   memset(glove_measurement_buffer_, 0, size);
   ImuSensorMeasurement pinky = (this->getSensor(Finger::kPinky));
-  // ImuSensorMeasurement ring = *(this->ring_imu_measurement_);
-  // ImuSensorMeasurement middle = *(this->middle_imu_measurement_);
-  // ImuSensorMeasurement index = *(this->index_imu_measurement_);
-  // ImuSensorMeasurement thump = *(this->thumb_imu_measurement_);
+  ImuSensorMeasurement ring = (this->getSensor(Finger::kRing));
+  ImuSensorMeasurement middle = (this->getSensor(Finger::kMiddle));
+  ImuSensorMeasurement index = (this->getSensor(Finger::kIndex));
+  ImuSensorMeasurement thumb = (this->getSensor(Finger::kThumb));
 
   int size_written = sprintf(
       glove_measurement_buffer_,
       GloveMeasurements::kglove_mesurements_packet_format.c_str(), events_count,
+
       pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(),
       pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(),
       pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
+      pinky.getInclination().getYaw(),
 
-      // TO DO replace with different fingers
-      pinky.getInclination().getYaw(), pinky.getAcc().getX(),
-      pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(),
-      pinky.getGyro().getY(), pinky.getGyro().getZ(),
-      pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
-      pinky.getInclination().getYaw(), pinky.getAcc().getX(),
-      pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(),
-      pinky.getGyro().getY(), pinky.getGyro().getZ(),
-      pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
-      pinky.getInclination().getYaw(), pinky.getAcc().getX(),
-      pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(),
-      pinky.getGyro().getY(), pinky.getGyro().getZ(),
-      pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
-      pinky.getInclination().getYaw(), pinky.getAcc().getX(),
-      pinky.getAcc().getY(), pinky.getAcc().getZ(), pinky.getGyro().getX(),
-      pinky.getGyro().getY(), pinky.getGyro().getZ(),
-      pinky.getInclination().getRoll(), pinky.getInclination().getPitch(),
-      pinky.getInclination().getYaw());
+      ring.getAcc().getX(), ring.getAcc().getY(), ring.getAcc().getZ(),
+      ring.getGyro().getX(), ring.getGyro().getY(), ring.getGyro().getZ(),
+      ring.getInclination().getRoll(), ring.getInclination().getPitch(),
+      ring.getInclination().getYaw(),
+
+      middle.getAcc().getX(), middle.getAcc().getY(), middle.getAcc().getZ(),
+      middle.getGyro().getX(), middle.getGyro().getY(), middle.getGyro().getZ(),
+      middle.getInclination().getRoll(), middle.getInclination().getPitch(),
+      middle.getInclination().getYaw(),
+
+      index.getAcc().getX(), index.getAcc().getY(), index.getAcc().getZ(),
+      index.getGyro().getX(), index.getGyro().getY(), index.getGyro().getZ(),
+      index.getInclination().getRoll(), index.getInclination().getPitch(),
+      index.getInclination().getYaw(),
+
+      thumb.getAcc().getX(), thumb.getAcc().getY(), thumb.getAcc().getZ(),
+      thumb.getGyro().getX(), thumb.getGyro().getY(), thumb.getGyro().getZ(),
+      thumb.getInclination().getRoll(), thumb.getInclination().getPitch(),
+      thumb.getInclination().getYaw()
+
+  );
 
   if (size_written > size) {
     log_e("Error size is bigger than 512!!, size_written: %d", size_written);
