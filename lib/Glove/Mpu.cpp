@@ -17,7 +17,6 @@ const int Mpu::BITS_IN_BYTE = 8;
 const int Mpu::TEMP_DIVISOR = 340.0;
 const int Mpu::TEMP_OFFSET = 36.53;
 
-
 Mpu::Mpu(const Finger::Value &finger)
     : finger_(finger),
       ad0_(Finger::getAd0Pin(finger)),
@@ -102,7 +101,8 @@ void Mpu::init() {
  * measurements.
  */
 void Mpu::calibrate() {
-  log_i("===================== Calibrating %s ====================", Finger::getName(this->finger_).c_str());
+  log_i("===================== Calibrating %s ====================",
+        Finger::getName(this->finger_).c_str());
   this->beginCommunication();
 
   float sum_acc_x = 0.0, sum_acc_y = 0.0, sum_acc_z = 0.0;

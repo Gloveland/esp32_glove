@@ -8,6 +8,7 @@
 #include "../lib/Communication/Wifi/WifiCommunicator.h"
 
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
+#define LEFT_HAND_BLE_SERVICE "LeftHandSmartGlove"
 #define TASK_DELAY_MS 500
 
 [[noreturn]] void taskDataCollection(void *pvParameters);
@@ -59,7 +60,7 @@ void setup() {
 }
 
 void setUpGlove() {
-  glove.init();
+  //glove.init();
   xTaskCreatePinnedToCore(
       taskDataCollection,          // Task function
       "readSensors",               // Name of the task
@@ -96,7 +97,7 @@ void setUpBleCommunicator() {
   tasksControllerCallback = new TasksControllerCallback(
       dataCollectionTaskHandler, interpretationTaskHandler,
       calibrationTaskHandler);
-  bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
+  bleCommunicator.init(LEFT_HAND_BLE_SERVICE, tasksControllerCallback);
   xTaskCreatePinnedToCore(
       taskBleCommunication,          // Task function
       "bleCommunication",            // Name of the task
@@ -128,6 +129,7 @@ void loop() {}  // loop() runs on core 1
   log_i("Task 'read gloves' running on core %d", xPortGetCoreID());
   for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
+      log_i("read gloves");
       GloveMeasurements measurements = glove.readSensors();
       xQueueSend(queue, &measurements, portMAX_DELAY);
       delay(100);
@@ -153,7 +155,7 @@ void loop() {}  // loop() runs on core 1
 [[noreturn]] void taskCalibration(void *pvParameters) {
   log_i("Task 'Calibration' running on core %d", xPortGetCoreID());
   for (;;) {
-    glove.calibrateSensors();
+    //glove.calibrateSensors();
     // The task suspends itself in order to perform only a single calibration
     // per request.
     vTaskSuspend(calibrationTaskHandler);

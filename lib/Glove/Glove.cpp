@@ -28,11 +28,13 @@ void Glove::calibrateSensors() {
 
 GloveMeasurements Glove::readSensors() {
   std::map<const Finger::Value, ImuSensorMeasurement> measurementsMap;
+  /*
   for (auto sensor : sensors_) {
     ImuSensorMeasurement measurement = sensor.second.read();
     measurementsMap.insert(std::pair<Finger::Value, ImuSensorMeasurement>(
         sensor.first, measurement));
   }
+  */
   GloveMeasurements glove_measurements;
   glove_measurements.setSensorMeasurementsMap(measurementsMap);
   return glove_measurements;
@@ -51,9 +53,8 @@ std::string Glove::getDeviceId() {
 const GloveSensors Glove::sensors_ = {
     {Finger::Value::kPinky, Mpu(Finger::Value::kPinky)},
     {Finger::Value::kRing, Mpu(Finger::Value::kRing)},
-    {Finger::Value::kMiddle,Mpu(Finger::Value::kMiddle)},
+    {Finger::Value::kMiddle, Mpu(Finger::Value::kMiddle)},
     {Finger::Value::kIndex, Mpu(Finger::Value::kIndex)},
-    {Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}
-};
+    {Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}};
 
 Glove::~Glove() = default;
