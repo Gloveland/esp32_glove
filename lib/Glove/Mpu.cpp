@@ -163,7 +163,7 @@ void Mpu::calibrate() {
     sum_gyro_y += gyro.getY();
     sum_gyro_z += gyro.getZ();
     delay(20);
-    log_i("");
+    log_d("");
   }
   this->endCommunication();
   this->accelerometer.setError(times, sum_acc_x, sum_acc_y, sum_acc_z);
