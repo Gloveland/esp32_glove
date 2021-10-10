@@ -1,6 +1,7 @@
 
 #include <Glove.h>
 #include <Utils.h>
+#include <esp_task_wdt.h>
 
 #include <sstream>
 
@@ -45,13 +46,13 @@ void setup() {
   log_d("Test log level debug -DCORE_DEBUG_LEVEL=4");
   log_v("Test log level verbose -DCORE_DEBUG_LEVEL=5");
   pinMode(LED_BUILTIN, OUTPUT);
+  esp_task_wdt_init(100, false);
   queue = xQueueCreate(kQueueSize, sizeof(GloveMeasurements));
   if (queue == nullptr) {
     log_e("Error creating the queue.");
   }
 
   setUpGlove();
-
   // In order to switch between communication modes, comment and uncomment
   // the lines below:
   //  setUpWifiCommunicator();
@@ -126,13 +127,18 @@ void loop() {}  // loop() runs on core 1
 
 [[noreturn]] void taskDataCollection(void *pvParameters) {
   log_i("Task 'read gloves' running on core %d", xPortGetCoreID());
+  float currentTime = millis();
+  float previousTime = currentTime;
   for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
       GloveMeasurements measurements = glove.readSensors();
       xQueueSend(queue, &measurements, portMAX_DELAY);
-      delay(100);
+      currentTime = millis();  // Divide by 1000 to get seconds
+      log_i("elapsed time: %.3f seg", (currentTime - previousTime) / 1000.0);
+      log_i("frequency: %.3f hz",
+            1.0 / ((currentTime - previousTime) / 1000.0));
+      previousTime = currentTime;
     }
-    vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
   }
 }
 
@@ -171,7 +177,6 @@ void loop() {}  // loop() runs on core 1
         log_e("Error: fail to receive item from queue ");
       }
     }
-    vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
   }
 }
 

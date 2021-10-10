@@ -36,7 +36,7 @@ float Accelerometer::getScale(const Range range) {
 }
 
 void Accelerometer::logError() {
-  log_i("AccErrorX: %3.f  AccErrorY: %3.f  AccErrorZ: %3.f",this->acc_error.getX(), this->acc_error.getY(), this->acc_error.getZ());
+  log_d("AccErrorX: %3.f  AccErrorY: %3.f  AccErrorZ: %3.f",this->acc_error.getX(), this->acc_error.getY(), this->acc_error.getZ());
 }
 
 

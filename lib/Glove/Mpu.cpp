@@ -3,6 +3,7 @@
 const int Mpu::HEX_ADDRESS = 16;
 const int Mpu::OK = 0;
 const int Mpu::DATA_BUFFER_ERROR = 1;
+const int Mpu::NACK_ERROR = 2;
 const int Mpu::UNKNOWN_ERROR = 4;
 const int Mpu::GRAVITY_EARTH = 9.80665F;
 const int Mpu::GENERAL_CONFIG = 0x1A;  ///< General configuration register
@@ -17,7 +18,6 @@ const int Mpu::BITS_IN_BYTE = 8;
 const int Mpu::TEMP_DIVISOR = 340.0;
 const int Mpu::TEMP_OFFSET = 36.53;
 
-
 Mpu::Mpu(const Finger::Value &finger)
     : finger_(finger),
       ad0_(Finger::getAd0Pin(finger)),
@@ -27,37 +27,38 @@ Mpu::Mpu(const Finger::Value &finger)
       previousTime_(millis()) {}
 
 void Mpu::beginCommunication() {
-  this->checkAddress(mpuAddress::_OFF);
-  digitalWrite(this->ad0_, LOW);
-  while (digitalRead(this->ad0_) != LOW) {
-    delay(10);
+  while (!this->checkAddress(mpuAddress::_ON)) {
+    digitalWrite(this->ad0_, LOW);
+    delay(20);
   }
-  this->checkAddress(mpuAddress::_ON);
 }
 
 void Mpu::endCommunication() {
-  this->checkAddress(mpuAddress::_ON);
-  digitalWrite(this->ad0_, HIGH);
-  while (digitalRead(this->ad0_) != HIGH) {
-    delay(10);
+  while (!this->checkAddress(mpuAddress::_OFF)) {
+    digitalWrite(this->ad0_, HIGH);
+    delay(20);
   }
-  this->checkAddress(mpuAddress::_OFF);
 }
 
-void Mpu::checkAddress(int address) {
+bool Mpu::checkAddress(int address) {
   Wire.beginTransmission(address);
   byte error = Wire.endTransmission();
   if (error != this->OK) {
-    log_e("Error checking address: 0x%X ", address);
+    log_e("%s: Error n %d checking address: 0x%X ",
+          Finger::getName(this->finger_).c_str(), error, address);
     if (error == Mpu::DATA_BUFFER_ERROR) {
       log_e(" Data too long to fit in transmit buffer. ");
       log_e(" Is i2c bus initialize?");
     }
+    if (error == Mpu::NACK_ERROR) {
+      log_e("received NACK on transmit of address");
+    }
     if (error == Mpu::UNKNOWN_ERROR) {
       log_e(" Unknow error");
     }
+    return false;
   }
-  assert(error == 0);
+  return true;
 }
 
 void Mpu::init() {
@@ -87,6 +88,16 @@ void Mpu::init() {
   Wire.write(mpuBand::_21_HZ);  // ex: 00010000 (1000deg/s full scale)
   Wire.endTransmission(true);
   delay(20);
+
+  /*
+  Wire.beginTransmission(mpuAddress::_ON);
+  Wire.write(Mpu::PWR_MGMT_1);
+  Wire.write(0x09);  // temperature disabled = 0x08 and PLL with X axis
+                     // gyroscope reference = 0x01
+  Wire.endTransmission(true);
+  delay(20);
+  */
+
   this->endCommunication();
 }
 
@@ -102,7 +113,8 @@ void Mpu::init() {
  * measurements.
  */
 void Mpu::calibrate() {
-  log_i("===================== Calibrating %s ====================", Finger::getName(this->finger_).c_str());
+  log_i("===================== Calibrating %s ====================",
+        Finger::getName(this->finger_).c_str());
   this->beginCommunication();
 
   float sum_acc_x = 0.0, sum_acc_y = 0.0, sum_acc_z = 0.0;
@@ -163,21 +175,20 @@ void Mpu::calibrate() {
 }
 
 ImuSensorMeasurement Mpu::read() {
+  this->log();
   this->beginCommunication();
   float currentTime = millis();  // Divide by 1000 to get seconds
   float elapsedTime = (currentTime - this->previousTime_) / 1000;
   this->previousTime_ = currentTime;
   RawMeasurement raw = this->readAllRaw();
   this->endCommunication();
-  this->log();
   Acceleration acc =
       this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
   Gyro gyro = this->gyroscope.readGyro(raw.gyro_x, raw.gyro_y, raw.gyro_z);
   Inclination inclination =
       this->inclination_calculator.calculateInclination(acc, gyro, elapsedTime);
-  float temperature = this->readTemperature(raw.temp);
   ImuSensorMeasurement result =
-      ImuSensorMeasurement(this->finger_, acc, gyro, inclination, temperature);
+      ImuSensorMeasurement(this->finger_, acc, gyro, inclination);
   return result;
 }
 
@@ -204,18 +215,15 @@ RawMeasurement Mpu::readAllRaw() {
   return rawMeasurement;
 }
 
-void Mpu::log() { log_i("%s", Finger::getName(this->finger_).c_str()); }
-
-float Mpu::readTemperature(const int16_t rawTemp) {
-  float temperature = (rawTemp / Mpu::TEMP_DIVISOR) + Mpu::TEMP_OFFSET;
-  return temperature;
-}
+void Mpu::log() { log_d("%s", Finger::getName(this->finger_).c_str()); }
 
 void Mpu::setWriteMode() {
   pinMode(this->ad0_, OUTPUT);
   digitalWrite(this->ad0_, HIGH);
-  while (digitalRead(this->ad0_) != HIGH) {
-    delay(10);
+  delay(100);
+  while (!this->checkAddress(mpuAddress::_OFF)) {
+    digitalWrite(this->ad0_, HIGH);
+    delay(20);
   }
 }
 

@@ -4,18 +4,17 @@
 #include <Arduino.h>
 #include <Wire.h>
 #include <float.h>
+
 #include <map>
-#include "Finger.h"
 
-#include "../Sensors/Accelerometer.h"
 #include "../Sensors/Acceleration.h"
-
-#include "../Sensors/Gyroscope.h"
+#include "../Sensors/Accelerometer.h"
 #include "../Sensors/Gyro.h"
-
-#include "../Sensors/InclinationCalculator.h"
-#include "../Sensors/Inclination.h"
+#include "../Sensors/Gyroscope.h"
 #include "../Sensors/ImuSensorMeasurement.h"
+#include "../Sensors/Inclination.h"
+#include "../Sensors/InclinationCalculator.h"
+#include "Finger.h"
 
 enum mpuBand {
   _260_HZ = 0x00,
@@ -26,7 +25,6 @@ enum mpuBand {
   _10_HZ = 0x05,
   _5_HZ = 0x06,
 };
-
 
 enum mpuAddress {
   _ON = 0x68,
@@ -59,6 +57,7 @@ class Mpu {
   static const int HEX_ADDRESS;
   static const int OK;
   static const int DATA_BUFFER_ERROR;
+  static const int NACK_ERROR;
   static const int UNKNOWN_ERROR;
   static const int GRAVITY_EARTH;
   static const int GENERAL_CONFIG;  ///< General configuration register
@@ -74,10 +73,6 @@ class Mpu {
   static const int TEMP_DIVISOR;
   static const int TEMP_OFFSET;
 
-
-
-
-  
   Finger::Value finger_;
   u_int ad0_;
   Accelerometer accelerometer;
@@ -87,11 +82,8 @@ class Mpu {
 
   void beginCommunication();
   void endCommunication();
-  void checkAddress(int address);
+  bool checkAddress(int address);
   RawMeasurement readAllRaw();
- 
-  float readTemperature(const int16_t rawTemp);
-
 };
 
 #endif  // MPU_H

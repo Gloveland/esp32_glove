@@ -10,7 +10,7 @@ float Gyro::getY() const { return this->y; }
 float Gyro::getZ() const { return this->z; }
 
 void Gyro::log() const {
-  log_i("gX: %.2f  gY: %.2f  gZ: %.2f degrees/seg", this->getX(), this->getY(),
+  log_d("gX: %.2f  gY: %.2f  gZ: %.2f degrees/seg", this->getX(), this->getY(),
         this->getZ());
 }
 

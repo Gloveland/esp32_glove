@@ -14,7 +14,7 @@ void InclinationCalculator::setError(int times, float sum_angle_from_acc_x,
 
 void InclinationCalculator::log(const float inclination_from_acc_x,
                                 const float inclination_from_acc_y) {
-  log_i(" accAngleX: %.2f  accAngleY: %.2f ", inclination_from_acc_x,
+  log_d(" accAngleX: %.2f  accAngleY: %.2f ", inclination_from_acc_x,
         inclination_from_acc_y);
 }
 

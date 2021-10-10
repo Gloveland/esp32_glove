@@ -2,13 +2,11 @@
 
 ImuSensorMeasurement::ImuSensorMeasurement(Finger::Value finger,
                                            Acceleration acceleration, Gyro gyro,
-                                           Inclination inclination,
-                                           float temperature)
+                                           Inclination inclination)
     : finger_(finger),
       acc_(acceleration),
       gyro_(gyro),
-      inclination_(inclination),
-      temperature_(temperature) {
+      inclination_(inclination){
 }
 
 Acceleration ImuSensorMeasurement::getAcc() const { return this->acc_; }

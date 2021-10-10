@@ -18,11 +18,12 @@ class Glove {
   ~Glove();
 
  private:
-  static const int kchip_id_str_size;
-  static const std::string kchip_id_format;
-  static const int kchip_id_size;
-  const int kSclPin = 22;
-  const int kSdaPin = 21;
+  static const int kChipIdStrSize;
+  static const std::string kChipIdFormat;
+  static const int kChipIdSize;
+  static const int kSclPin;
+  static const int kSdaPin;
+  static const int kI2cSpeedHertz;
   /** Enabled sensors of the glove. */
   static const GloveSensors sensors_;
 

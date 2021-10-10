@@ -12,7 +12,7 @@
 class ImuSensorMeasurement {
  public:
   ImuSensorMeasurement(Finger::Value finger, Acceleration acceleration, Gyro gyro,
-                       Inclination inclination, float temperature);
+                       Inclination inclination);
   Acceleration getAcc() const;
   Gyro getGyro() const;
   Inclination getInclination() const;
@@ -23,7 +23,6 @@ class ImuSensorMeasurement {
   Acceleration acc_;
   Gyro gyro_;
   Inclination inclination_;
-  float temperature_;
 };
 
 #endif  // IMU_SENSOR_MEASUREMENT_H_
