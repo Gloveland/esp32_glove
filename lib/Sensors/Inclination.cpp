@@ -10,7 +10,7 @@ float Inclination::getPitch() const { return this->pitch; }
 float Inclination::getYaw() const { return this->yaw; }
 
 void Inclination::log() {
-  log_i(" roll: %.2f  pitch: %.2f  yaw: %.2f ", this->getRoll(),
+  log_d(" roll: %.2f  pitch: %.2f  yaw: %.2f ", this->getRoll(),
         this->getPitch(), this->getYaw());
 }
 

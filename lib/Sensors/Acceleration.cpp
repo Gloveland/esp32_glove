@@ -27,7 +27,7 @@ float Acceleration::calculateAngleY() const {
 }
 
 void Acceleration::log() {
-  log_i("aX: %.2f  aY: %.2f  aZ: %.2f  m/(seg)^2", this->getX(), this->getY(),
+  log_d("aX: %.2f  aY: %.2f  aZ: %.2f  m/(seg)^2", this->getX(), this->getY(),
         this->getZ());
 }
 
