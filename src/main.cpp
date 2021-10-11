@@ -127,16 +127,14 @@ void loop() {}  // loop() runs on core 1
 [[noreturn]] void taskDataCollection(void *pvParameters) {
   log_i("Task 'read gloves' running on core %d", xPortGetCoreID());
   float currentTime = millis();
-  float previousTime = currentTime;
+  float prevTime = currentTime;
   for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
       GloveMeasurements measurements = glove.readSensors();
       xQueueSend(queue, &measurements, portMAX_DELAY);
       currentTime = millis();  // Divide by 1000 to get seconds
-      log_i("elapsed time: %.3f seg", (currentTime - previousTime) / 1000.0);
-      log_i("frequency: %.3f hz",
-            1.0 / ((currentTime - previousTime) / 1000.0));
-      previousTime = currentTime;
+      log_i("frequency: %.3f hz", 1.0 / ((currentTime - prevTime) / 1000.0));
+      prevTime = currentTime;
       delay(100);
     }
     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);

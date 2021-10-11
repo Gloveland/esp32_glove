@@ -3,6 +3,7 @@
 const int Mpu::HEX_ADDRESS = 16;
 const int Mpu::OK = 0;
 const int Mpu::DATA_BUFFER_ERROR = 1;
+const int Mpu::NACK_ERROR = 2;
 const int Mpu::UNKNOWN_ERROR = 4;
 const int Mpu::GRAVITY_EARTH = 9.80665F;
 const int Mpu::GENERAL_CONFIG = 0x1A;  ///< General configuration register
@@ -17,7 +18,6 @@ const int Mpu::BITS_IN_BYTE = 8;
 const int Mpu::TEMP_DIVISOR = 340.0;
 const int Mpu::TEMP_OFFSET = 36.53;
 
-
 Mpu::Mpu(const Finger::Value &finger)
     : finger_(finger),
       ad0_(Finger::getAd0Pin(finger)),
@@ -27,37 +27,38 @@ Mpu::Mpu(const Finger::Value &finger)
       previousTime_(millis()) {}
 
 void Mpu::beginCommunication() {
-  this->checkAddress(mpuAddress::_OFF);
-  digitalWrite(this->ad0_, LOW);
-  while (digitalRead(this->ad0_) != LOW) {
-    delay(10);
+  while (!this->checkAddress(mpuAddress::_ON)) {
+    digitalWrite(this->ad0_, LOW);
+    delay(20);
   }
-  this->checkAddress(mpuAddress::_ON);
 }
 
 void Mpu::endCommunication() {
-  this->checkAddress(mpuAddress::_ON);
-  digitalWrite(this->ad0_, HIGH);
-  while (digitalRead(this->ad0_) != HIGH) {
-    delay(10);
+  while (!this->checkAddress(mpuAddress::_OFF)) {
+    digitalWrite(this->ad0_, HIGH);
+    delay(20);
   }
-  this->checkAddress(mpuAddress::_OFF);
 }
 
-void Mpu::checkAddress(int address) {
+bool Mpu::checkAddress(int address) {
   Wire.beginTransmission(address);
   byte error = Wire.endTransmission();
   if (error != this->OK) {
-    log_e("Error checking address: 0x%X ", address);
+    log_e("%s: Error n %d checking address: 0x%X ",
+          Finger::getName(this->finger_).c_str(), error, address);
     if (error == Mpu::DATA_BUFFER_ERROR) {
       log_e(" Data too long to fit in transmit buffer. ");
       log_e(" Is i2c bus initialize?");
     }
+    if (error == Mpu::NACK_ERROR) {
+      log_e("received NACK on transmit of address");
+    }
     if (error == Mpu::UNKNOWN_ERROR) {
       log_e(" Unknow error");
     }
+    return false;
   }
-  assert(error == 0);
+  return true;
 }
 
 void Mpu::init() {
@@ -102,7 +103,8 @@ void Mpu::init() {
  * measurements.
  */
 void Mpu::calibrate() {
-  log_i("===================== Calibrating %s ====================", Finger::getName(this->finger_).c_str());
+  log_i("===================== Calibrating %s ====================",
+        Finger::getName(this->finger_).c_str());
   this->beginCommunication();
 
   float sum_acc_x = 0.0, sum_acc_y = 0.0, sum_acc_z = 0.0;
@@ -151,7 +153,6 @@ void Mpu::calibrate() {
     sum_gyro_y += gyro.getY();
     sum_gyro_z += gyro.getZ();
     delay(20);
-    log_d("");
   }
   this->endCommunication();
   this->accelerometer.setError(times, sum_acc_x, sum_acc_y, sum_acc_z);
@@ -214,8 +215,10 @@ float Mpu::readTemperature(const int16_t rawTemp) {
 void Mpu::setWriteMode() {
   pinMode(this->ad0_, OUTPUT);
   digitalWrite(this->ad0_, HIGH);
-  while (digitalRead(this->ad0_) != HIGH) {
-    delay(10);
+  delay(100);
+  while (!this->checkAddress(mpuAddress::_OFF)) {
+    digitalWrite(this->ad0_, HIGH);
+    delay(20);
   }
 }
 
