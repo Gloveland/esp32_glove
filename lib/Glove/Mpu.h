@@ -70,9 +70,6 @@ class Mpu {
   static const int ALL_REGISTERS;
   static const int BITS_IN_BYTE;
 
-  static const int TEMP_DIVISOR;
-  static const int TEMP_OFFSET;
-
   Finger::Value finger_;
   u_int ad0_;
   Accelerometer accelerometer;
@@ -84,8 +81,6 @@ class Mpu {
   void endCommunication();
   bool checkAddress(int address);
   RawMeasurement readAllRaw();
-
-  float readTemperature(const int16_t rawTemp);
 };
 
 #endif  // MPU_H

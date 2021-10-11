@@ -15,7 +15,7 @@ ImuSensorMeasurement GloveMeasurements::getSensor(const Finger::Value finger) {
   if (it == this->imuSensorMeasurementMap_.end()) {
     log_e("Error getting a finger measurement");
     ImuSensorMeasurement zeroMesurement(finger, Acceleration(0, 0, 0),
-                                        Gyro(0, 0, 0), Inclination(0, 0, 0), 0);
+                                        Gyro(0, 0, 0), Inclination(0, 0, 0));
     return zeroMesurement;
   }
   return it->second;

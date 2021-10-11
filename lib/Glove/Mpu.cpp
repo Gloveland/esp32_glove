@@ -15,8 +15,6 @@ const int Mpu::ACCEL_XOUT_H = 0x3B;
 const int Mpu::GYRO_XOUT_H = 0x43;
 const int Mpu::ALL_REGISTERS = 14;
 const int Mpu::BITS_IN_BYTE = 8;
-const int Mpu::TEMP_DIVISOR = 340.0;
-const int Mpu::TEMP_OFFSET = 36.53;
 
 Mpu::Mpu(const Finger::Value &finger)
     : finger_(finger),
@@ -176,9 +174,8 @@ ImuSensorMeasurement Mpu::read() {
   Gyro gyro = this->gyroscope.readGyro(raw.gyro_x, raw.gyro_y, raw.gyro_z);
   Inclination inclination =
       this->inclination_calculator.calculateInclination(acc, gyro, elapsedTime);
-  float temperature = this->readTemperature(raw.temp);
   ImuSensorMeasurement result =
-      ImuSensorMeasurement(this->finger_, acc, gyro, inclination, temperature);
+      ImuSensorMeasurement(this->finger_, acc, gyro, inclination);
   return result;
 }
 
@@ -206,11 +203,6 @@ RawMeasurement Mpu::readAllRaw() {
 }
 
 void Mpu::log() { log_d("%s", Finger::getName(this->finger_).c_str()); }
-
-float Mpu::readTemperature(const int16_t rawTemp) {
-  float temperature = (rawTemp / Mpu::TEMP_DIVISOR) + Mpu::TEMP_OFFSET;
-  return temperature;
-}
 
 void Mpu::setWriteMode() {
   pinMode(this->ad0_, OUTPUT);
