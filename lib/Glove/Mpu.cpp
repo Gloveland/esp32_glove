@@ -15,7 +15,7 @@ const int Mpu::ACCEL_XOUT_H = 0x3B;
 const int Mpu::GYRO_XOUT_H = 0x43;
 const int Mpu::ALL_REGISTERS = 14;
 const int Mpu::BITS_IN_BYTE = 8;
-const int Mpu::TEMP_DIS_PLL = 0X09;  // temperature disabled: 0x08 and
+const int Mpu::TEMP_DIS_PLL = 0x09;  // temperature disabled: 0x08 and
 // PLL with X axiS gyroscope reference: 0x01 => 0X09
 
 Mpu::Mpu(const Finger::Value &finger)
@@ -91,7 +91,7 @@ void Mpu::init() {
 
   Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(Mpu::PWR_MGMT_1);
-  Wire.write(0x09);
+  Wire.write(Mpu::TEMP_DIS_PLL);
   Wire.endTransmission(true);
   delay(20);
 

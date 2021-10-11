@@ -69,6 +69,7 @@ class Mpu {
   static const int GYRO_XOUT_H;
   static const int ALL_REGISTERS;
   static const int BITS_IN_BYTE;
+  static const int TEMP_DIS_PLL;
 
   Finger::Value finger_;
   u_int ad0_;
