@@ -3,6 +3,7 @@
 #include <Utils.h>
 
 #include <sstream>
+#include <esp_task_wdt.h>
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
 #include "../lib/Communication/Wifi/WifiCommunicator.h"
@@ -49,6 +50,7 @@ void setup() {
   if (queue == nullptr) {
     log_e("Error creating the queue.");
   }
+  esp_task_wdt_init(100, false);
 
   setUpGlove();
 
@@ -126,13 +128,16 @@ void loop() {}  // loop() runs on core 1
 
 [[noreturn]] void taskDataCollection(void *pvParameters) {
   log_i("Task 'read gloves' running on core %d", xPortGetCoreID());
+  float currentTime = millis();
+  float prevTime = currentTime;
   for (;;) {
     for (int i = 0; i < kQueueSize; i++) {
       GloveMeasurements measurements = glove.readSensors();
       xQueueSend(queue, &measurements, portMAX_DELAY);
-      delay(100);
+      currentTime = millis();  // Divide by 1000 to get seconds
+      log_i("frequency: %.3f hz", 1.0 / ((currentTime - prevTime) / 1000.0));
+      prevTime = currentTime;
     }
-    vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
   }
 }
 
@@ -171,7 +176,6 @@ void loop() {}  // loop() runs on core 1
         log_e("Error: fail to receive item from queue ");
       }
     }
-    vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
   }
 }
 
