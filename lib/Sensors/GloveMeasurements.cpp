@@ -2,10 +2,10 @@
 const int GloveMeasurements::kImuSensorsAmount = 5;
 
 const std::string GloveMeasurements::kGloveMeasurementsPacketFormat =
-    "%d-%.3f\nP%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nR%.3f,%.3f,%.3f,%.3f,%."
-    "3f,%.3f,%.3f,%.3f,%.3f\nM%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nI%."
-    "3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nT%.3f,%.3f,%.3f,%.3f,%.3f,%."
-    "3f,%.3f,%.3f,%.3f;";
+    "%d\n%.3f\nP%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nR%.3f,%.3f,%.3f,%"
+    ".3f,%.3f,%.3f,%.3f,%.3f,%.3f\nM%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%."
+    "3f\nI%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nT%.3f,%.3f,%.3f,%.3f,%."
+    "3f,%.3f,%.3f,%.3f,%.3f;";
 
 GloveMeasurements::GloveMeasurements() = default;
 
@@ -41,7 +41,8 @@ void GloveMeasurements::toPackage(int events_count,
 
   int size_written = sprintf(
       glove_measurement_buffer_,
-      GloveMeasurements::kGloveMeasurementsPacketFormat.c_str(), events_count, this->elapsedTime_,
+      GloveMeasurements::kGloveMeasurementsPacketFormat.c_str(), events_count,
+      this->elapsedTime_,
 
       pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(),
       pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(),
