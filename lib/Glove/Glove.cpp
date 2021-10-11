@@ -5,6 +5,10 @@ const int Glove::kChipIdSize = 6;
 const int Glove::kChipIdStrSize = 17;
 const int Glove::kSclPin = 22;
 const int Glove::kSdaPin = 21;
+const int Glove::OK = 0;
+const int Glove::DATA_BUFFER_ERROR = 1;
+const int Glove::NACK_ERROR = 2;
+const int Glove::UNKNOWN_ERROR = 4;
 const int Glove::kI2cSpeedHertz = 400000;
 
 void Glove::init() {
@@ -16,9 +20,30 @@ void Glove::setUpSensors() {
   for (auto sensor : sensors_) {
     sensor.second.setWriteMode();
   }
+  assert(this->checkAddress(mpuAddress::_OFF));
   for (auto sensor : sensors_) {
     sensor.second.init();
   }
+}
+
+bool Glove::checkAddress(int address) {
+  Wire.beginTransmission(address);
+  byte error = Wire.endTransmission();
+  if (error != Glove::OK) {
+    log_e("Error n %d checking address: 0x%X ",error, address);
+    if (error == Glove::DATA_BUFFER_ERROR) {
+      log_e(" Data too long to fit in transmit buffer. ");
+      log_e(" Is i2c bus initialize?");
+    }
+    if (error == Glove::NACK_ERROR) {
+      log_e("received NACK on transmit of address");
+    }
+    if (error == Glove::UNKNOWN_ERROR) {
+      log_e(" Unknow error");
+    }
+    return false;
+  }
+  return true;
 }
 
 void Glove::calibrateSensors() {

@@ -56,9 +56,6 @@ class Mpu {
  private:
   static const int HEX_ADDRESS;
   static const int OK;
-  static const int DATA_BUFFER_ERROR;
-  static const int NACK_ERROR;
-  static const int UNKNOWN_ERROR;
   static const int GRAVITY_EARTH;
   static const int GENERAL_CONFIG;  ///< General configuration register
   static const int PWR_MGMT_1;
@@ -80,7 +77,6 @@ class Mpu {
 
   void beginCommunication();
   void endCommunication();
-  bool checkAddress(int address);
   RawMeasurement readAllRaw();
 };
 
