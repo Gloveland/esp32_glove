@@ -3,6 +3,7 @@
 #include <Utils.h>
 
 #include <sstream>
+#include <esp_task_wdt.h>
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
 #include "../lib/Communication/Wifi/WifiCommunicator.h"
@@ -49,6 +50,7 @@ void setup() {
   if (queue == nullptr) {
     log_e("Error creating the queue.");
   }
+  esp_task_wdt_init(100, false);
 
   setUpGlove();
 
@@ -135,9 +137,7 @@ void loop() {}  // loop() runs on core 1
       currentTime = millis();  // Divide by 1000 to get seconds
       log_i("frequency: %.3f hz", 1.0 / ((currentTime - prevTime) / 1000.0));
       prevTime = currentTime;
-      delay(100);
     }
-    vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
   }
 }
 
@@ -176,7 +176,6 @@ void loop() {}  // loop() runs on core 1
         log_e("Error: fail to receive item from queue ");
       }
     }
-    vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
   }
 }
 
