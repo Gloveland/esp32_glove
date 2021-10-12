@@ -54,7 +54,7 @@ void Glove::calibrateSensors() {
   digitalWrite(LED_BUILTIN, LOW);
 }
 
-GloveMeasurements Glove::readSensors() {
+GloveMeasurements Glove::readSensors(float elapsedTime) {
   std::map<const Finger::Value, ImuSensorMeasurement> measurementsMap;
   for (auto sensor : sensors_) {
     ImuSensorMeasurement measurement = sensor.second.read();
@@ -62,7 +62,7 @@ GloveMeasurements Glove::readSensors() {
         sensor.first, measurement));
   }
   GloveMeasurements glove_measurements;
-  glove_measurements.setSensorMeasurementsMap(measurementsMap);
+  glove_measurements.setSensorMeasurementsMap(elapsedTime, measurementsMap);
   return glove_measurements;
 }
 
