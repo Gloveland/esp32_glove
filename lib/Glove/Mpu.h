@@ -26,6 +26,25 @@ enum mpuBand {
   _5_HZ = 0x06,
 };
 
+enum mpuI2cClock {
+  _348_HZ = 0x00,
+  _333_HZ = 0x01,
+  _320_HZ = 0x02,
+  _308_HZ = 0x03,
+  _296_HZ = 0x04,
+  _286_HZ = 0x05,
+  _276_HZ = 0x06,
+  _267_HZ = 0x07,
+  _258_HZ = 0x08,
+  _500_HZ = 0x09,
+  _471_HZ = 0x10,
+  _444_HZ = 0x11,
+  _421_HZ = 0x12,
+  _400_HZ = 0x13,
+  _381_HZ = 0x14,
+  _364_HZ = 0x15
+};
+
 enum mpuAddress {
   _ON = 0x68,
   _OFF = 0x69,
@@ -67,6 +86,7 @@ class Mpu {
   static const int ALL_REGISTERS;
   static const int BITS_IN_BYTE;
   static const int TEMP_DIS_PLL;
+  static const int I2C_MST_CTRL;
 
   Finger::Value finger_;
   u_int ad0_;
