@@ -137,7 +137,8 @@ void loop() {}  // loop() runs on core 1
       elapsedTime = currentTime - prevTime;
       GloveMeasurements measurements = glove.readSensors(elapsedTime);
       log_i("frequency: %.3f hz", 1.0 /(elapsedTime/1000.0));// Divide by 1000 to get seconds
-      xQueueSend(queue, &measurements, portMAX_DELAY);
+      bleCommunicator.sendMeasurements(measurements);
+      // xQueueSend(queue, &measurements, portMAX_DELAY);
       prevTime = currentTime;
     }
   }
