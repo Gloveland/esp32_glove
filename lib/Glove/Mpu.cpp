@@ -25,19 +25,10 @@ Mpu::Mpu(const Finger::Value &finger)
 
 void Mpu::beginCommunication() {
   digitalWrite(this->ad0_, LOW);
-
-  // while (digitalRead(this->ad0_) != LOW) {
-  //   digitalWrite(this->ad0_, LOW);
-  //   // delay(20);
-  // }
 }
 
 void Mpu::endCommunication() {
   digitalWrite(this->ad0_, HIGH);
-  // while (digitalRead(this->ad0_) != HIGH) {
-  //   digitalWrite(this->ad0_, HIGH);
-  //   // delay(20);
-  // }
 }
 
 
@@ -196,11 +187,6 @@ void Mpu::log() { log_d("%s", Finger::getName(this->finger_).c_str()); }
 void Mpu::setWriteMode() {
   pinMode(this->ad0_, OUTPUT);
   digitalWrite(this->ad0_, HIGH);
-
-  // while (digitalRead(this->ad0_) != HIGH) {
-  //   digitalWrite(this->ad0_, HIGH);
-  //   // delay(20);
-  // }
 }
 
 Finger::Value Mpu::getFinger() { return this->finger_; }

@@ -17,17 +17,11 @@ TaskHandle_t dataCollectionTaskHandler;
 [[noreturn]] void taskWifiCommunication(void *pvParameters);
 TaskHandle_t wifiCommunicationTaskHandler;
 
-[[noreturn]] void taskBleCommunication(void *pvParameters);
-TaskHandle_t bleCommunicationTaskHandler;
-
 [[noreturn]] void taskInterpretation(void *pvParameters);
 TaskHandle_t interpretationTaskHandler;
 
 [[noreturn]] void taskCalibration(void *pvParameters);
 TaskHandle_t calibrationTaskHandler;
-
-QueueHandle_t queue;
-const int kQueueSize = 100;
 
 Glove glove;
 WifiCommunicator wifiCommunicator(Glove::getDeviceId());
@@ -46,10 +40,6 @@ void setup() {
   log_d("Test log level debug -DCORE_DEBUG_LEVEL=4");
   log_v("Test log level verbose -DCORE_DEBUG_LEVEL=5");
   pinMode(LED_BUILTIN, OUTPUT);
-  queue = xQueueCreate(kQueueSize, sizeof(GloveMeasurements));
-  if (queue == nullptr) {
-    log_e("Error creating the queue.");
-  }
   esp_task_wdt_init(100, false);
 
   setUpGlove();
@@ -99,16 +89,6 @@ void setUpBleCommunicator() {
       dataCollectionTaskHandler, interpretationTaskHandler,
       calibrationTaskHandler);
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
-  xTaskCreatePinnedToCore(
-      taskBleCommunication,          // Task function
-      "bleCommunication",            // Name of the task
-      10000,                         // Stack size of task
-      NULL,                          // Parameter of the task
-      1,                             // Priority of the task
-      &bleCommunicationTaskHandler,  // Task handle to keep track of created
-                                     // task
-      1                              // Pin task to core 0
-  );
 }
 
 void setUpWifiCommunicator() {
@@ -132,15 +112,12 @@ void loop() {}  // loop() runs on core 1
   float currentTime = millis();  
   float prevTime = currentTime;
   for (;;) {
-    for (int i = 0; i < kQueueSize; i++) {
-      currentTime = millis(); 
-      elapsedTime = currentTime - prevTime;
-      GloveMeasurements measurements = glove.readSensors(elapsedTime);
-      log_i("frequency: %.3f hz", 1.0 /(elapsedTime/1000.0));// Divide by 1000 to get seconds
-      bleCommunicator.sendMeasurements(measurements);
-      // xQueueSend(queue, &measurements, portMAX_DELAY);
-      prevTime = currentTime;
-    }
+    currentTime = millis(); 
+    elapsedTime = currentTime - prevTime;
+    GloveMeasurements measurements = glove.readSensors(elapsedTime);
+    log_i("frequency: %.3f hz", 1.0 /(elapsedTime/1000.0));// Divide by 1000 to get seconds
+    bleCommunicator.sendMeasurements(measurements);
+    prevTime = currentTime;
   }
 }
 
@@ -168,31 +145,17 @@ void loop() {}  // loop() runs on core 1
   }
 }
 
-[[noreturn]] void taskBleCommunication(void *pvParameters) {
-  log_i("Task 'Bluetooth transmission' running on core %d", xPortGetCoreID());
-  GloveMeasurements glove_measurements;
-  for (;;) {
-    for (int i = 0; i < kQueueSize; i++) {
-      if (xQueueReceive(queue, &glove_measurements, portMAX_DELAY) == pdPASS) {
-        bleCommunicator.sendMeasurements(glove_measurements);
-      } else {
-        log_e("Error: fail to receive item from queue ");
-      }
-    }
-  }
-}
-
-[[noreturn]] void taskWifiCommunication(void *pvParameters) {
-  while (true) {
-    wifiCommunicator.listenForClients();
-    GloveMeasurements glove_measurements;
-    for (int i = 0; i < kQueueSize && wifiCommunicator.clientIsConnected();
-         i++) {
-      if (xQueueReceive(queue, &glove_measurements, portMAX_DELAY) == pdPASS) {
-        wifiCommunicator.send(glove_measurements);
-      }
-    }
-    vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
-    delay(500);
-  }
-}
+// [[noreturn]] void taskWifiCommunication(void *pvParameters) {
+//   while (true) {
+//     wifiCommunicator.listenForClients();
+//     GloveMeasurements glove_measurements;
+//     for (int i = 0; i < kQueueSize && wifiCommunicator.clientIsConnected();
+//          i++) {
+//       if (xQueueReceive(queue, &glove_measurements, portMAX_DELAY) == pdPASS) {
+//         wifiCommunicator.send(glove_measurements);
+//       }
+//     }
+//     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
+//     delay(500);
+//   }
+// }
