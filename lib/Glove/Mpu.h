@@ -64,7 +64,9 @@ class Mpu {
  public:
   Mpu(const Finger::Value& finger);
   void init();
+  
   void setWriteMode();
+  void setMasterClockSpeed();
   void calibrate();
   void log();
   ImuSensorMeasurement read();
@@ -87,6 +89,7 @@ class Mpu {
   static const int BITS_IN_BYTE;
   static const int TEMP_DIS_PLL;
   static const int I2C_MST_CTRL;
+  static const uint8_t I2C_CLK_MASK;
 
   Finger::Value finger_;
   u_int ad0_;
@@ -97,6 +100,7 @@ class Mpu {
 
   void beginCommunication();
   void endCommunication();
+  void writeBits(const int registerAddress, uint8_t mask, uint8_t newVal);
   RawMeasurement readAllRaw();
 };
 

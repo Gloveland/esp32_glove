@@ -12,7 +12,7 @@ const int Glove::UNKNOWN_ERROR = 4;
 const int Glove::kI2cSpeedHertz = 400000;
 
 void Glove::init() {
-  Wire.begin(kSdaPin, kSclPin, Glove::kI2cSpeedHertz);
+  Wire.begin(kSdaPin, kSclPin);
   setUpSensors();
 }
 
@@ -23,6 +23,10 @@ void Glove::setUpSensors() {
   assert(this->checkAddress(mpuAddress::_OFF));
   for (auto sensor : sensors_) {
     sensor.second.init();
+  }
+  Wire.setClock(Glove::kI2cSpeedHertz);
+  for (auto sensor : sensors_) {
+    sensor.second.setMasterClockSpeed();
   }
 }
 

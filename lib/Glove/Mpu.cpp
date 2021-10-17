@@ -9,6 +9,7 @@ const int Mpu::RESET = 0x00;
 const int Mpu::ACC_CONFIG_REGISTER = 0x1C;
 const int Mpu::GYRO_CONFIG_REGISTER = 0x1C;
 const int Mpu::I2C_MST_CTRL = 0x24;
+const uint8_t Mpu::I2C_CLK_MASK = 0b00000111;
 const int Mpu::ACCEL_XOUT_H = 0x3B;
 const int Mpu::GYRO_XOUT_H = 0x43;
 const int Mpu::ALL_REGISTERS = 14;
@@ -42,12 +43,6 @@ void Mpu::init() {
   this->beginCommunication();
 
   Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(Mpu::I2C_MST_CTRL);
-  Wire.write(mpuI2cClock::_400_HZ);
-  Wire.endTransmission(true);
-  delay(20);
-
-  Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(Mpu::PWR_MGMT_1);
   Wire.write(Mpu::RESET);
   Wire.endTransmission(true);
@@ -77,8 +72,43 @@ void Mpu::init() {
   Wire.write(Mpu::TEMP_DIS_PLL);
   Wire.endTransmission(true);
   delay(20);
-
   this->endCommunication();
+}
+
+void Mpu::setMasterClockSpeed() {
+  this->writeBits(Mpu::I2C_MST_CTRL, Mpu::I2C_CLK_MASK, mpuI2cClock::_400_HZ);
+}
+
+/** Write multiple bits in an 8-bit device register.
+ * @param registerAddress Register regAddr to write to
+ * @param mask mask of position of new bits to write
+ * @param newVal 8bits with the value to write
+For example if we want to write 0100 in the 4 less significant bits
+the mask should be 00001111
+supouse the original value read from register is 10101111
+newVal = newVal & mask = XXXX0100 & 00001111 = 00000100
+original = original & ~(mask) = 10101111 & 11110000 = 10100000
+byteToWrite = original | newVal = 10100000 |  00000100  = 10100100
+*/
+void Mpu::writeBits(const int registerAddress, uint8_t mask, uint8_t newVal) {
+  Wire.beginTransmission(mpuAddress::_ON);
+  Wire.write(registerAddress);
+  Wire.endTransmission(false);
+  Wire.requestFrom(mpuAddress::_ON, 1, true);
+  uint8_t original = Wire.read();
+
+  // zero all non-important bits in data
+  newVal = newVal & mask;
+  // zero all important bits in existing byte
+  original = original & ~(mask);
+  // combine data with existing byte
+  uint8_t byteToWrite = original | newVal;
+
+  Wire.beginTransmission(mpuAddress::_ON);
+  Wire.write(registerAddress);
+  Wire.write(byteToWrite);
+  Wire.endTransmission(true);
+  delay(20);
 }
 
 /**
