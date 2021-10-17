@@ -1,4 +1,5 @@
 #include <Mpu.h>
+
 #include "MPU6050.h"
 
 const int Mpu::HEX_ADDRESS = 16;
@@ -24,14 +25,9 @@ Mpu::Mpu(const Finger::Value &finger)
       inclination_calculator(InclinationCalculator()),
       previousTime_(millis()) {}
 
-void Mpu::beginCommunication() {
-  digitalWrite(this->ad0_, LOW);
-}
+void Mpu::beginCommunication() { digitalWrite(this->ad0_, LOW); }
 
-void Mpu::endCommunication() {
-  digitalWrite(this->ad0_, HIGH);
-}
-
+void Mpu::endCommunication() { digitalWrite(this->ad0_, HIGH); }
 
 void Mpu::init() {
   this->beginCommunication();
@@ -68,7 +64,8 @@ void Mpu::init() {
   delay(20);
 
   MPU6050 mpu6050;
-  mpu6050.setMasterClockSpeed(0b00001101);
+  uint8_t speed = 13;
+  mpu6050.setMasterClockSpeed(speed);
 
   this->endCommunication();
 }
