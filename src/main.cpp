@@ -7,6 +7,7 @@
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
 #include "../lib/Communication/Wifi/WifiCommunicator.h"
+#include "../lib/Sensors/Counter.h"
 
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
 #define TASK_DELAY_MS 500
@@ -25,6 +26,7 @@ TaskHandle_t calibrationTaskHandler;
 
 Glove glove;
 WifiCommunicator wifiCommunicator(Glove::getDeviceId());
+Counter* counter;
 BleCommunicator bleCommunicator;
 TasksControllerCallback *tasksControllerCallback;
 
@@ -34,6 +36,7 @@ void setUpWifiCommunicator();
 
 void setup() {
   Serial.begin(9600);
+  counter = new Counter();
   log_e("Test log level error -DCORE_DEBUG_LEVEL=1");
   log_w("Test log level warnign -DCORE_DEBUG_LEVEL=2");
   log_i("Test log level information -DCORE_DEBUG_LEVEL=3");
@@ -87,7 +90,7 @@ void setUpGlove() {
 void setUpBleCommunicator() {
   tasksControllerCallback = new TasksControllerCallback(
       dataCollectionTaskHandler, interpretationTaskHandler,
-      calibrationTaskHandler);
+      calibrationTaskHandler, counter);
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
 }
 
@@ -108,16 +111,15 @@ void loop() {}  // loop() runs on core 1
 
 [[noreturn]] void taskDataCollection(void *pvParameters) {
   log_i("Task 'read gloves' running on core %d", xPortGetCoreID());
-  float elapsedTime = 0.0;
-  float currentTime = millis();  
-  float prevTime = currentTime;
+  float elapsedTime;
   for (;;) {
-    currentTime = millis(); 
-    elapsedTime = currentTime - prevTime;
+    elapsedTime = counter->getAndUpdateElapsedTimeSinceLastMeasurementMs();
     GloveMeasurements measurements = glove.readSensors(elapsedTime);
     log_i("frequency: %.3f hz", 1.0 /(elapsedTime/1000.0));// Divide by 1000 to get seconds
-    bleCommunicator.sendMeasurements(measurements);
-    prevTime = currentTime;
+    int count = counter->getAndUpdateCounter();
+    bleCommunicator.sendMeasurements(count, measurements);
+    log_i("Counter: %d", count);
+    log_i("Elapsed time: %f", elapsedTime);
   }
 }
 

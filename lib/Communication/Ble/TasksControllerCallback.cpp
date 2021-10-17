@@ -37,6 +37,7 @@ void TasksControllerCallback::startDataCollectionTask() {
     stopRunningTask();
     running_task_handler_ = data_collection_task_handler_;
     log_i("Starting data collection task.");
+    this->counter_->resetCounter();
     vTaskResume(running_task_handler_);
   }
 }
