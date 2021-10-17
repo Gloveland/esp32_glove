@@ -27,22 +27,22 @@ enum mpuBand {
 };
 
 enum mpuI2cClock {
-  _348_HZ = 0x00,
-  _333_HZ = 0x01,
-  _320_HZ = 0x02,
-  _308_HZ = 0x03,
-  _296_HZ = 0x04,
-  _286_HZ = 0x05,
-  _276_HZ = 0x06,
-  _267_HZ = 0x07,
-  _258_HZ = 0x08,
-  _500_HZ = 0x09,
-  _471_HZ = 0x10,
-  _444_HZ = 0x11,
-  _421_HZ = 0x12,
-  _400_HZ = 0x13,
-  _381_HZ = 0x14,
-  _364_HZ = 0x15
+  _348_HZ = 0,
+  _333_HZ = 1,
+  _320_HZ = 2,
+  _308_HZ = 3,
+  _296_HZ = 4,
+  _286_HZ = 5,
+  _276_HZ = 6,
+  _267_HZ = 7,
+  _258_HZ = 8,
+  _500_HZ = 9,
+  _471_HZ = 10,
+  _444_HZ = 11,
+  _421_HZ = 12,
+  _400_HZ = 13,
+  _381_HZ = 14,
+  _364_HZ = 15
 };
 
 enum mpuAddress {
@@ -64,7 +64,7 @@ class Mpu {
  public:
   Mpu(const Finger::Value& finger);
   void init();
-  
+
   void setWriteMode();
   void setMasterClockSpeed();
   void calibrate();

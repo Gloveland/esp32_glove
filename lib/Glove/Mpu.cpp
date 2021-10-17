@@ -9,7 +9,7 @@ const int Mpu::RESET = 0x00;
 const int Mpu::ACC_CONFIG_REGISTER = 0x1C;
 const int Mpu::GYRO_CONFIG_REGISTER = 0x1C;
 const int Mpu::I2C_MST_CTRL = 0x24;
-const uint8_t Mpu::I2C_CLK_MASK = 0b00000111;
+const uint8_t Mpu::I2C_CLK_MASK = 0b00001111;
 const int Mpu::ACCEL_XOUT_H = 0x3B;
 const int Mpu::GYRO_XOUT_H = 0x43;
 const int Mpu::ALL_REGISTERS = 14;
@@ -25,13 +25,9 @@ Mpu::Mpu(const Finger::Value &finger)
       inclination_calculator(InclinationCalculator()),
       previousTime_(millis()) {}
 
-void Mpu::beginCommunication() {
-  digitalWrite(this->ad0_, LOW);
-}
+void Mpu::beginCommunication() { digitalWrite(this->ad0_, LOW); }
 
-void Mpu::endCommunication() {
-  digitalWrite(this->ad0_, HIGH);
-}
+void Mpu::endCommunication() { digitalWrite(this->ad0_, HIGH); }
 
 void Mpu::init() {
   this->beginCommunication();
@@ -70,7 +66,10 @@ void Mpu::init() {
 }
 
 void Mpu::setMasterClockSpeed() {
+  this->beginCommunication();
   this->writeBits(Mpu::I2C_MST_CTRL, Mpu::I2C_CLK_MASK, mpuI2cClock::_400_HZ);
+  delay(20);
+  this->endCommunication();
 }
 
 /** Write multiple bits in an 8-bit device register.
@@ -97,11 +96,12 @@ void Mpu::writeBits(const int registerAddress, uint8_t mask, uint8_t newVal) {
   original = original & ~(mask);
   // combine data with existing byte
   uint8_t byteToWrite = original | newVal;
-
+  
   Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(registerAddress);
   Wire.write(byteToWrite);
   Wire.endTransmission(true);
+
   delay(20);
 }
 
