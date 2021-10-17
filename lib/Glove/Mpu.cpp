@@ -1,4 +1,5 @@
 #include <Mpu.h>
+#include "MPU6050.h"
 
 const int Mpu::HEX_ADDRESS = 16;
 const int Mpu::OK = 0;
@@ -65,6 +66,9 @@ void Mpu::init() {
   Wire.write(Mpu::TEMP_DIS_PLL);
   Wire.endTransmission(true);
   delay(20);
+
+  MPU6050 mpu6050;
+  mpu6050.setMasterClockSpeed(0b00001101);
 
   this->endCommunication();
 }
