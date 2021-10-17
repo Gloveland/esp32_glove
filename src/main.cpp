@@ -111,6 +111,7 @@ void loop() {}  // loop() runs on core 1
   float elapsedTime = 0.0;
   float currentTime = millis();  
   float prevTime = currentTime;
+  Wire.setClock(400000);
   for (;;) {
     currentTime = millis(); 
     elapsedTime = currentTime - prevTime;
