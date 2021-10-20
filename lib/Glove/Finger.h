@@ -34,6 +34,20 @@ class Finger {
     }
   }
 
+   /**
+   * Gets the first letter of the finger
+   */
+  static std::string getInitialLetter(Value finger) {
+    switch (finger) {
+      case kPinky:return "P";
+      case kRing:return "R";
+      case kMiddle:return "M";
+      case kIndex:return "I";
+      case kThumb:return "T";
+      default: return "";
+    }
+  }
+
   /**
    * Returns the AD0 pin finger used for communication with the associated
    * IMU using the I2C bus between the nodemcu esp32 and the sensor.

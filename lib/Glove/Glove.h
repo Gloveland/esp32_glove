@@ -1,19 +1,19 @@
 #ifndef GLOVE_H
 #define GLOVE_H
 
+#include <ImuSensorMeasurement.h>
 #include <Mpu.h>
 #include <esp_task.h>
 
 #include <map>
 
-#include "../Sensors/GloveMeasurements.h"
-
 typedef std::map<Finger::Value, Mpu> GloveSensors;
 
 class Glove {
  public:
+  Glove();
   void init();
-  GloveMeasurements readSensors(float elapsedTime);
+  ImuSensorMeasurement readNextSensor(float elapsedTime);
   static std::string getDeviceId();
   void calibrateSensors();
   ~Glove();
@@ -31,7 +31,7 @@ class Glove {
   static const int kI2cSpeedHertz;
   /** Enabled sensors of the glove. */
   static const GloveSensors sensors_;
-
+  GloveSensors::const_iterator sensor_iterator_;
   void setUpSensors();
   bool checkAddress(int address);
 };

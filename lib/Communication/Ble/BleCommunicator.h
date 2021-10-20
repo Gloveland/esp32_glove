@@ -6,8 +6,8 @@
 #include <BLEDevice.h>
 #include <BLEServer.h>
 #include <BLEUtils.h>
+
 #include "BleSpecification.h"
-#include "GloveMeasurements.h"
 #include "TasksControllerCallback.h"
 
 /**
@@ -20,7 +20,7 @@ class BleCommunicator {
 
   void init(const std::string &name,
             TasksControllerCallback *tasks_controller_callback);
-  void sendMeasurements(GloveMeasurements measurements);
+  void sendMeasurements(const std::string measurement);
   void sendInterpretation(const std::string &interpretation);
   void advertiseAgain();
   ~BleCommunicator();

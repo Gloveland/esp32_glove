@@ -6,7 +6,6 @@
 #include <esp_task_wdt.h>
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
-#include "../lib/Communication/Wifi/WifiCommunicator.h"
 
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
 #define TASK_DELAY_MS 500
@@ -24,9 +23,11 @@ TaskHandle_t interpretationTaskHandler;
 TaskHandle_t calibrationTaskHandler;
 
 Glove glove;
-WifiCommunicator wifiCommunicator(Glove::getDeviceId());
 BleCommunicator bleCommunicator;
 TasksControllerCallback *tasksControllerCallback;
+
+const static int kMtu = 512;
+char measurementBuffer[kMtu];
 
 void setUpGlove();
 void setUpBleCommunicator();
@@ -91,18 +92,6 @@ void setUpBleCommunicator() {
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
 }
 
-void setUpWifiCommunicator() {
-  wifiCommunicator.connectToNetwork();
-  xTaskCreatePinnedToCore(
-      taskWifiCommunication,          // Task function
-      "wifiCommunication",            // Name of the task
-      10000,                          // Stack size of task
-      NULL,                           // Parameter of the task
-      1,                              // Priority of the task
-      &wifiCommunicationTaskHandler,  // Task handle to keep track of created
-                                      // task
-      1);
-}
 
 void loop() {}  // loop() runs on core 1
 
@@ -111,12 +100,14 @@ void loop() {}  // loop() runs on core 1
   float elapsedTime = 0.0;
   float currentTime = millis();  
   float prevTime = currentTime;
-  for (;;) {
+  int eventCount;
+  for (eventCount = 1; eventCount > 0; eventCount++);  {
+    ImuSensorMeasurement measurements = glove.readNextSensor(elapsedTime);
     currentTime = millis(); 
     elapsedTime = currentTime - prevTime;
-    GloveMeasurements measurements = glove.readSensors(elapsedTime);
+    measurements.toPackage(eventCount, elapsedTime, measurementBuffer, kMtu);
     log_i("frequency: %.3f hz", 1.0 /(elapsedTime/1000.0));// Divide by 1000 to get seconds
-    bleCommunicator.sendMeasurements(measurements);
+    bleCommunicator.sendMeasurements(measurementBuffer);
     prevTime = currentTime;
   }
 }
@@ -145,17 +136,3 @@ void loop() {}  // loop() runs on core 1
   }
 }
 
-// [[noreturn]] void taskWifiCommunication(void *pvParameters) {
-//   while (true) {
-//     wifiCommunicator.listenForClients();
-//     GloveMeasurements glove_measurements;
-//     for (int i = 0; i < kQueueSize && wifiCommunicator.clientIsConnected();
-//          i++) {
-//       if (xQueueReceive(queue, &glove_measurements, portMAX_DELAY) == pdPASS) {
-//         wifiCommunicator.send(glove_measurements);
-//       }
-//     }
-//     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
-//     delay(500);
-//   }
-// }

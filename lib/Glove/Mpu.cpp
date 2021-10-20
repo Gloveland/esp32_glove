@@ -20,7 +20,6 @@ Mpu::Mpu(const Finger::Value &finger)
       ad0_(Finger::getAd0Pin(finger)),
       accelerometer(Accelerometer(Range::_2_G)),
       gyroscope(Gyroscope(GyroRange::_250_DEG)),
-      inclination_calculator(InclinationCalculator()),
       previousTime_(millis()) {}
 
 void Mpu::beginCommunication() {
@@ -86,8 +85,6 @@ void Mpu::calibrate() {
   this->beginCommunication();
 
   float sum_acc_x = 0.0, sum_acc_y = 0.0, sum_acc_z = 0.0;
-  float acc_angle_x = 0.0, acc_angle_y = 0.0;
-  float sum_angle_from_acc_x = 0.0, sum_angle_from_acc_y = 0.0;
   float sum_gyro_x = 0.0, sum_gyro_y = 0.0, sum_gyro_z = 0.0;
 
   float min_gyro_x = FLT_MAX, min_gyro_y = FLT_MAX, min_gyro_z = FLT_MAX;
@@ -100,15 +97,11 @@ void Mpu::calibrate() {
     Acceleration acc =
         this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
     Gyro gyro = this->gyroscope.readGyro(raw.gyro_x, raw.gyro_y, raw.gyro_z);
-    acc_angle_x = acc.calculateAngleX();
-    acc_angle_y = acc.calculateAngleY();
-
+   
     sum_acc_x += acc.getX();
     sum_acc_y += acc.getY();
     sum_acc_z += (acc.getZ() - this->GRAVITY_EARTH);
-    sum_angle_from_acc_x += acc_angle_x;
-    sum_angle_from_acc_y += acc_angle_y;
-
+  
     if (gyro.getX() < min_gyro_x) {
       min_gyro_x = gyro.getX();
     }
@@ -137,8 +130,7 @@ void Mpu::calibrate() {
   this->gyroscope.setGyroError(times, sum_gyro_x, sum_gyro_y, sum_gyro_z);
   this->gyroscope.setDeviation(times, max_gyro_x, max_gyro_y, max_gyro_z,
                                min_gyro_x, min_gyro_y, min_gyro_z);
-  this->inclination_calculator.setError(times, sum_angle_from_acc_x,
-                                        sum_angle_from_acc_y);
+
 }
 
 ImuSensorMeasurement Mpu::read() {
@@ -152,10 +144,8 @@ ImuSensorMeasurement Mpu::read() {
   Acceleration acc =
       this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
   Gyro gyro = this->gyroscope.readGyro(raw.gyro_x, raw.gyro_y, raw.gyro_z);
-  Inclination inclination =
-      this->inclination_calculator.calculateInclination(acc, gyro, elapsedTime);
   ImuSensorMeasurement result =
-      ImuSensorMeasurement(this->finger_, acc, gyro, inclination);
+      ImuSensorMeasurement(this->finger_, acc, gyro);
   return result;
 }
 

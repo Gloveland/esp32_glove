@@ -11,6 +11,10 @@ const int Glove::NACK_ERROR = 2;
 const int Glove::UNKNOWN_ERROR = 4;
 const int Glove::kI2cSpeedHertz = 400000;
 
+Glove::Glove(): sensor_iterator_( Glove::sensors_.begin()){
+
+}
+
 void Glove::init() {
   Wire.begin(kSdaPin, kSclPin);
   setUpSensors();
@@ -30,7 +34,7 @@ bool Glove::checkAddress(int address) {
   Wire.beginTransmission(address);
   byte error = Wire.endTransmission();
   if (error != Glove::OK) {
-    log_e("Error n %d checking address: 0x%X ",error, address);
+    log_e("Error n %d checking address: 0x%X ", error, address);
     if (error == Glove::DATA_BUFFER_ERROR) {
       log_e(" Data too long to fit in transmit buffer. ");
       log_e(" Is i2c bus initialize?");
@@ -54,16 +58,15 @@ void Glove::calibrateSensors() {
   digitalWrite(LED_BUILTIN, LOW);
 }
 
-GloveMeasurements Glove::readSensors(float elapsedTime) {
-  std::map<const Finger::Value, ImuSensorMeasurement> measurementsMap;
-  for (auto sensor : sensors_) {
-    ImuSensorMeasurement measurement = sensor.second.read();
-    measurementsMap.insert(std::pair<Finger::Value, ImuSensorMeasurement>(
-        sensor.first, measurement));
+ImuSensorMeasurement Glove::readNextSensor(float elapsedTime) {
+  if (this->sensor_iterator_ == sensors_.end()) {
+    this->sensor_iterator_ = sensors_.begin();
   }
-  GloveMeasurements glove_measurements;
-  glove_measurements.setSensorMeasurementsMap(elapsedTime, measurementsMap);
-  return glove_measurements;
+  Finger::Value finger = this->sensor_iterator_->first;
+  Mpu sensor = this->sensor_iterator_->second;
+  ImuSensorMeasurement measurementRead = sensor.read();
+  this->sensor_iterator_++;
+  return measurementRead;
 }
 
 std::string Glove::getDeviceId() {

@@ -42,14 +42,10 @@ void BleCommunicator::advertiseAgain() {
   delay(500);
 }
 
-void BleCommunicator::sendMeasurements(GloveMeasurements measurements) {
-  measurements.toPackage(this->events_count_, this->glove_measurement_buffer_,
-                         this->kMtu);
-  this->events_count_ += 1;
-  this->data_collection_characteristic_->setValue(
-      this->glove_measurement_buffer_);
+void BleCommunicator::sendMeasurements(const std::string measurement) {
+  this->data_collection_characteristic_->setValue(measurement);
   this->data_collection_characteristic_->notify();
-  log_i("Measurement sent: %s ", this->glove_measurement_buffer_);
+  log_i("Measurement sent: %s ", measurement.c_str());
 }
 
 void BleCommunicator::sendInterpretation(const std::string &interpretation) {
