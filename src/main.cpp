@@ -7,7 +7,7 @@
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
 #include "../lib/Communication/Wifi/WifiCommunicator.h"
-#include "../lib/Sensors/Counter.h"
+#include "../lib/Glove/Counter.h"
 
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
 #define TASK_DELAY_MS 500

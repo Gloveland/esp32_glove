@@ -35,9 +35,9 @@ void TasksControllerCallback::onWrite(BLECharacteristic *pCharacteristic) {
 void TasksControllerCallback::startDataCollectionTask() {
   if (this->data_collection_task_handler_ != nullptr) {
     stopRunningTask();
+    this->counter_->resetCounter();
     running_task_handler_ = data_collection_task_handler_;
     log_i("Starting data collection task.");
-    this->counter_->resetCounter();
     vTaskResume(running_task_handler_);
   }
 }
@@ -64,6 +64,7 @@ void TasksControllerCallback::stopRunningTask() {
   if (running_task_handler_ != nullptr) {
     log_i("Stopping running task.");
     vTaskSuspend(running_task_handler_);
+    this->counter_->resetCounter();
     running_task_handler_ = nullptr;
     log_i("Task stopped.");
     return;
