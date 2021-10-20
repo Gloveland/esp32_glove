@@ -26,9 +26,6 @@ class BleCommunicator {
   ~BleCommunicator();
 
  private:
-  const static int kMtu = 512;
-  char glove_measurement_buffer_[kMtu];
-  long events_count_;
   std::string name_;
   BLEServer *profile_server_{};
   BLEService *profile_service_{};

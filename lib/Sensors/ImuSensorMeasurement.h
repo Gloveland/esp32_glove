@@ -14,11 +14,11 @@ class ImuSensorMeasurement {
                        Gyro gyro);
   Acceleration getAcc() const;
   Gyro getGyro() const;
-  void toPackage(int events_count, int elapsedTime, char *measurement_buffer_,
-                 const int size);
+  std::string toPackage(int events_count, int elapsedTime);
   ~ImuSensorMeasurement();
 
  private:
+  const static int kMtu;
   const static std::string kMeasurementPacketFormat;
   Finger::Value finger_;
   Acceleration acc_;

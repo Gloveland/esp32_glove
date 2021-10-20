@@ -1,8 +1,9 @@
 #ifndef FINGER_H_
 #define FINGER_H_
 
-#include <map>
 #include <FingerConfiguration.h>
+
+#include <map>
 
 /**
  * Struct containing the information associated to the fingers of the hand in
@@ -25,26 +26,38 @@ class Finger {
    */
   static std::string getName(Value finger) {
     switch (finger) {
-      case kPinky:return "pinky";
-      case kRing:return "ring";
-      case kMiddle:return "middle";
-      case kIndex:return "index";
-      case kThumb:return "thumb";
-      default: return "";
+      case kPinky:
+        return "pinky";
+      case kRing:
+        return "ring";
+      case kMiddle:
+        return "middle";
+      case kIndex:
+        return "index";
+      case kThumb:
+        return "thumb";
+      default:
+        return "";
     }
   }
 
-   /**
+  /**
    * Gets the first letter of the finger
    */
-  static std::string getInitialLetter(Value finger) {
+  static char getInitialLetter(Value finger) {
     switch (finger) {
-      case kPinky:return "P";
-      case kRing:return "R";
-      case kMiddle:return "M";
-      case kIndex:return "I";
-      case kThumb:return "T";
-      default: return "";
+      case kPinky:
+        return 'P';
+      case kRing:
+        return 'R';
+      case kMiddle:
+        return 'M';
+      case kIndex:
+        return 'I';
+      case kThumb:
+        return 'T';
+      default:
+        return ' ';
     }
   }
 
@@ -54,11 +67,16 @@ class Finger {
    */
   static u_int getAd0Pin(Value finger) {
     switch (finger) {
-      case kPinky:return kPinkyAd0;
-      case kRing:return kRingAd0;
-      case kMiddle:return kMiddleAd0;
-      case kIndex:return kIndexAd0;
-      case kThumb:return kThumbAd0;
+      case kPinky:
+        return kPinkyAd0;
+      case kRing:
+        return kRingAd0;
+      case kMiddle:
+        return kMiddleAd0;
+      case kIndex:
+        return kIndexAd0;
+      case kThumb:
+        return kThumbAd0;
     }
   }
 
@@ -66,4 +84,4 @@ class Finger {
   Finger() = default;
 };
 
-#endif // FINGER_H_
+#endif  // FINGER_H_

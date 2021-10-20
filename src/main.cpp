@@ -1,9 +1,9 @@
 
 #include <Glove.h>
 #include <Utils.h>
+#include <esp_task_wdt.h>
 
 #include <sstream>
-#include <esp_task_wdt.h>
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
 
@@ -26,12 +26,8 @@ Glove glove;
 BleCommunicator bleCommunicator;
 TasksControllerCallback *tasksControllerCallback;
 
-const static int kMtu = 512;
-char measurementBuffer[kMtu];
-
 void setUpGlove();
 void setUpBleCommunicator();
-void setUpWifiCommunicator();
 
 void setup() {
   Serial.begin(9600);
@@ -45,9 +41,6 @@ void setup() {
 
   setUpGlove();
 
-  // In order to switch between communication modes, comment and uncomment
-  // the lines below:
-  //  setUpWifiCommunicator();
   setUpBleCommunicator();
 }
 
@@ -92,22 +85,24 @@ void setUpBleCommunicator() {
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
 }
 
-
 void loop() {}  // loop() runs on core 1
 
 [[noreturn]] void taskDataCollection(void *pvParameters) {
   log_i("Task 'read gloves' running on core %d", xPortGetCoreID());
   float elapsedTime = 0.0;
-  float currentTime = millis();  
+  float currentTime = millis();
   float prevTime = currentTime;
-  int eventCount;
-  for (eventCount = 1; eventCount > 0; eventCount++);  {
+  int eventCount = 1;
+  for (;;) {
     ImuSensorMeasurement measurements = glove.readNextSensor(elapsedTime);
-    currentTime = millis(); 
+    currentTime = millis();
     elapsedTime = currentTime - prevTime;
-    measurements.toPackage(eventCount, elapsedTime, measurementBuffer, kMtu);
-    log_i("frequency: %.3f hz", 1.0 /(elapsedTime/1000.0));// Divide by 1000 to get seconds
+    std::string measurementBuffer =
+        measurements.toPackage(eventCount, elapsedTime);
+    log_i("frequency: %.3f hz",
+          1.0 / (elapsedTime / 1000.0));  // Divide by 1000 to get seconds
     bleCommunicator.sendMeasurements(measurementBuffer);
+    eventCount += 1;
     prevTime = currentTime;
   }
 }
@@ -135,4 +130,3 @@ void loop() {}  // loop() runs on core 1
     vTaskSuspend(calibrationTaskHandler);
   }
 }
-
