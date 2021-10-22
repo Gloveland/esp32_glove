@@ -20,7 +20,7 @@ class BleCommunicator {
 
   void init(const std::string &name,
             TasksControllerCallback *tasks_controller_callback);
-  void sendMeasurements(GloveMeasurements measurements);
+  void sendMeasurements(int count, GloveMeasurements measurements);
   void sendInterpretation(const std::string &interpretation);
   void advertiseAgain();
   ~BleCommunicator();
