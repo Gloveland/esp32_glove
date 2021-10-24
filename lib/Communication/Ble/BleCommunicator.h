@@ -20,6 +20,7 @@ class BleCommunicator {
 
   void init(const std::string &name,
             TasksControllerCallback *tasks_controller_callback);
+
   void sendMeasurements(const std::string measurement);
   void sendInterpretation(const std::string &interpretation);
   void advertiseAgain();

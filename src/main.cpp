@@ -6,6 +6,7 @@
 #include <sstream>
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
+#include "../lib/Glove/Counter.h"
 
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
 #define TASK_DELAY_MS 500
@@ -23,6 +24,7 @@ TaskHandle_t interpretationTaskHandler;
 TaskHandle_t calibrationTaskHandler;
 
 Glove glove;
+Counter *counter;
 BleCommunicator bleCommunicator;
 TasksControllerCallback *tasksControllerCallback;
 
@@ -31,6 +33,7 @@ void setUpBleCommunicator();
 
 void setup() {
   Serial.begin(9600);
+  counter = new Counter();
   log_e("Test log level error -DCORE_DEBUG_LEVEL=1");
   log_w("Test log level warnign -DCORE_DEBUG_LEVEL=2");
   log_i("Test log level information -DCORE_DEBUG_LEVEL=3");
@@ -81,7 +84,7 @@ void setUpGlove() {
 void setUpBleCommunicator() {
   tasksControllerCallback = new TasksControllerCallback(
       dataCollectionTaskHandler, interpretationTaskHandler,
-      calibrationTaskHandler);
+      calibrationTaskHandler, counter);
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
 }
 
@@ -89,21 +92,17 @@ void loop() {}  // loop() runs on core 1
 
 [[noreturn]] void taskDataCollection(void *pvParameters) {
   log_i("Task 'read gloves' running on core %d", xPortGetCoreID());
-  float elapsedTime = 0.0;
-  float currentTime = millis();
-  float prevTime = currentTime;
-  int eventCount = 1;
+  float elapsedTime;
   for (;;) {
+    elapsedTime = counter->getAndUpdateElapsedTimeSinceLastMeasurementMs();
     ImuSensorMeasurement measurements = glove.readNextSensor(elapsedTime);
-    currentTime = millis();
-    elapsedTime = currentTime - prevTime;
-    std::string measurementBuffer =
-        measurements.toPackage(eventCount, elapsedTime);
     log_i("frequency: %.3f hz",
           1.0 / (elapsedTime / 1000.0));  // Divide by 1000 to get seconds
+    int count = counter->getAndUpdateCounter();
+    std::string measurementBuffer = measurements.toPackage(count, elapsedTime);
     bleCommunicator.sendMeasurements(measurementBuffer);
-    eventCount += 1;
-    prevTime = currentTime;
+    log_i("Counter: %d", count);
+    log_i("Elapsed time: %f", elapsedTime);
   }
 }
 

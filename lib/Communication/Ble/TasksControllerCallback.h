@@ -3,6 +3,7 @@
 
 #include <BLECharacteristic.h>
 #include <Glove.h>
+#include "Counter.h"
 
 /**
  * Callbacks to handle characteristic events such as onWrite.
@@ -11,11 +12,13 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
  public:
   explicit TasksControllerCallback(TaskHandle_t &data_collection_task_handler,
                                    TaskHandle_t &interpretation_task_handler,
-                                   TaskHandle_t &calibration_task_handler)
+                                   TaskHandle_t &calibration_task_handler,
+                                   Counter *counter)
       :
         data_collection_task_handler_(data_collection_task_handler),
         interpretation_task_handler_(interpretation_task_handler),
-        calibration_task_handler_(calibration_task_handler) {}
+        calibration_task_handler_(calibration_task_handler),
+        counter_(counter) {}
 
   void onWrite(BLECharacteristic *pCharacteristic) override;
 
@@ -45,6 +48,9 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
 
   /** Handler of the calibration task. */
   TaskHandle_t &calibration_task_handler_;
+
+  /** The counter of the events. */
+  Counter* counter_;
 
   /** Command to start the data collection task. */
   const std::string kStartDC_ = "startdc";
