@@ -95,12 +95,13 @@ void loop() {}  // loop() runs on core 1
   float elapsedTime;
   for (;;) {
     elapsedTime = counter->getAndUpdateElapsedTimeSinceLastMeasurementMs();
-    ImuSensorMeasurement measurements = glove.readNextSensor(elapsedTime);
-    log_i("frequency: %.3f hz",
-          1.0 / (elapsedTime / 1000.0));  // Divide by 1000 to get seconds
-    int count = counter->getAndUpdateCounter();
-    std::string measurementBuffer = measurements.toPackage(count, elapsedTime);
-    bleCommunicator.sendMeasurements(measurementBuffer);
+    for (int i = 0; i < 5; i++) {
+      ImuSensorMeasurement measurements = glove.readNextSensor();
+      int count = counter->getAndUpdateCounter();
+      std::string measurementBuffer =
+          measurements.toPackage(count, elapsedTime);
+      bleCommunicator.sendMeasurements(measurementBuffer);
+    }
     log_i("Counter: %d", count);
     log_i("Elapsed time: %f", elapsedTime);
   }

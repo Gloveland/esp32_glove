@@ -58,7 +58,7 @@ void Glove::calibrateSensors() {
   digitalWrite(LED_BUILTIN, LOW);
 }
 
-ImuSensorMeasurement Glove::readNextSensor(float elapsedTime) {
+ImuSensorMeasurement Glove::readNextSensor() {
   if (this->sensor_iterator_ == sensors_.end()) {
     this->sensor_iterator_ = sensors_.begin();
   }

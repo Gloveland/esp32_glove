@@ -13,7 +13,7 @@ class Glove {
  public:
   Glove();
   void init();
-  ImuSensorMeasurement readNextSensor(float elapsedTime);
+  ImuSensorMeasurement readNextSensor();
   static std::string getDeviceId();
   void calibrateSensors();
   ~Glove();
