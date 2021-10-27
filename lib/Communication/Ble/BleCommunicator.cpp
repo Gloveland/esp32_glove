@@ -42,10 +42,9 @@ void BleCommunicator::advertiseAgain() {
   delay(500);
 }
 
-void BleCommunicator::sendMeasurements(GloveMeasurements measurements) {
-  measurements.toPackage(this->events_count_, this->glove_measurement_buffer_,
-                         this->kMtu);
-  this->events_count_ += 1;
+void BleCommunicator::sendMeasurements(int count, GloveMeasurements measurements) {
+  measurements.toPackage(count,
+                         this->glove_measurement_buffer_, this->kMtu);
   this->data_collection_characteristic_->setValue(
       this->glove_measurement_buffer_);
   this->data_collection_characteristic_->notify();
