@@ -13,7 +13,7 @@ typedef std::map<Finger::Value, Mpu> GloveSensors;
 class Glove {
  public:
   void init();
-  GloveMeasurements readSensors(float elapsedTime);
+  GloveMeasurements readSensors();
   static std::string getDeviceId();
   void calibrateSensors();
   ~Glove();

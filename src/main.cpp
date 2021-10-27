@@ -1,9 +1,9 @@
 
 #include <Glove.h>
 #include <Utils.h>
+#include <esp_task_wdt.h>
 
 #include <sstream>
-#include <esp_task_wdt.h>
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
 #include "../lib/Glove/Counter.h"
@@ -24,7 +24,7 @@ TaskHandle_t interpretationTaskHandler;
 TaskHandle_t calibrationTaskHandler;
 
 Glove glove;
-Counter* counter;
+Counter *counter;
 BleCommunicator bleCommunicator;
 TasksControllerCallback *tasksControllerCallback;
 
@@ -92,7 +92,6 @@ void setUpBleCommunicator() {
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
 }
 
-
 void loop() {}  // loop() runs on core 1
 
 [[noreturn]] void taskDataCollection(void *pvParameters) {
@@ -100,10 +99,12 @@ void loop() {}  // loop() runs on core 1
   float elapsedTime;
   for (;;) {
     elapsedTime = counter->getAndUpdateElapsedTimeSinceLastMeasurementMs();
-    GloveMeasurements measurements = glove.readSensors(elapsedTime);
-    log_i("frequency: %.3f hz", 1.0 /(elapsedTime/1000.0));// Divide by 1000 to get seconds
+    GloveMeasurements measurements = glove.readSensors();
+    log_i("frequency: %.3f hz",
+          1.0 / (elapsedTime / 1000.0));  // Divide by 1000 to get seconds
     int count = counter->getAndUpdateCounter();
-    bleCommunicator.sendMeasurements(count, measurements);
+    bleCommunicator.sendMeasurements(
+        measurements.toPackage(count, elapsedTime));
     log_i("Counter: %d", count);
     log_i("Elapsed time: %f", elapsedTime);
   }
@@ -132,4 +133,3 @@ void loop() {}  // loop() runs on core 1
     vTaskSuspend(calibrationTaskHandler);
   }
 }
-

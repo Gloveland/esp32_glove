@@ -6,18 +6,19 @@
 
 class GloveMeasurements {
  private:
-  
+  const static int kMtu;
+  const static std::string kMeasurementPacketFormat;
+
   const static std::string kGloveMeasurementsPacketFormat;
-  float elapsedTime_;
   std::map<const Finger::Value, ImuSensorMeasurement> imuSensorMeasurementMap_;
 
  public:
   static const int kImuSensorsAmount;
   GloveMeasurements();
-  void toPackage(int events_count, char *glove_measurement_buffer_,
-                 const int size);
-  void setSensorMeasurementsMap(const float elapsedTime, const std::map<const Finger::Value, ImuSensorMeasurement>
-                                imuSensorMeasurementMap);
+  std::string toPackage(int eventsCount, int elapsedTime);
+  void setSensorMeasurementsMap(
+      const std::map<const Finger::Value, ImuSensorMeasurement>
+          imuSensorMeasurementMap);
   ImuSensorMeasurement getSensor(const Finger::Value finger);
   bool isNotComplete();
 

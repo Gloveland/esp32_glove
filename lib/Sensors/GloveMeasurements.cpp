@@ -1,5 +1,6 @@
 #include <GloveMeasurements.h>
 const int GloveMeasurements::kImuSensorsAmount = 5;
+const int GloveMeasurements::kMtu = 512;
 
 const std::string GloveMeasurements::kGloveMeasurementsPacketFormat =
     "%d\n%.3f\nP%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nR%.3f,%.3f,%.3f,%"
@@ -22,17 +23,14 @@ ImuSensorMeasurement GloveMeasurements::getSensor(const Finger::Value finger) {
 }
 
 void GloveMeasurements::setSensorMeasurementsMap(
-    const float elapsedTime,
     const std::map<const Finger::Value, ImuSensorMeasurement>
         imuSensorMeasurementMap) {
-  this->elapsedTime_ = elapsedTime;
   this->imuSensorMeasurementMap_ = imuSensorMeasurementMap;
 }
 
-void GloveMeasurements::toPackage(int events_count,
-                                  char glove_measurement_buffer_[],
-                                  const int size) {
-  memset(glove_measurement_buffer_, 0, size);
+std::string GloveMeasurements::toPackage(int eventsCount, int elapsedTime) {
+  char measurementBuffer[this->kMtu] = {0};
+  memset(measurementBuffer, 0, this->kMtu);
   ImuSensorMeasurement pinky = (this->getSensor(Finger::kPinky));
   ImuSensorMeasurement ring = (this->getSensor(Finger::kRing));
   ImuSensorMeasurement middle = (this->getSensor(Finger::kMiddle));
@@ -40,9 +38,9 @@ void GloveMeasurements::toPackage(int events_count,
   ImuSensorMeasurement thumb = (this->getSensor(Finger::kThumb));
 
   int size_written = sprintf(
-      glove_measurement_buffer_,
-      GloveMeasurements::kGloveMeasurementsPacketFormat.c_str(), events_count,
-      this->elapsedTime_,
+      measurementBuffer,
+      GloveMeasurements::kGloveMeasurementsPacketFormat.c_str(), eventsCount,
+      elapsedTime,
 
       pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(),
       pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(),
@@ -71,9 +69,12 @@ void GloveMeasurements::toPackage(int events_count,
 
   );
 
-  if (size_written > size) {
-    log_e("Error size is bigger than 512!!, size_written: %d", size_written);
+  if (size_written > this->kMtu) {
+    log_e("Error size written %d is bigger than buffer size!! %d", size_written,
+          this->kMtu);
   }
+  std::string blePackage = measurementBuffer;
+  return measurementBuffer;
 }
 
 bool GloveMeasurements::isNotComplete() {
