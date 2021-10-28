@@ -14,9 +14,6 @@
 [[noreturn]] void taskDataCollection(void *pvParameters);
 TaskHandle_t dataCollectionTaskHandler;
 
-[[noreturn]] void taskWifiCommunication(void *pvParameters);
-TaskHandle_t wifiCommunicationTaskHandler;
-
 [[noreturn]] void taskInterpretation(void *pvParameters);
 TaskHandle_t interpretationTaskHandler;
 
@@ -30,7 +27,6 @@ TasksControllerCallback *tasksControllerCallback;
 
 void setUpGlove();
 void setUpBleCommunicator();
-void setUpWifiCommunicator();
 
 void setup() {
   Serial.begin(9600);
@@ -45,9 +41,6 @@ void setup() {
 
   setUpGlove();
 
-  // In order to switch between communication modes, comment and uncomment
-  // the lines below:
-  //  setUpWifiCommunicator();
   setUpBleCommunicator();
 }
 
