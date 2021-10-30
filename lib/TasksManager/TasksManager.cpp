@@ -96,13 +96,13 @@ void TasksManager::startCalibrationTask() {
   this->stopRunningTask();
   log_i("Starting calibration task.");
   xTaskCreatePinnedToCore(this->startCalibrationTaskImpl,  // Task function
-                          "Calibration task",          // Name of the task
-                          10000,                       // Stack size of task
+                          "Calibration task",              // Name of the task
+                          10000,                           // Stack size of task
                           this,                        // Parameter of the task
                           1,                           // Priority of the task
                           &calibration_task_handler_,  // Task handle to keep
                                                        // track of created task
-                          0  // Pin task to core 0
+                          0                            // Pin task to core 0
   );
   this->running_task_handler_ = this->calibration_task_handler_;
 }
@@ -121,15 +121,16 @@ void TasksManager::startCalibrationTaskImpl(void* _this) {
     this->glove_->calibrateSensors();
     // The task suspends itself in order to perform only a single calibration
     // per request.
+    this->running_task_handler_ = nullptr;
     vTaskDelete(NULL);
   }
 }
 
 void TasksManager::stopRunningTask() {
-  if (running_task_handler_ != nullptr) {
+  if (this->running_task_handler_ != nullptr) {
     log_i("Stopping running task.");
     vTaskDelete(running_task_handler_);
-    running_task_handler_ = nullptr;
+    this->running_task_handler_ = nullptr;
     log_i("Task stopped.");
     return;
   }

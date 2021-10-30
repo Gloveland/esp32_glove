@@ -36,7 +36,7 @@ class TasksManager : public AbstractTasksManager {
    * The task handler of the running task. If neither the interpretation task
    * nor the data collection task are running then this value is null.
    */
-  TaskHandle_t running_task_handler_;
+  TaskHandle_t running_task_handler_ = nullptr;
 
   /**
    * Handler of the Read sensors task. The task associated to this
