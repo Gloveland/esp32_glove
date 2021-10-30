@@ -5,7 +5,7 @@
 
 #include <sstream>
 
-#include "../lib/Communication/Ble/TasksControllerCallback.h"
+#include "../lib/TasksManager/TasksManager.h"
 
 
 void init();
@@ -20,10 +20,10 @@ void setup() {
   pinMode(LED_BUILTIN, OUTPUT);
   esp_task_wdt_init(100, false);
  
-   Glove * glove = new Glove();
+  Glove * glove = new Glove();
   glove->init();
-  TasksControllerCallback * tasksControllerCallback = new TasksControllerCallback(glove);
-  tasksControllerCallback->init();
+  TasksManager * tasksManager = new TasksManager(glove);
+  tasksManager->initBleService();
 }
 
 
