@@ -111,7 +111,6 @@ void loop() {}  // loop() runs on core 1
 
 [[noreturn]] void taskDataCollection(void *pvParameters) {
   log_i("Task 'read gloves' running on core %d", xPortGetCoreID());
-  Wire.setClock(400000);
   float elapsedTime;
   for (;;) {
     elapsedTime = counter->getAndUpdateElapsedTimeSinceLastMeasurementMs();

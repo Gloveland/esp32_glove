@@ -143,12 +143,10 @@ void Mpu::calibrate() {
 }
 
 ImuSensorMeasurement Mpu::read() {
-  this->beginCommunication();
   float currentTime = millis();  // Divide by 1000 to get seconds
   float elapsedTime = (currentTime - this->previousTime_) / 1000;
   this->previousTime_ = currentTime;
   RawMeasurement raw = this->readAllRaw();
-  this->endCommunication();
   this->log();
   Acceleration acc =
       this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
@@ -165,9 +163,10 @@ ImuSensorMeasurement Mpu::read() {
  * the registers order is: | ax | ay | az | temp | gx | gy | gz |
  */
 RawMeasurement Mpu::readAllRaw() {
+  this->beginCommunication();
   Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(ACCEL_XOUT_H);
-  Wire.endTransmission(false);
+  Wire.endTransmission(true);
   Wire.requestFrom(mpuAddress::_ON, ALL_REGISTERS, true);
 
   RawMeasurement rawMeasurement;
@@ -180,6 +179,7 @@ RawMeasurement Mpu::readAllRaw() {
   rawMeasurement.gyro_x = (Wire.read() << BITS_IN_BYTE | Wire.read());
   rawMeasurement.gyro_y = (Wire.read() << BITS_IN_BYTE | Wire.read());
   rawMeasurement.gyro_z = (Wire.read() << BITS_IN_BYTE | Wire.read());
+  this->endCommunication();
   return rawMeasurement;
 }
 
