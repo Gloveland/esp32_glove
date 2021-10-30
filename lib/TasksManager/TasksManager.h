@@ -3,6 +3,7 @@
 #include <Arduino.h>
 #include <BLECharacteristic.h>
 #include <Glove.h>
+#include <GloveMeasurements.h>
 
 #include <sstream>
 
@@ -19,18 +20,24 @@ class TasksManager : public AbstractTasksManager {
 
   void initBleService() override;
   void startDataCollectionTask() override;
+  void startBleCommunicationTask() override;
   void startInterpretationTask() override;
   void startCalibrationTask() override;
   void stopRunningTask() override;
   ~TasksManager();
 
+  static void startBleCommunicationTaskImpl(void *_this);
+  [[noreturn]] void taskBleCommunication();
+
  private:
   Glove *glove_;
+  QueueHandle_t queue = nullptr;
   BleCommunicator *bleCommunicator = nullptr;
   TasksControllerCallback *tasksControllerCallback = nullptr;
 
   /** Bluetooth service name. */
   static const std::string kBleService_;
+  static const int kQueueSize;
 
   /**
    * The task handler of the running task. If neither the interpretation task
@@ -44,6 +51,8 @@ class TasksManager : public AbstractTasksManager {
    * when receiving a "start" command.
    */
   TaskHandle_t data_collection_task_handler_;
+
+  TaskHandle_t ble_communication_task_handler_;
 
   /** Handler of the interpretation task. */
   TaskHandle_t interpretation_task_handler_;

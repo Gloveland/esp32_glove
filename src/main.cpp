@@ -7,8 +7,7 @@
 
 #include "../lib/TasksManager/TasksManager.h"
 
-
-void init();
+TasksManager * tasksManager;
 
 void setup() {
   Serial.begin(9600);
@@ -22,11 +21,13 @@ void setup() {
  
   Glove * glove = new Glove();
   glove->init();
-  TasksManager * tasksManager = new TasksManager(glove);
+  tasksManager = new TasksManager(glove);
   tasksManager->initBleService();
 }
 
 
 
-void loop() {}  // loop() runs on core 1
+void loop() {// loop() runs on core 1
+  tasksManager->taskBleCommunication();
+}  
 
