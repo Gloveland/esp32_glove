@@ -5,7 +5,12 @@ const std::string TasksManager::kBleService_ = "RightHandSmartGlove";
 const int TasksManager::kQueueSize = 10;
 
 TasksManager::TasksManager(Glove* glove)
-    : glove_(glove), running_task_handler_(nullptr) {
+    : glove_(glove),
+      running_task_handler_(nullptr),
+      data_collection_task_handler_(nullptr),
+      ble_measurement_sender_task_handler_(nullptr),
+      interpretation_task_handler_(nullptr),
+      calibration_task_handler_(nullptr) {
   log_i("Create task controller callback");
   this->bleCommunicator = new BleCommunicator();
   this->tasksControllerCallback = new TasksControllerCallback(this);
@@ -20,7 +25,6 @@ void TasksManager::initBleService() {
   log_i("init ble communicator");
   this->bleCommunicator->init(TasksManager::kBleService_,
                               this->tasksControllerCallback);
-  // this->taskBleCommunication();
 }
 
 void TasksManager::startDataCollectionTask() {
@@ -68,36 +72,37 @@ void TasksManager::startDataCollectionTaskImpl(void* _this) {
   }
 }
 
-void TasksManager::startBleCommunicationTask() {
+void TasksManager::startBleMeasurementSenderTask() {
   log_i("Starting ble communication task.");
   xTaskCreatePinnedToCore(
-      this->startBleCommunicationTaskImpl,  // Task function
-      "readSensors",                        // Name of the task
-      10000,                                // Stack size of task
-      this,                                 // Parameter of the task
-      1,                                    // Priority of the task
-      &ble_communication_task_handler_,     // Task handle to keep
-                                            // track of created task
-      1                                     // Pin task to core 1
+      this->startBleMeasurementSenderTaskImpl,  // Task function
+      "readSensors",                            // Name of the task
+      10000,                                    // Stack size of task
+      this,                                     // Parameter of the task
+      1,                                        // Priority of the task
+      &ble_measurement_sender_task_handler_,    // Task handle to keep
+                                                // track of created task
+      1                                         // Pin task to core 1
   );
 }
 
-void TasksManager::startBleCommunicationTaskImpl(void* _this) {
+void TasksManager::startBleMeasurementSenderTaskImpl(void* _this) {
   log_i("taskBleCommication...");
   if (_this == nullptr) {
     log_i("Error creating task, null task parameter");
   }
-  ((TasksManager*)_this)->taskBleCommunication();
+  ((TasksManager*)_this)->taskBleMeasurementSender();
 }
 
-[[noreturn]] void TasksManager::taskBleCommunication() {
+[[noreturn]] void TasksManager::taskBleMeasurementSender() {
   log_i("Task 'Bluetooth transmission' running on core %d", xPortGetCoreID());
   for (;;) {
     GloveMeasurements gloveMeasurements;
     if (xQueueReceive(this->queue, &(gloveMeasurements), (TickType_t)100) ==
         pdPASS) {
-      log_i("receive package %s", gloveMeasurements.toPackage().c_str());
-      // this->bleCommunicator->sendMeasurements(pkg);
+      std::string pkg = gloveMeasurements.toPackage();
+      log_i("receive package %s", pkg.c_str());
+      this->bleCommunicator->sendMeasurements(pkg);
     } else {
       log_e("Error: fail to receive item from queue after 100 ticks");
     }
@@ -176,6 +181,10 @@ void TasksManager::startCalibrationTaskImpl(void* _this) {
 }
 
 void TasksManager::stopRunningTask() {
+  if (this->ble_measurement_sender_task_handler_ != nullptr) {
+    log_i("Stopping ble measurement sender");
+    vTaskDelete(this->ble_measurement_sender_task_handler_);
+  }
   if (this->running_task_handler_ != nullptr) {
     log_i("Stopping running task.");
     vTaskDelete(running_task_handler_);
@@ -183,6 +192,7 @@ void TasksManager::stopRunningTask() {
     log_i("Task stopped.");
     return;
   }
+
   log_i("Dropping stop command: no task was running.");
 }
 

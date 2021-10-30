@@ -8,7 +8,7 @@ class AbstractTasksManager {
   /** Starts the data collection task. */
   virtual void startDataCollectionTask();
 
-  virtual void startBleCommunicationTask();
+  virtual void startBleMeasurementSenderTask();
 
   /** Starts the interpretation task. */
   virtual void startInterpretationTask();

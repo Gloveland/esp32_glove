@@ -20,14 +20,11 @@ class TasksManager : public AbstractTasksManager {
 
   void initBleService() override;
   void startDataCollectionTask() override;
-  void startBleCommunicationTask() override;
+  void startBleMeasurementSenderTask() override;
   void startInterpretationTask() override;
   void startCalibrationTask() override;
   void stopRunningTask() override;
   ~TasksManager();
-
-  static void startBleCommunicationTaskImpl(void *_this);
-  [[noreturn]] void taskBleCommunication();
 
  private:
   Glove *glove_;
@@ -43,7 +40,7 @@ class TasksManager : public AbstractTasksManager {
    * The task handler of the running task. If neither the interpretation task
    * nor the data collection task are running then this value is null.
    */
-  TaskHandle_t running_task_handler_ = nullptr;
+  TaskHandle_t running_task_handler_;
 
   /**
    * Handler of the Read sensors task. The task associated to this
@@ -52,7 +49,8 @@ class TasksManager : public AbstractTasksManager {
    */
   TaskHandle_t data_collection_task_handler_;
 
-  TaskHandle_t ble_communication_task_handler_;
+  /** Handler of the ble mesurement task. */
+  TaskHandle_t ble_measurement_sender_task_handler_;
 
   /** Handler of the interpretation task. */
   TaskHandle_t interpretation_task_handler_;
@@ -67,6 +65,10 @@ class TasksManager : public AbstractTasksManager {
   /** Starts the interpretation task. */
   static void startInterpretationTaskImpl(void *_this);
   [[noreturn]] void taskInterpretation();
+
+  /** Starts the measurement sender task. */
+  static void startBleMeasurementSenderTaskImpl(void *_this);
+  [[noreturn]] void taskBleMeasurementSender();
 
   /** Starts the calibration task. */
   static void startCalibrationTaskImpl(void *_this);

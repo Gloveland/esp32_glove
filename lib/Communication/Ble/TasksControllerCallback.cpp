@@ -29,6 +29,7 @@ void TasksControllerCallback::executeCommand(std::string command) {
   }
   if (command == kStartDC_) {
     this->tasksManager_->startDataCollectionTask();
+    this->tasksManager_->startBleMeasurementSenderTask();
     return;
   }
 
