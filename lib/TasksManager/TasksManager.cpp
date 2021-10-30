@@ -17,7 +17,7 @@ TasksManager::TasksManager(Glove* glove)
   this->bleCommunicator = new BleCommunicator();
   this->tasksControllerCallback = new TasksControllerCallback(this);
   this->queue =
-      xQueueCreate(TasksManager::kQueueSize, sizeof(GloveMeasurements));
+      xQueueCreate(TasksManager::kQueueSize, sizeof(GloveMeasurements*));
   if (this->queue == nullptr) {
     log_e("Error creating the queue.");
   }
@@ -64,9 +64,10 @@ void TasksManager::startDataCollectionTaskImpl(void* _this) {
     log_i("frequency: %.3f hz",
           1.0 / (elapsedTime / 1000.0));  // Divide by 1000 to get seconds
 
-    if (xQueueSend(this->queue, (void*)gloveMeasurements, (TickType_t)0) !=
+    if (xQueueSend(this->queue, (void*)&gloveMeasurements, (TickType_t)0) !=
         pdPASS) {
-      log_i("Failed to post the message, queue is full");
+      log_e("Failed to post the message, queue is full");
+      delete gloveMeasurements;
     }
     log_i("Counter: %d", eventNum);
     log_i("Elapsed time: %f", elapsedTime);
@@ -98,12 +99,13 @@ void TasksManager::startBleMeasurementSenderTaskImpl(void* _this) {
 [[noreturn]] void TasksManager::taskBleMeasurementSender() {
   log_i("Task 'Bluetooth transmission' running on core %d", xPortGetCoreID());
   for (;;) {
-    GloveMeasurements gloveMeasurements;
+    GloveMeasurements* gloveMeasurements;
     if (xQueueReceive(this->queue, &(gloveMeasurements), (TickType_t)100) ==
         pdPASS) {
-      std::string pkg = gloveMeasurements.toPackage();
+      std::string pkg = gloveMeasurements->toPackage();
       log_i("receive package %s", pkg.c_str());
       this->bleCommunicator->sendMeasurements(pkg);
+      delete gloveMeasurements;
     } else {
       log_e("Error: fail to receive item from queue after 100 ticks");
     }

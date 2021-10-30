@@ -2,14 +2,13 @@
 
  void Counter::resetCounter() {
     this->eventNumber_ = 0;
-    this->referenceTimestampMs_ = millis();
-    this->lastMeasurementTimestampMs_ = 0;
+    this->lastMeasurementTimestampMs_ = millis();
   }
 
   float Counter::getAndUpdateElapsedTimeSinceLastMeasurementMs() {
-    float elapsedTimeMs =
-        millis() - referenceTimestampMs_ - lastMeasurementTimestampMs_;
-    this->lastMeasurementTimestampMs_ += elapsedTimeMs;
+    float currentTimeMs = millis();
+    float elapsedTimeMs = currentTimeMs - lastMeasurementTimestampMs_;
+    this->lastMeasurementTimestampMs_ = currentTimeMs;
     return elapsedTimeMs;
   }
 

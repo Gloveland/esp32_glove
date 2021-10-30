@@ -6,7 +6,6 @@
 class Counter {
  private:
   int eventNumber_ = 0;
-  float referenceTimestampMs_ = 0;
   float lastMeasurementTimestampMs_ = 0;
 
  public:

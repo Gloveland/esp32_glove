@@ -83,4 +83,6 @@ bool GloveMeasurements::isNotComplete() {
          GloveMeasurements::kImuSensorsAmount;
 }
 
-GloveMeasurements::~GloveMeasurements() = default;
+GloveMeasurements::~GloveMeasurements() {
+  log_e("deleting event %d", event_num_);
+}
