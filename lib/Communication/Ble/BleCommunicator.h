@@ -9,7 +9,6 @@
 
 #include "BleSpecification.h"
 #include "GloveMeasurements.h"
-//#include "TasksControllerCallback.h"
 
 /**
  * Class to handle the communication using Bluetooth Low Energy between the

@@ -1,5 +1,5 @@
-#ifndef TASKS_CONTROLLER_CALLBACKSger_H
-#define TASKS_CONTROLLER_CALLBACKSger_H
+#ifndef TASKS_CONTROLLER_CALLBACKS_H
+#define TASKS_CONTROLLER_CALLBACKS_H
 
 #include <Arduino.h>
 #include <BLECharacteristic.h>
@@ -33,4 +33,4 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
   AbstractTasksManager* tasksManager_;
 };
 
-#endif  // TASKS_CONTROLLER_CALLBACKSger_H
+#endif  // TASKS_CONTROLLER_CALLBACKS_H
