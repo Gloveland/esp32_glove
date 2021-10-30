@@ -9,7 +9,7 @@
 
 #include "BleSpecification.h"
 #include "GloveMeasurements.h"
-#include "TasksControllerCallback.h"
+//#include "TasksControllerCallback.h"
 
 /**
  * Class to handle the communication using Bluetooth Low Energy between the
@@ -20,7 +20,7 @@ class BleCommunicator {
   BleCommunicator() = default;
 
   void init(const std::string &name,
-            TasksControllerCallback *tasks_controller_callback);
+            BLECharacteristicCallbacks *tasks_controller_callback);
   void sendMeasurements(const std::string measurement);
   void sendInterpretation(const std::string &interpretation);
   void advertiseAgain();

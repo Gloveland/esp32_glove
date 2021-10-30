@@ -1,10 +1,8 @@
 #include "BleCommunicator.h"
-
 #include "ServerCallbacks.h"
-#include "TasksControllerCallback.h"
 
 void BleCommunicator::init(const std::string &name,
-                           TasksControllerCallback *tasks_controller_callback) {
+                           BLECharacteristicCallbacks *tasks_controller_callback) {
   this->name_ = name;
   BLEDevice::init(name_);
   this->profile_server_ = BLEDevice::createServer();

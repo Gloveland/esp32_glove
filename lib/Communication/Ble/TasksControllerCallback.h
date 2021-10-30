@@ -3,6 +3,9 @@
 
 #include <BLECharacteristic.h>
 #include <Glove.h>
+
+#include "Glove.h"
+#include "BleCommunicator.h"
 #include "Counter.h"
 
 /**
@@ -10,15 +13,10 @@
  */
 class TasksControllerCallback : public BLECharacteristicCallbacks {
  public:
-  explicit TasksControllerCallback(TaskHandle_t &data_collection_task_handler,
-                                   TaskHandle_t &interpretation_task_handler,
-                                   TaskHandle_t &calibration_task_handler,
-                                   Counter *counter)
-      :
-        data_collection_task_handler_(data_collection_task_handler),
-        interpretation_task_handler_(interpretation_task_handler),
-        calibration_task_handler_(calibration_task_handler),
-        counter_(counter) {}
+  TasksControllerCallback(Glove * glove);
+
+  void init();
+
 
   void onWrite(BLECharacteristic *pCharacteristic) override;
 
@@ -29,52 +27,42 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
   void stopRunningTask();
 
  private:
+  Glove * glove_;
+  BleCommunicator * bleCommunicator;
+
+  /** Bluetooth service name. */
+  static const std::string kBleService_;
+  /** Command to start the data collection task. */
+  static const std::string kStartDC_;
+
+  /** Command to start the interpretation task. */
+  static const std::string kStartInterpretation_;
+
+  /** Command to stop the running task */
+  static const std::string kStopTask_;
+
+  /** Command to calibrate the glove sensors. */
+  static const std::string kCalibrate_;
+
+  /** Starts the data collection task. */
+  void startDataCollectionTask();
 
   /**
    * The task handler of the running task. If neither the interpretation task
    * nor the data collection task are running then this value is null.
    */
-  TaskHandle_t running_task_handler_ = nullptr;
+  TaskHandle_t running_task_handler_;
 
   /**
    * Handler of the Read sensors task. The task associated to this
    * handler will be suspended upon receiving a command and restarted
    * when receiving a "start" command.
    */
-  TaskHandle_t &data_collection_task_handler_;
-
-  /** Handler of the interpretation task. */
-  TaskHandle_t &interpretation_task_handler_;
-
-  /** Handler of the calibration task. */
-  TaskHandle_t &calibration_task_handler_;
-
-  /** The counter of the events. */
-  Counter* counter_;
-
-  /** Command to start the data collection task. */
-  const std::string kStartDC_ = "startdc";
-
-  /** Command to start the interpretation task. */
-  const std::string kStartInterpretation_ = "startint";
-
-  /**
-   * Command to stop the running task, either the data collection task or the
-   * interpretation task.
-   */
-  const std::string kStopTask_ = "stop";
-
-  /** Command to calibrate the glove sensors. */
-  const std::string kCalibrate_ = "calibrate";
+  TaskHandle_t data_collection_task_handler_;
 
   /** Starts the data collection task. */
-  void startDataCollectionTask();
-
-  /** Starts the interpretation task. */
-  void startInterpretationTask();
-
-  /** Starts the calibration task. */
-  void startCalibrationTask();
+  static void startDataCollectionTaskImpl(void *_this);
+  [[noreturn]] void taskDataCollection();
 };
 
 #endif  // ESP32_GLOVE_CHARACTERISTIC_CALLBACKS_H
