@@ -2,7 +2,9 @@
 #include "TasksManager.h"
 
 const std::string TasksManager::kBleService_ = "RightHandSmartGlove";
-const int TasksManager::kQueueSize = 10;
+const int TasksManager::kQueueSize = 100;
+const int TasksManager::kHightPriority = 2;
+const int TasksManager::kLowPriority = 1;
 
 TasksManager::TasksManager(Glove* glove)
     : glove_(glove),
@@ -35,7 +37,7 @@ void TasksManager::startDataCollectionTask() {
       "readSensors",                      // Name of the task
       10000,                              // Stack size of task
       this,                               // Parameter of the task
-      1,                                  // Priority of the task
+      TasksManager::kHightPriority,       // Priority of the task
       &data_collection_task_handler_,     // Task handle to keep
                                           // track of created task
       0                                   // Pin task to core 0
@@ -66,7 +68,6 @@ void TasksManager::startDataCollectionTaskImpl(void* _this) {
         pdPASS) {
       log_i("Failed to post the message, queue is full");
     }
-    // this->bleCommunicator->sendMeasurements(pkg);
     log_i("Counter: %d", eventNum);
     log_i("Elapsed time: %f", elapsedTime);
   }
@@ -79,7 +80,7 @@ void TasksManager::startBleMeasurementSenderTask() {
       "readSensors",                            // Name of the task
       10000,                                    // Stack size of task
       this,                                     // Parameter of the task
-      1,                                        // Priority of the task
+      TasksManager::kLowPriority,               // Priority of the task
       &ble_measurement_sender_task_handler_,    // Task handle to keep
                                                 // track of created task
       1                                         // Pin task to core 1
@@ -117,7 +118,7 @@ void TasksManager::startInterpretationTask() {
       "Interpretation task",              // Name of the task
       10000,                              // Stack size of task
       this,                               // Parameter of the task
-      1,                                  // Priority of the task
+      TasksManager::kHightPriority,       // Priority of the task
       &interpretation_task_handler_,  // Task handle to keep track of created
                                       // task
       0                               // Pin task to core 0
@@ -152,11 +153,11 @@ void TasksManager::startCalibrationTask() {
   xTaskCreatePinnedToCore(this->startCalibrationTaskImpl,  // Task function
                           "Calibration task",              // Name of the task
                           10000,                           // Stack size of task
-                          this,                        // Parameter of the task
-                          1,                           // Priority of the task
-                          &calibration_task_handler_,  // Task handle to keep
+                          this,  // Parameter of the task
+                          TasksManager::kHightPriority,  // Priority of the task
+                          &calibration_task_handler_,    // Task handle to keep
                                                        // track of created task
-                          0                            // Pin task to core 0
+                          0  // Pin task to core 0
   );
   this->running_task_handler_ = this->calibration_task_handler_;
 }

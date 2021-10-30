@@ -35,6 +35,8 @@ class TasksManager : public AbstractTasksManager {
   /** Bluetooth service name. */
   static const std::string kBleService_;
   static const int kQueueSize;
+  static const int kHightPriority;
+  static const int kLowPriority;
 
   /**
    * The task handler of the running task. If neither the interpretation task
