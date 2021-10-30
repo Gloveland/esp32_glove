@@ -4,6 +4,8 @@
 #include <BLECharacteristic.h>
 #include <Glove.h>
 
+#include <sstream>
+
 #include "../Communication/Ble/BleCommunicator.h"
 #include "../Communication/Ble/TasksControllerCallback.h"
 #include "Counter.h"
@@ -17,6 +19,8 @@ class TasksManager : public AbstractTasksManager {
 
   void initBleService() override;
   void startDataCollectionTask() override;
+  void startInterpretationTask() override;
+  void startCalibrationTask() override;
   void stopRunningTask() override;
   ~TasksManager();
 
@@ -41,9 +45,23 @@ class TasksManager : public AbstractTasksManager {
    */
   TaskHandle_t data_collection_task_handler_;
 
+  /** Handler of the interpretation task. */
+  TaskHandle_t interpretation_task_handler_;
+
+  /** Handler of the calibration task. */
+  TaskHandle_t calibration_task_handler_;
+
   /** Starts the data collection task. */
   static void startDataCollectionTaskImpl(void *_this);
   [[noreturn]] void taskDataCollection();
+
+  /** Starts the interpretation task. */
+  static void startInterpretationTaskImpl(void *_this);
+  [[noreturn]] void taskInterpretation();
+
+  /** Starts the calibration task. */
+  static void startCalibrationTaskImpl(void *_this);
+  [[noreturn]] void taskCalibration();
 };
 
 #endif  // TASK_MANAGER_H

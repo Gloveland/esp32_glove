@@ -7,6 +7,12 @@ class AbstractTasksManager {
   virtual void initBleService();
   /** Starts the data collection task. */
   virtual void startDataCollectionTask();
+
+  /** Starts the interpretation task. */
+  virtual void startInterpretationTask();
+
+  /** Starts the calibration task. */
+  virtual void startCalibrationTask();
   /**
    * Stop the ongoing task, either the interpretation task or the data
    * collection task. Nothing happens if there is not an ongoing task.

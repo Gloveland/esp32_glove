@@ -15,18 +15,26 @@ void TasksControllerCallback::onWrite(BLECharacteristic* pCharacteristic) {
   BLECharacteristicCallbacks::onWrite(pCharacteristic);
   std::string value = pCharacteristic->getValue();
   this->executeCommand(value);
-  
 }
-void TasksControllerCallback::executeCommand(std::string command){
+void TasksControllerCallback::executeCommand(std::string command) {
   log_i("Command received: %s", String(command.c_str()));
+
   if (command == kStopTask_) {
     this->tasksManager_->stopRunningTask();
+    return;
+  }
+  if (command == kStartInterpretation_) {
+    this->tasksManager_->startInterpretationTask();
     return;
   }
   if (command == kStartDC_) {
     this->tasksManager_->startDataCollectionTask();
     return;
   }
-  log_i("Dropping command: %s ", String(command.c_str()));
 
+  if (command == kCalibrate_) {
+    this->tasksManager_->startCalibrationTask();
+    return;
+  }
+  log_i("Dropping command: %s ", String(command.c_str()));
 }
