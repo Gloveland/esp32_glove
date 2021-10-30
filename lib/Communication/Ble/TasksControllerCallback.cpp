@@ -11,16 +11,14 @@ const std::string TasksControllerCallback::kCalibrate_ = "calibrate";
 
 TasksControllerCallback::TasksControllerCallback(Glove* glove)
     : glove_(glove), running_task_handler_(nullptr) {
-      log_i("Create task controller callbakc" );
+  log_i("Create task controller callbakc");
   this->bleCommunicator = new BleCommunicator();
-  
 };
 
-void TasksControllerCallback::init(){
-  log_i("init ble communicator" );
+void TasksControllerCallback::init() {
+  log_i("init ble communicator");
   this->bleCommunicator->init(TasksControllerCallback::kBleService_, this);
 }
-
 
 /** Callback to be called when the device receives a write event. */
 void TasksControllerCallback::onWrite(BLECharacteristic* pCharacteristic) {
@@ -66,7 +64,11 @@ void TasksControllerCallback::startDataCollectionTaskImpl(void* _this) {
   Counter counter;
   for (;;) {
     float elapsedTime = counter.getAndUpdateElapsedTimeSinceLastMeasurementMs();
+    log_i("frequency: %.3f hz",1.0 / (elapsedTime / 1000.0));  // Divide by 1000 to get seconds
+    GloveMeasurements measurements = this->glove_->readSensors();
     int count = counter.getAndUpdateCounter();
+    std::string pkg = measurements.toPackage(count, elapsedTime);
+    this->bleCommunicator->sendMeasurements(pkg);
     log_i("Counter: %d", count);
     log_i("Elapsed time: %f", elapsedTime);
   }
