@@ -12,7 +12,7 @@ const int Glove::UNKNOWN_ERROR = 4;
 const int Glove::kI2cSpeedHertz = 400000;
 
 void Glove::init() {
-  Wire.begin(kSdaPin, kSclPin);
+  Wire.begin(kSdaPin, kSclPin, 400000);
   setUpSensors();
 }
 
