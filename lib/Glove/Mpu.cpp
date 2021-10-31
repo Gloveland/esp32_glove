@@ -64,7 +64,8 @@ void Mpu::init() {
   delay(20);
 
   MPU6050 mpu6050;
-  mpu6050.setMasterClockSpeed(mpuI2cClock::_400_HZ);
+  uint8_t speed = 13;
+  mpu6050.setMasterClockSpeed(speed);
 
   this->endCommunication();
 }
