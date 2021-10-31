@@ -6,7 +6,6 @@
 #include <esp_task_wdt.h>
 
 #include "../lib/Communication/Ble/BleCommunicator.h"
-#include "../lib/Communication/Wifi/WifiCommunicator.h"
 #include "../lib/Glove/Counter.h"
 
 #define RIGHT_HAND_BLE_SERVICE "RightHandSmartGlove"
@@ -15,9 +14,6 @@
 [[noreturn]] void taskDataCollection(void *pvParameters);
 TaskHandle_t dataCollectionTaskHandler;
 
-[[noreturn]] void taskWifiCommunication(void *pvParameters);
-TaskHandle_t wifiCommunicationTaskHandler;
-
 [[noreturn]] void taskInterpretation(void *pvParameters);
 TaskHandle_t interpretationTaskHandler;
 
@@ -25,14 +21,12 @@ TaskHandle_t interpretationTaskHandler;
 TaskHandle_t calibrationTaskHandler;
 
 Glove glove;
-WifiCommunicator wifiCommunicator(Glove::getDeviceId());
 Counter* counter;
 BleCommunicator bleCommunicator;
 TasksControllerCallback *tasksControllerCallback;
 
 void setUpGlove();
 void setUpBleCommunicator();
-void setUpWifiCommunicator();
 
 void setup() {
   Serial.begin(9600);
@@ -46,10 +40,6 @@ void setup() {
   esp_task_wdt_init(100, false);
 
   setUpGlove();
-
-  // In order to switch between communication modes, comment and uncomment
-  // the lines below:
-  //  setUpWifiCommunicator();
   setUpBleCommunicator();
 }
 
@@ -94,18 +84,6 @@ void setUpBleCommunicator() {
   bleCommunicator.init(RIGHT_HAND_BLE_SERVICE, tasksControllerCallback);
 }
 
-void setUpWifiCommunicator() {
-  wifiCommunicator.connectToNetwork();
-  xTaskCreatePinnedToCore(
-      taskWifiCommunication,          // Task function
-      "wifiCommunication",            // Name of the task
-      10000,                          // Stack size of task
-      NULL,                           // Parameter of the task
-      1,                              // Priority of the task
-      &wifiCommunicationTaskHandler,  // Task handle to keep track of created
-                                      // task
-      1);
-}
 
 void loop() {}  // loop() runs on core 1
 
@@ -147,17 +125,3 @@ void loop() {}  // loop() runs on core 1
   }
 }
 
-// [[noreturn]] void taskWifiCommunication(void *pvParameters) {
-//   while (true) {
-//     wifiCommunicator.listenForClients();
-//     GloveMeasurements glove_measurements;
-//     for (int i = 0; i < kQueueSize && wifiCommunicator.clientIsConnected();
-//          i++) {
-//       if (xQueueReceive(queue, &glove_measurements, portMAX_DELAY) == pdPASS) {
-//         wifiCommunicator.send(glove_measurements);
-//       }
-//     }
-//     vTaskDelay(TASK_DELAY_MS / portTICK_PERIOD_MS);
-//     delay(500);
-//   }
-// }
