@@ -3,8 +3,6 @@
 #include <Utils.h>
 #include <esp_task_wdt.h>
 
-#include <sstream>
-
 #include "../lib/TasksManager/TasksManager.h"
 
 
@@ -27,6 +25,6 @@ void setup() {
 }
 
 
-
 void loop() {}  // loop() runs on core 1
+
 
