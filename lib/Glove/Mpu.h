@@ -41,7 +41,7 @@ struct RawMeasurement {
   int16_t gyro_z;
 };
 
-enum mpuI2cClock {
+enum mpuI2cClock : uint8_t {
   _348_HZ = 0,
   _333_HZ = 1,
   _320_HZ = 2,
