@@ -3,10 +3,10 @@
 
 ServerCallbacks::ServerCallbacks(
     BleCommunicator *communicator,
-    TasksControllerCallback *tasks_controller_callback)
+    BLECharacteristicCallbacks *tasks_controller_callback)
     : BLEServerCallbacks(),
       communicator_(communicator),
-      tasks_controller_callback_(tasks_controller_callback) {}
+      tasks_controller_callback_((TasksControllerCallback*)tasks_controller_callback) {}
 
 void ServerCallbacks::onConnect(BLEServer *pServer) {
   BLEServerCallbacks::onConnect(pServer);
@@ -16,7 +16,7 @@ void ServerCallbacks::onConnect(BLEServer *pServer) {
 void ServerCallbacks::onDisconnect(BLEServer *pServer) {
   BLEServerCallbacks::onDisconnect(pServer);
   log_i("********* Device Disconnected :( ************");
-  this->tasks_controller_callback_->stopRunningTask();
+  this->tasks_controller_callback_->executeCommand(TasksControllerCallback::kStopTask_);
   this->communicator_->advertiseAgain();
 }
 

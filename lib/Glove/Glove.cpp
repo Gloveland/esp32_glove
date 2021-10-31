@@ -12,7 +12,7 @@ const int Glove::UNKNOWN_ERROR = 4;
 const int Glove::kI2cSpeedHertz = 400000;
 
 void Glove::init() {
-  Wire.begin(kSdaPin, kSclPin, 400000);
+  Wire.begin(kSdaPin, kSclPin, Glove::kI2cSpeedHertz);
   setUpSensors();
 }
 
@@ -30,7 +30,7 @@ bool Glove::checkAddress(int address) {
   Wire.beginTransmission(address);
   byte error = Wire.endTransmission();
   if (error != Glove::OK) {
-    log_e("Error n %d checking address: 0x%X ",error, address);
+    log_e("Error n %d checking address: 0x%X ", error, address);
     if (error == Glove::DATA_BUFFER_ERROR) {
       log_e(" Data too long to fit in transmit buffer. ");
       log_e(" Is i2c bus initialize?");
@@ -54,7 +54,7 @@ void Glove::calibrateSensors() {
   digitalWrite(LED_BUILTIN, LOW);
 }
 
-GloveMeasurements Glove::readSensors(float elapsedTime) {
+GloveMeasurements Glove::readSensors() {
   std::map<const Finger::Value, ImuSensorMeasurement> measurementsMap;
   for (auto sensor : sensors_) {
     ImuSensorMeasurement measurement = sensor.second.read();
@@ -62,7 +62,7 @@ GloveMeasurements Glove::readSensors(float elapsedTime) {
         sensor.first, measurement));
   }
   GloveMeasurements glove_measurements;
-  glove_measurements.setSensorMeasurementsMap(elapsedTime, measurementsMap);
+  glove_measurements.setSensorMeasurementsMap(measurementsMap);
   return glove_measurements;
 }
 

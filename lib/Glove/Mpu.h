@@ -41,6 +41,25 @@ struct RawMeasurement {
   int16_t gyro_z;
 };
 
+enum mpuI2cClock : uint8_t {
+  _348_HZ = 0,
+  _333_HZ = 1,
+  _320_HZ = 2,
+  _308_HZ = 3,
+  _296_HZ = 4,
+  _286_HZ = 5,
+  _276_HZ = 6,
+  _267_HZ = 7,
+  _258_HZ = 8,
+  _500_HZ = 9,
+  _471_HZ = 10,
+  _444_HZ = 11,
+  _421_HZ = 12,
+  _400_HZ = 13,
+  _381_HZ = 14,
+  _364_HZ = 15
+};
+
 class Mpu {
  public:
   Mpu(const Finger::Value& finger);

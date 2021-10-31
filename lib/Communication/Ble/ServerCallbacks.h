@@ -12,7 +12,7 @@
 class ServerCallbacks : public BLEServerCallbacks {
 
   public:
-    ServerCallbacks(BleCommunicator * communicator, TasksControllerCallback * tasks_controller_callback);
+    ServerCallbacks(BleCommunicator * communicator, BLECharacteristicCallbacks * tasks_controller_callback);
     void onConnect(BLEServer *pServer) override;
     void onDisconnect(BLEServer *pServer) override;
     ~ServerCallbacks();

@@ -1,10 +1,8 @@
 #include "BleCommunicator.h"
-
 #include "ServerCallbacks.h"
-#include "TasksControllerCallback.h"
 
 void BleCommunicator::init(const std::string &name,
-                           TasksControllerCallback *tasks_controller_callback) {
+                           BLECharacteristicCallbacks *tasks_controller_callback) {
   this->name_ = name;
   BLEDevice::init(name_);
   this->profile_server_ = BLEDevice::createServer();
@@ -42,13 +40,10 @@ void BleCommunicator::advertiseAgain() {
   delay(500);
 }
 
-void BleCommunicator::sendMeasurements(int count, GloveMeasurements measurements) {
-  measurements.toPackage(count,
-                         this->glove_measurement_buffer_, this->kMtu);
-  this->data_collection_characteristic_->setValue(
-      this->glove_measurement_buffer_);
+void BleCommunicator::sendMeasurements(const std::string measurement) {
+  this->data_collection_characteristic_->setValue(measurement);
   this->data_collection_characteristic_->notify();
-  log_i("Measurement sent: %s ", this->glove_measurement_buffer_);
+  log_i("Measurement sent: %s ", measurement.c_str());
 }
 
 void BleCommunicator::sendInterpretation(const std::string &interpretation) {
