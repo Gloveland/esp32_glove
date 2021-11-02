@@ -1,5 +1,7 @@
 #include <Mpu.h>
 
+#include "MPU6050.h"
+
 const int Mpu::HEX_ADDRESS = 16;
 const int Mpu::OK = 0;
 const int Mpu::GRAVITY_EARTH = 9.80665F;
@@ -23,14 +25,9 @@ Mpu::Mpu(const Finger::Value &finger)
       inclination_calculator(InclinationCalculator()),
       previousTime_(millis()) {}
 
-void Mpu::beginCommunication() {
-  digitalWrite(this->ad0_, LOW);
-}
+void Mpu::beginCommunication() { digitalWrite(this->ad0_, LOW); }
 
-void Mpu::endCommunication() {
-  digitalWrite(this->ad0_, HIGH);
-}
-
+void Mpu::endCommunication() { digitalWrite(this->ad0_, HIGH); }
 
 void Mpu::init() {
   this->beginCommunication();
@@ -65,6 +62,10 @@ void Mpu::init() {
   Wire.write(Mpu::TEMP_DIS_PLL);
   Wire.endTransmission(true);
   delay(20);
+
+  MPU6050 mpu6050;
+  uint8_t speed = 13;
+  mpu6050.setMasterClockSpeed(speed);
 
   this->endCommunication();
 }
@@ -142,12 +143,10 @@ void Mpu::calibrate() {
 }
 
 ImuSensorMeasurement Mpu::read() {
-  this->beginCommunication();
   float currentTime = millis();  // Divide by 1000 to get seconds
   float elapsedTime = (currentTime - this->previousTime_) / 1000;
   this->previousTime_ = currentTime;
   RawMeasurement raw = this->readAllRaw();
-  this->endCommunication();
   this->log();
   Acceleration acc =
       this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
@@ -164,9 +163,10 @@ ImuSensorMeasurement Mpu::read() {
  * the registers order is: | ax | ay | az | temp | gx | gy | gz |
  */
 RawMeasurement Mpu::readAllRaw() {
+  this->beginCommunication();
   Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(ACCEL_XOUT_H);
-  Wire.endTransmission(false);
+  Wire.endTransmission(true);
   Wire.requestFrom(mpuAddress::_ON, ALL_REGISTERS, true);
 
   RawMeasurement rawMeasurement;
@@ -179,6 +179,7 @@ RawMeasurement Mpu::readAllRaw() {
   rawMeasurement.gyro_x = (Wire.read() << BITS_IN_BYTE | Wire.read());
   rawMeasurement.gyro_y = (Wire.read() << BITS_IN_BYTE | Wire.read());
   rawMeasurement.gyro_z = (Wire.read() << BITS_IN_BYTE | Wire.read());
+  this->endCommunication();
   return rawMeasurement;
 }
 

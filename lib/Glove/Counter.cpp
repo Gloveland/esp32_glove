@@ -12,8 +12,8 @@
     return elapsedTimeMs;
   }
 
-  /** Increments and returns the new counter value. */
-  int Counter::getAndUpdateCounter() {
-    eventNumber_++;
-    return eventNumber_;
-  }
+/** Increments and returns the new counter value. */
+int Counter::getAndUpdateCounter() {
+  eventNumber_++;
+  return eventNumber_;
+}
