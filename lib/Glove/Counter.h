@@ -13,6 +13,8 @@ class Counter {
 
   void resetCounter();
 
+  float getMeasurementMillis();
+
   float getAndUpdateElapsedTimeSinceLastMeasurementMs();
 
   int getAndUpdateCounter();

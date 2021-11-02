@@ -8,8 +8,7 @@ const std::string GloveMeasurements::kGloveMeasurementsPacketFormat =
     "3f\nI%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nT%.3f,%.3f,%.3f,%.3f,%."
     "3f,%.3f,%.3f,%.3f,%.3f;";
 GloveMeasurements::GloveMeasurements() = default;
-GloveMeasurements::GloveMeasurements(int eventNum, float elapsedTime)
-    : event_num_(eventNum), elapsed_time_(elapsedTime){};
+GloveMeasurements::GloveMeasurements(int eventNum, float measurement_millis): event_num_(eventNum), measurement_millis_(measurement_millis){};
 
 ImuSensorMeasurement GloveMeasurements::getSensor(const Finger::Value finger) {
   std::map<const Finger::Value, ImuSensorMeasurement>::iterator it =
@@ -41,7 +40,7 @@ std::string GloveMeasurements::toPackage() {
   int size_written = sprintf(
       measurementBuffer,
       GloveMeasurements::kGloveMeasurementsPacketFormat.c_str(),
-      this->event_num_, this->elapsed_time_,
+      this->event_num_, this->measurement_millis_,
 
       pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(),
       pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(),

@@ -59,7 +59,7 @@ void TasksManager::startDataCollectionTaskImpl(void* _this) {
     int eventNum = counter.getAndUpdateCounter();
     float elapsedTime = counter.getAndUpdateElapsedTimeSinceLastMeasurementMs();
     GloveMeasurements* gloveMeasurements =
-        new GloveMeasurements(eventNum, elapsedTime);
+        new GloveMeasurements(eventNum, counter.getMeasurementMillis());
     this->glove_->readSensors(gloveMeasurements);
     log_i("frequency: %.3f hz",
           1.0 / (elapsedTime / 1000.0));  // Divide by 1000 to get seconds
