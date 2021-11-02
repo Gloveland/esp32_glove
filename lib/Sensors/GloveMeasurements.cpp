@@ -28,7 +28,7 @@ void GloveMeasurements::setSensorMeasurementsMap(
   this->imuSensorMeasurementMap_ = imuSensorMeasurementMap;
 }
 
-std::string GloveMeasurements::toPackage(int eventsCount, int elapsedTime) {
+std::string GloveMeasurements::toPackage(int eventsCount, float measuerementMillis) {
   char measurementBuffer[this->kMtu] = {0};
   memset(measurementBuffer, 0, this->kMtu);
   ImuSensorMeasurement pinky = (this->getSensor(Finger::kPinky));
@@ -40,7 +40,7 @@ std::string GloveMeasurements::toPackage(int eventsCount, int elapsedTime) {
   int size_written = sprintf(
       measurementBuffer,
       GloveMeasurements::kGloveMeasurementsPacketFormat.c_str(), eventsCount,
-      elapsedTime,
+      measuerementMillis,
 
       pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(),
       pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(),
