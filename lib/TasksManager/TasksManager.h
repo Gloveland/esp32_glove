@@ -3,11 +3,11 @@
 #include <Arduino.h>
 #include <BLECharacteristic.h>
 #include <Glove.h>
-
 #include <sstream>
 
 #include "../Communication/Ble/BleCommunicator.h"
 #include "../Communication/Ble/TasksControllerCallback.h"
+#include "../Interpretation/Interpreter.h"
 #include "Counter.h"
 
 /**
@@ -28,7 +28,8 @@ class TasksManager : public AbstractTasksManager {
   Glove *glove_;
   BleCommunicator *bleCommunicator = nullptr;
   TasksControllerCallback *tasksControllerCallback = nullptr;
-
+  Interpreter *interpreter = nullptr;
+  
   /** Bluetooth service name. */
   static const std::string kBleService_;
 
