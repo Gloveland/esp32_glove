@@ -1,16 +1,17 @@
 #include "Interpreter.h"
+
 #include <RightGloveLSA_inferencing.h>
+#include <sstream>
 
-// https://os.mbed.com/docs/mbed-os/v6.15/apis/thread.html
-
-Interpreter::Interpreter() {
-    this->buffer = new float[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
-    this->inference_buffer = new float[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
+Interpreter::Interpreter(BleCommunicator *bleCommunicator) {
+  this->bleCommunicator = bleCommunicator;
+  this->buffer = new float[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
+  this->inference_buffer = new float[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
 }
 
 Interpreter::~Interpreter() {
-    delete this->buffer;
-    delete this->inference_buffer;
+  delete this->buffer;
+  delete this->inference_buffer;
 }
 
 void Interpreter::startInterpretations() {
@@ -93,7 +94,7 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
     int err = numpy::signal_from_buffer(
         inference_buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, &signal);
     if (err != 0) {
-      ei_printf("Failed to create signal from buffer (%d)\n", err);
+      log_e("Failed to create signal from buffer (%d)\n", err);
     }
 
     // Run the classifier
@@ -101,31 +102,33 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
 
     err = run_classifier(&signal, &result, debug_nn);
     if (err != EI_IMPULSE_OK) {
-      ei_printf("ERR: Failed to run classifier (%d)\n", err);
+      log_e("ERR: Failed to run classifier (%d)\n", err);
     }
-
-    // print the predictions
-    ei_printf("Predictions ");
-    ei_printf("(DSP: %d ms., Classification: %d ms., Anomaly: %d ms.)",
-              result.timing.dsp, result.timing.classification,
-              result.timing.anomaly);
-    ei_printf(": ");
 
     // ei_classifier_smooth_update yields the predicted label
     const char *prediction = ei_classifier_smooth_update(&smooth, &result);
-    ei_printf("%s ", prediction);
+    std::stringstream predictionsStream;
+    predictionsStream << "(DSP: " << result.timing.dsp
+                      << " ms., Classification: "
+                      << result.timing.classification
+                      << " ms., Anomaly: " << result.timing.anomaly
+                      << " ms.)";
     // print the cumulative results
-    ei_printf(" [ ");
+
+    std::stringstream resultsStream;
+    resultsStream << "Prediction: " << prediction << " [";
     for (size_t ix = 0; ix < smooth.count_size; ix++) {
-      ei_printf("%u", smooth.count[ix]);
+      resultsStream << " " << (int) smooth.count[ix];
       if (ix != smooth.count_size + 1) {
-        ei_printf(", ");
-      } else {
-        ei_printf(" ");
+        resultsStream << ",";
       }
     }
-    ei_printf("]\n");
+    resultsStream << "]\n";
 
+    std::string message;
+    message = resultsStream.str() + "\n" + predictionsStream.str();
+    log_i(message);
+    bleCommunicator->sendInterpretation(message);
     delay(run_inference_every_ms);
   }
 

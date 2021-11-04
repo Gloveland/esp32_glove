@@ -2,6 +2,7 @@
 #define INTERPRETER_H_
 
 #include "GloveMeasurements.h"
+#include "../Communication/Ble/BleCommunicator.h"
 
 /** 
  * Class to handle the interpretation logic of the gestures. 
@@ -21,9 +22,10 @@ class Interpreter {
      
     float *buffer;
     float *inference_buffer;
+    BleCommunicator *bleCommunicator;
 
   public:
-    explicit Interpreter();
+    explicit Interpreter(BleCommunicator *bleCommunicator);
 
     void startInterpretations();
 

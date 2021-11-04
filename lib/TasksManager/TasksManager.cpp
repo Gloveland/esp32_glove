@@ -81,7 +81,7 @@ void TasksManager::startInterpretationTaskImpl(void* _this) {
 
 [[noreturn]] void TasksManager::taskInterpretation() {
   log_i("Task 'Interpretation' running on core %d", xPortGetCoreID());
-  this->interpreter = new Interpreter();
+  this->interpreter = new Interpreter(this->bleCommunicator);
   this->interpreter->startInterpretations();
   for (;;) {
     GloveMeasurements measurements = this->glove_->readSensors();
