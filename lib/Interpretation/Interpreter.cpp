@@ -23,18 +23,18 @@ void Interpreter::startInterpretations() {
 
 void Interpreter::processGloveMeasurements(
     GloveMeasurements gloveMeasurements) {
-  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, -6);
+  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, -3);
   Acceleration indexAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kIndex).getAcc();
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 6] = indexAcceleration.getX();
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 5] = indexAcceleration.getY();
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 4] = indexAcceleration.getZ();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 3] = indexAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 2] = indexAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 1] = indexAcceleration.getZ();
 
-  Acceleration middleAcceleration =
-      gloveMeasurements.getSensor(Finger::Value::kMiddle).getAcc();
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 3] = middleAcceleration.getX();
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 2] = middleAcceleration.getY();
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 1] = middleAcceleration.getZ();
+  // Acceleration middleAcceleration =
+  //     gloveMeasurements.getSensor(Finger::Value::kMiddle).getAcc();
+  // buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 3] = middleAcceleration.getX();
+  // buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 2] = middleAcceleration.getY();
+  // buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 1] = middleAcceleration.getZ();
 }
 
 void Interpreter::stopInterpretations() {
