@@ -46,24 +46,6 @@ void Interpreter::stopInterpretations() {
   }
 }
 
-/**
- * @brief      Printf function uses vsnprintf and output using Arduino Serial
- *
- * @param[in]  format     Variable argument list
- */
-void Interpreter::ei_printf(const char *format, ...) {
-  static char print_buf[1024] = {0};
-
-  va_list args;
-  va_start(args, format);
-  int r = vsnprintf(print_buf, sizeof(print_buf), format, args);
-  va_end(args);
-
-  if (r > 0) {
-    Serial.write(print_buf);
-  }
-}
-
 void Interpreter::startInferenceTaskImpl(void *_this) {
   log_i("Task interpretation inference...");
   if (_this == nullptr) {

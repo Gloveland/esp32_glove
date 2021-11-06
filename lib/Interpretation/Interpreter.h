@@ -39,7 +39,6 @@ class Interpreter {
     TaskHandle_t inference_task_handler_ = nullptr;
     static void startInferenceTaskImpl(void *_this);
     [[noreturn]] void taskInference();
-    void ei_printf(const char *format, ...);
 };
 
 #endif // INTERPRETER_H_
