@@ -132,6 +132,7 @@ void TasksManager::stopRunningTask() {
     if (this->interpreter != nullptr) {
       this->interpreter->stopInterpretations();
       delete this->interpreter;
+      this->interpreter = nullptr;
     }
     return;
   }
