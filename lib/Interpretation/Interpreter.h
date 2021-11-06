@@ -1,6 +1,8 @@
 #ifndef INTERPRETER_H_
 #define INTERPRETER_H_
 
+#include "FreeRTOS.h"
+#include "freertos/semphr.h"
 #include "GloveMeasurements.h"
 #include "../Communication/Ble/BleCommunicator.h"
 
@@ -19,7 +21,8 @@ class Interpreter {
   private:
     bool debug_nn = false; // Set this to true to see e.g. features generated from the raw signal
     uint32_t run_inference_every_ms = 200;
-     
+    
+    SemaphoreHandle_t mutex;
     float *buffer;
     float *inference_buffer;
     BleCommunicator *bleCommunicator;

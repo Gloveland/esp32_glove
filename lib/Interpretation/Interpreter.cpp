@@ -6,6 +6,7 @@
 
 Interpreter::Interpreter(BleCommunicator *bleCommunicator) {
   this->bleCommunicator = bleCommunicator;
+  this->mutex = xSemaphoreCreateMutex();
   this->buffer = new float[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE]();
   this->inference_buffer = new float[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE]();
 }
@@ -19,17 +20,19 @@ void Interpreter::startInterpretations() {
   this->stopInterpretations();
   log_i("Starting inference task.");
   xTaskCreatePinnedToCore(this->startInferenceTaskImpl, "Inference task", 10000,
-                          this, 1, &inference_task_handler_, 0);
+                          this, 1, &inference_task_handler_, 1);
 }
 
 void Interpreter::processGloveMeasurements(
     GloveMeasurements gloveMeasurements) {
-  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, -3);
   Acceleration indexAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kIndex).getAcc();
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, -3);
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 3] = indexAcceleration.getX();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 2] = indexAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 1] = indexAcceleration.getZ();
+  xSemaphoreGive(mutex);
   std::stringstream log;
   log << "Accel: [" << indexAcceleration.getX() << ", "
       << indexAcceleration.getY() << ", " << indexAcceleration.getZ() << "]";
@@ -71,10 +74,12 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
                             0.8 /* min. confidence */, 0.3 /* max anomaly */);
 
   while (1) {
+    xSemaphoreTake(mutex, portMAX_DELAY);
     // copy the buffer
     memcpy(inference_buffer, buffer,
            EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE * sizeof(float));
-
+    xSemaphoreGive(mutex);
+    
     // Turn the raw buffer in a signal which we can the classify
     signal_t signal;
     int err = numpy::signal_from_buffer(
