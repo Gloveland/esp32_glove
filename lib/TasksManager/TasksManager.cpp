@@ -48,7 +48,7 @@ void TasksManager::startDataCollectionTaskImpl(void* _this) {
     log_i("frequency: %.3f hz",
           1.0 / (elapsedTime / 1000.0));  // Divide by 1000 to get seconds
     int eventNum = counter.getAndUpdateCounter();
-    std::string pkg = measurements.toPackage(eventNum, counter.getMeasurementMillis());
+    std::string pkg = measurements.toPackage(eventNum, counter.getMeasurementTimestampMs());
     this->bleCommunicator->sendMeasurements(pkg);
     log_i("Counter: %d", eventNum);
     log_i("Elapsed time: %f", elapsedTime);

@@ -12,7 +12,7 @@ float Counter::getAndUpdateElapsedTimeSinceLastMeasurementMs() {
   return elapsedTimeMs;
 }
 
-float Counter::getMeasurementMillis(){
+int Counter::getMeasurementTimestampMs(){
   return this->lastMeasurementTimestampMs_;
 }
 
