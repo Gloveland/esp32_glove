@@ -3,7 +3,7 @@ const int GloveMeasurements::kImuSensorsAmount = 5;
 const int GloveMeasurements::kMtu = 512;
 
 const std::string GloveMeasurements::kGloveMeasurementsPacketFormat =
-    "%d\n%.3f\nP%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nR%.3f,%.3f,%.3f,%"
+    "%d\n%lu\nP%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nR%.3f,%.3f,%.3f,%"
     ".3f,%.3f,%.3f,%.3f,%.3f,%.3f\nM%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%."
     "3f\nI%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nT%.3f,%.3f,%.3f,%.3f,%."
     "3f,%.3f,%.3f,%.3f,%.3f;";
