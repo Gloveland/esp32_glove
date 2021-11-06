@@ -12,8 +12,8 @@ Interpreter::Interpreter(BleCommunicator *bleCommunicator) {
 }
 
 Interpreter::~Interpreter() {
-  delete this->buffer;
-  delete this->inference_buffer;
+  delete [] this->buffer;
+  delete [] this->inference_buffer;
 }
 
 void Interpreter::startInterpretations() {
@@ -79,7 +79,7 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
     memcpy(inference_buffer, buffer,
            EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE * sizeof(float));
     xSemaphoreGive(mutex);
-    
+
     // Turn the raw buffer in a signal which we can the classify
     signal_t signal;
     int err = numpy::signal_from_buffer(
