@@ -1,12 +1,13 @@
 #include "Interpreter.h"
 
 #include <RightGloveLSA_inferencing.h>
+
 #include <sstream>
 
 Interpreter::Interpreter(BleCommunicator *bleCommunicator) {
   this->bleCommunicator = bleCommunicator;
-  this->buffer = new float[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
-  this->inference_buffer = new float[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE];
+  this->buffer = new float[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE]();
+  this->inference_buffer = new float[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE]();
 }
 
 Interpreter::~Interpreter() {
@@ -29,7 +30,10 @@ void Interpreter::processGloveMeasurements(
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 3] = indexAcceleration.getX();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 2] = indexAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 1] = indexAcceleration.getZ();
-
+  std::stringstream log;
+  log << "Accel: [" << indexAcceleration.getX() << ", "
+      << indexAcceleration.getY() << ", " << indexAcceleration.getZ() << "]";
+  bleCommunicator->sendMeasurements(log.str());
   // Acceleration middleAcceleration =
   //     gloveMeasurements.getSensor(Finger::Value::kMiddle).getAcc();
   // buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 3] = middleAcceleration.getX();
@@ -93,14 +97,13 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
     predictionsStream << "(DSP: " << result.timing.dsp
                       << " ms., Classification: "
                       << result.timing.classification
-                      << " ms., Anomaly: " << result.timing.anomaly
-                      << " ms.)";
+                      << " ms., Anomaly: " << result.timing.anomaly << " ms.)";
     // print the cumulative results
 
     std::stringstream resultsStream;
     resultsStream << "Prediction: " << prediction << " [";
     for (size_t ix = 0; ix < smooth.count_size; ix++) {
-      resultsStream << " " << (int) smooth.count[ix];
+      resultsStream << " " << (int)smooth.count[ix];
       if (ix != smooth.count_size + 1) {
         resultsStream << ",";
       }
