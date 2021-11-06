@@ -15,7 +15,7 @@ class GloveMeasurements {
  public:
   static const int kImuSensorsAmount;
   GloveMeasurements();
-  std::string toPackage(int eventsCount, int elapsedTime);
+  std::string toPackage(int eventsCount, int timestampMs);
   void setSensorMeasurementsMap(
       const std::map<const Finger::Value, ImuSensorMeasurement>
           imuSensorMeasurementMap);

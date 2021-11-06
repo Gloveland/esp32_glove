@@ -3,7 +3,7 @@ const int GloveMeasurements::kImuSensorsAmount = 5;
 const int GloveMeasurements::kMtu = 512;
 
 const std::string GloveMeasurements::kGloveMeasurementsPacketFormat =
-    "%d\n%.3f\nP%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nR%.3f,%.3f,%.3f,%"
+    "%d\n%lu\nP%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nR%.3f,%.3f,%.3f,%"
     ".3f,%.3f,%.3f,%.3f,%.3f,%.3f\nM%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%."
     "3f\nI%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f,%.3f\nT%.3f,%.3f,%.3f,%.3f,%."
     "3f,%.3f,%.3f,%.3f,%.3f;";
@@ -28,7 +28,7 @@ void GloveMeasurements::setSensorMeasurementsMap(
   this->imuSensorMeasurementMap_ = imuSensorMeasurementMap;
 }
 
-std::string GloveMeasurements::toPackage(int eventsCount, int elapsedTime) {
+std::string GloveMeasurements::toPackage(int eventsCount, int timestampMs) {
   char measurementBuffer[this->kMtu] = {0};
   memset(measurementBuffer, 0, this->kMtu);
   ImuSensorMeasurement pinky = (this->getSensor(Finger::kPinky));
@@ -40,7 +40,7 @@ std::string GloveMeasurements::toPackage(int eventsCount, int elapsedTime) {
   int size_written = sprintf(
       measurementBuffer,
       GloveMeasurements::kGloveMeasurementsPacketFormat.c_str(), eventsCount,
-      elapsedTime,
+      timestampMs,
 
       pinky.getAcc().getX(), pinky.getAcc().getY(), pinky.getAcc().getZ(),
       pinky.getGyro().getX(), pinky.getGyro().getY(), pinky.getGyro().getZ(),
