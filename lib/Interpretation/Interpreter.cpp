@@ -37,11 +37,6 @@ void Interpreter::processGloveMeasurements(
   log << "Accel: [" << indexAcceleration.getX() << ", "
       << indexAcceleration.getY() << ", " << indexAcceleration.getZ() << "]";
   bleCommunicator->sendMeasurements(log.str());
-  // Acceleration middleAcceleration =
-  //     gloveMeasurements.getSensor(Finger::Value::kMiddle).getAcc();
-  // buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 3] = middleAcceleration.getX();
-  // buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 2] = middleAcceleration.getY();
-  // buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 1] = middleAcceleration.getZ();
 }
 
 void Interpreter::stopInterpretations() {
