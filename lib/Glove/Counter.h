@@ -14,6 +14,8 @@ class Counter {
 
   void resetCounter();
 
+  int getMeasurementTimestampMs();
+
   float getAndUpdateElapsedTimeSinceLastMeasurementMs();
 
   int getAndUpdateCounter();

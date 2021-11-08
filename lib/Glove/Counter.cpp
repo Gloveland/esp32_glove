@@ -12,6 +12,10 @@ float Counter::getAndUpdateElapsedTimeSinceLastMeasurementMs() {
   return elapsedTimeMs;
 }
 
+int Counter::getMeasurementTimestampMs(){
+  return this->lastMeasurementTimestampMs_;
+}
+
 /** Increments and returns the new counter value. */
 int Counter::getAndUpdateCounter() {
   eventNumber_++;
