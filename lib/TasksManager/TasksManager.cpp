@@ -81,14 +81,11 @@ void TasksManager::startInterpretationTaskImpl(void* _this) {
 
 [[noreturn]] void TasksManager::taskInterpretation() {
   log_i("Task 'Interpretation' running on core %d", xPortGetCoreID());
+  this->interpreter = new Interpreter(this->bleCommunicator);
+  this->interpreter->startInterpretations();
   for (;;) {
-    for (int i = 0; i < 5; i++) {
-      // TODO(https://git.io/Ju6I7): Implement translation task.
-      std::stringstream mock_interpretation_stream;
-      mock_interpretation_stream << "Interpretation " << i;
-      this->bleCommunicator->sendInterpretation(
-          mock_interpretation_stream.str());
-    }
+    GloveMeasurements measurements = this->glove_->readSensors();
+    this->interpreter->processGloveMeasurements(measurements);
   }
 }
 
@@ -132,6 +129,11 @@ void TasksManager::stopRunningTask() {
     vTaskDelete(running_task_handler_);
     this->running_task_handler_ = nullptr;
     log_i("Task stopped.");
+    if (this->interpreter != nullptr) {
+      this->interpreter->stopInterpretations();
+      delete this->interpreter;
+      this->interpreter = nullptr;
+    }
     return;
   }
   log_i("Dropping stop command: no task was running.");

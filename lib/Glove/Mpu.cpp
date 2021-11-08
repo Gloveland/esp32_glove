@@ -166,7 +166,7 @@ RawMeasurement Mpu::readAllRaw() {
   this->beginCommunication();
   Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(ACCEL_XOUT_H);
-  Wire.endTransmission(true);
+  Wire.endTransmission(false);
   Wire.requestFrom(mpuAddress::_ON, ALL_REGISTERS, true);
 
   RawMeasurement rawMeasurement;
