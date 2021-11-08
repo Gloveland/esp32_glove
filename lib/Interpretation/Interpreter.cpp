@@ -12,8 +12,8 @@ Interpreter::Interpreter(BleCommunicator *bleCommunicator) {
 }
 
 Interpreter::~Interpreter() {
-  delete [] this->buffer;
-  delete [] this->inference_buffer;
+  delete this->buffer;
+  delete this->inference_buffer;
 }
 
 void Interpreter::startInterpretations() {
