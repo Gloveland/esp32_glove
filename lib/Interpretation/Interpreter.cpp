@@ -81,6 +81,8 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
         inference_buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, &signal);
     if (err != 0) {
       log_e("Failed to create signal from buffer (%d)\n", err);
+      bleCommunicator->sendInterpretation("Failed to create signal from buffer");
+      delay(5000);
     }
 
     // Run the classifier
@@ -89,6 +91,8 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
     err = run_classifier(&signal, &result, debug_nn);
     if (err != EI_IMPULSE_OK) {
       log_e("ERR: Failed to run classifier (%d)\n", err);
+      bleCommunicator->sendInterpretation("ERR: Failed to run classifier.");
+      delay(5000);
     }
 
     // ei_classifier_smooth_update yields the predicted label
@@ -112,7 +116,7 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
 
     std::string message;
     message = resultsStream.str() + "\n" + predictionsStream.str();
-    log_i(message);
+    log_i("%s", message);
     bleCommunicator->sendInterpretation(message);
     delay(run_inference_every_ms);
   }
