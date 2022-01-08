@@ -25,13 +25,57 @@ void Interpreter::startInterpretations() {
 
 void Interpreter::processGloveMeasurements(
     GloveMeasurements gloveMeasurements) {
+  Acceleration thumbAcceleration =
+      gloveMeasurements.getSensor(Finger::Value::kThumb).getAcc();
   Acceleration indexAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kIndex).getAcc();
+  Acceleration middleAcceleration =
+      gloveMeasurements.getSensor(Finger::Value::kRing).getAcc();
+  Acceleration ringAcceleration =
+      gloveMeasurements.getSensor(Finger::Value::kMiddle).getAcc();
+
+  Acceleration pinkyAcceleration =
+      gloveMeasurements.getSensor(Finger::Value::kPinky).getAcc();
   xSemaphoreTake(mutex, portMAX_DELAY);
-  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, -3);
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 3] = indexAcceleration.getX();
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 2] = indexAcceleration.getY();
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 1] = indexAcceleration.getZ();
+  int samplesPerFrame = EI_CLASSIFIER_RAW_SAMPLES_PER_FRAME;
+  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, -samplesPerFrame);
+
+  assert(samplesPerFrame == 15);
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      thumbAcceleration.getX();
+  assert(samplesPerFrame == 14);
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      thumbAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      thumbAcceleration.getZ();
+
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      indexAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      indexAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      indexAcceleration.getZ();
+
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      middleAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      middleAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      middleAcceleration.getZ();
+
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      ringAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      ringAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      ringAcceleration.getZ();
+
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      pinkyAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      pinkyAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - samplesPerFrame--] =
+      pinkyAcceleration.getZ();
   xSemaphoreGive(mutex);
   std::stringstream log;
   log << "Accel: [" << indexAcceleration.getX() << ", "
@@ -81,7 +125,8 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
         inference_buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, &signal);
     if (err != 0) {
       log_e("Failed to create signal from buffer (%d)\n", err);
-      bleCommunicator->sendInterpretation("Failed to create signal from buffer");
+      bleCommunicator->sendInterpretation(
+          "Failed to create signal from buffer");
       delay(5000);
     }
 
