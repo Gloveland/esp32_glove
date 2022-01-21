@@ -77,6 +77,10 @@ class Mpu {
   static const int GENERAL_CONFIG;  ///< General configuration register
   static const int PWR_MGMT_1;
   static const int RESET;
+  static const int SIGNAL_PATH_RESET;
+  static const int SMPLRT_DIV;
+  static const int SENSOR_RESET;
+
   static const int ACC_CONFIG_REGISTER;
   static const int GYRO_CONFIG_REGISTER;
   static const int ACCEL_XOUT_H;

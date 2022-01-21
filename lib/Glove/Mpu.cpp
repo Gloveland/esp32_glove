@@ -7,8 +7,11 @@ const int Mpu::OK = 0;
 const int Mpu::GRAVITY_EARTH = 9.80665F;
 const int Mpu::GENERAL_CONFIG = 0x1A;  ///< General configuration register
 const int Mpu::PWR_MGMT_1 = 0x6B;
-const int Mpu::RESET = 0x00;
-const int Mpu::ACC_CONFIG_REGISTER = 0x1C;
+const int Mpu::SIGNAL_PATH_RESET = 0x68;
+const int Mpu::SMPLRT_DIV = 0x19;
+const int Mpu::RESET = 0b10000000;
+const int Mpu::SENSOR_RESET = 0b00000111;
+const int Mpu::ACC_CONFIG_REGISTER =0x1C;
 const int Mpu::GYRO_CONFIG_REGISTER = 0x1C;
 const int Mpu::ACCEL_XOUT_H = 0x3B;
 const int Mpu::GYRO_XOUT_H = 0x43;
@@ -33,8 +36,28 @@ void Mpu::init() {
 
   Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(Mpu::PWR_MGMT_1);
-  Wire.write(Mpu::RESET);
+  Wire.write(Mpu::RESET);  // reset 1 in bit 7
   Wire.endTransmission(true);
+  delay(100);
+
+  Wire.beginTransmission(mpuAddress::_ON);
+  Wire.write(Mpu::PWR_MGMT_1);
+  Wire.write(Mpu::SENSOR_RESET);  // reset all sensor registers set 1 lasT 3 bits
+  Wire.endTransmission(true);
+  delay(100); //delay is necessary datasheet page 41
+
+  uint8_t divisor = 0;
+  Wire.beginTransmission(mpuAddress::_ON);
+  Wire.write(Mpu::SMPLRT_DIV);
+  Wire.write(divisor);  // SampleRate = Gyroscope Output Rate / (1 + SMPLRT_DIV)
+  Wire.endTransmission(true);
+  delay(100); //delay is necessary datasheet page 41
+
+  Wire.beginTransmission(mpuAddress::_ON);
+  Wire.write(Mpu::GENERAL_CONFIG);
+  Wire.write(mpuBand::_21_HZ);  // ex: 00010000 (1000deg/s full scale)
+  Wire.endTransmission(true);
+  delay(20);
 
   Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(Mpu::ACC_CONFIG_REGISTER);
@@ -51,43 +74,35 @@ void Mpu::init() {
   delay(20);
 
   Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(Mpu::GENERAL_CONFIG);
-  Wire.write(mpuBand::_21_HZ);  // ex: 00010000 (1000deg/s full scale)
-  Wire.endTransmission(true);
-  delay(20);
-
-  Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(Mpu::PWR_MGMT_1);
   Wire.write(Mpu::TEMP_DIS_PLL);
   Wire.endTransmission(true);
   delay(20);
 
-  MPU6050 mpu6050;
-  uint8_t speed = 13;
-  mpu6050.setMasterClockSpeed(speed);
+  // MPU6050 mpu6050;
+  // uint8_t speed = 13;
+  // mpu6050.setMasterClockSpeed(speed);
 
-  this->endCommunication();
+  // this->endCommunication();
 }
 
 /**
  * The calibration consist in readings raw measurements values when the sensor
  * is  in horizontal plane. The expected values for acceleration are 0.0
- * in x, 0.0 in y and 9.8 in z. The error is the difference between the expected
- * value and the value read. We sum all the errors and divede by the amount of
- * measurement reads to get the average error in each axis. The same is done
- * with de angle and the gyroscope readings The expected value for the angular
- * velocity is 0.0 for each axis. We calculate the maximum and the minimum value
- * read to get the deviation This way we can  avoid noise in future
- * measurements.
+ * in x, 0.0 in y and -9.8 in z. The error is the difference between the
+ * expected value and the value read. We sum all the errors and divede by the
+ * amount of measurement reads to get the average error in each axis. The same
+ * is done with de angle and the gyroscope readings The expected value for the
+ * angular velocity is 0.0 for each axis. We calculate the maximum and the
+ * minimum value read to get the deviation This way we can  avoid noise in
+ * future measurements.
  */
 void Mpu::calibrate() {
   log_i("===================== Calibrating %s ====================",
         Finger::getName(this->finger_).c_str());
-  this->beginCommunication();
+  // this->beginCommunication();
 
   float sum_acc_x = 0.0, sum_acc_y = 0.0, sum_acc_z = 0.0;
-  float acc_angle_x = 0.0, acc_angle_y = 0.0;
-  float sum_angle_from_acc_x = 0.0, sum_angle_from_acc_y = 0.0;
   float sum_gyro_x = 0.0, sum_gyro_y = 0.0, sum_gyro_z = 0.0;
 
   float min_gyro_x = FLT_MAX, min_gyro_y = FLT_MAX, min_gyro_z = FLT_MAX;
@@ -100,14 +115,10 @@ void Mpu::calibrate() {
     Acceleration acc =
         this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
     Gyro gyro = this->gyroscope.readGyro(raw.gyro_x, raw.gyro_y, raw.gyro_z);
-    acc_angle_x = acc.calculateAngleX();
-    acc_angle_y = acc.calculateAngleY();
 
     sum_acc_x += acc.getX();
     sum_acc_y += acc.getY();
-    sum_acc_z += (acc.getZ() - this->GRAVITY_EARTH);
-    sum_angle_from_acc_x += acc_angle_x;
-    sum_angle_from_acc_y += acc_angle_y;
+    sum_acc_z += (acc.getZ() + this->GRAVITY_EARTH);
 
     if (gyro.getX() < min_gyro_x) {
       min_gyro_x = gyro.getX();
@@ -132,7 +143,7 @@ void Mpu::calibrate() {
     sum_gyro_z += gyro.getZ();
     delay(20);
   }
-  this->endCommunication();
+  // this->endCommunication();
   this->accelerometer.setError(times, sum_acc_x, sum_acc_y, sum_acc_z);
   this->gyroscope.setGyroError(times, sum_gyro_x, sum_gyro_y, sum_gyro_z);
   this->gyroscope.setDeviation(times, max_gyro_x, max_gyro_y, max_gyro_z,
@@ -148,8 +159,7 @@ ImuSensorMeasurement Mpu::read() {
   Acceleration acc =
       this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
   Gyro gyro = this->gyroscope.readGyro(raw.gyro_x, raw.gyro_y, raw.gyro_z);
-  ImuSensorMeasurement result =
-      ImuSensorMeasurement(this->finger_, acc, gyro);
+  ImuSensorMeasurement result = ImuSensorMeasurement(this->finger_, acc, gyro);
   return result;
 }
 
@@ -158,7 +168,7 @@ ImuSensorMeasurement Mpu::read() {
  * the registers order is: | ax | ay | az | temp | gx | gy | gz |
  */
 RawMeasurement Mpu::readAllRaw() {
-  this->beginCommunication();
+  // this->beginCommunication();
   Wire.beginTransmission(mpuAddress::_ON);
   Wire.write(ACCEL_XOUT_H);
   Wire.endTransmission(false);
@@ -174,7 +184,7 @@ RawMeasurement Mpu::readAllRaw() {
   rawMeasurement.gyro_x = (Wire.read() << BITS_IN_BYTE | Wire.read());
   rawMeasurement.gyro_y = (Wire.read() << BITS_IN_BYTE | Wire.read());
   rawMeasurement.gyro_z = (Wire.read() << BITS_IN_BYTE | Wire.read());
-  this->endCommunication();
+  // this->endCommunication();
   return rawMeasurement;
 }
 
