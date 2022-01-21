@@ -12,8 +12,6 @@
 #include "../Sensors/Gyro.h"
 #include "../Sensors/Gyroscope.h"
 #include "../Sensors/ImuSensorMeasurement.h"
-#include "../Sensors/Inclination.h"
-#include "../Sensors/InclinationCalculator.h"
 #include "Finger.h"
 
 enum mpuBand {
@@ -91,7 +89,6 @@ class Mpu {
   u_int ad0_;
   Accelerometer accelerometer;
   Gyroscope gyroscope;
-  InclinationCalculator inclination_calculator;
   float previousTime_;
 
   void beginCommunication();

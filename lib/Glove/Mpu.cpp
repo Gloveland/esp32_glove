@@ -22,7 +22,6 @@ Mpu::Mpu(const Finger::Value &finger)
       ad0_(Finger::getAd0Pin(finger)),
       accelerometer(Accelerometer(Range::_2_G)),
       gyroscope(Gyroscope(GyroRange::_250_DEG)),
-      inclination_calculator(InclinationCalculator()),
       previousTime_(millis()) {}
 
 void Mpu::beginCommunication() { digitalWrite(this->ad0_, LOW); }
@@ -138,8 +137,6 @@ void Mpu::calibrate() {
   this->gyroscope.setGyroError(times, sum_gyro_x, sum_gyro_y, sum_gyro_z);
   this->gyroscope.setDeviation(times, max_gyro_x, max_gyro_y, max_gyro_z,
                                min_gyro_x, min_gyro_y, min_gyro_z);
-  this->inclination_calculator.setError(times, sum_angle_from_acc_x,
-                                        sum_angle_from_acc_y);
 }
 
 ImuSensorMeasurement Mpu::read() {
@@ -151,10 +148,8 @@ ImuSensorMeasurement Mpu::read() {
   Acceleration acc =
       this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
   Gyro gyro = this->gyroscope.readGyro(raw.gyro_x, raw.gyro_y, raw.gyro_z);
-  Inclination inclination =
-      this->inclination_calculator.calculateInclination(acc, gyro, elapsedTime);
   ImuSensorMeasurement result =
-      ImuSensorMeasurement(this->finger_, acc, gyro, inclination);
+      ImuSensorMeasurement(this->finger_, acc, gyro);
   return result;
 }
 
