@@ -9,20 +9,26 @@ const int Glove::OK = 0;
 const int Glove::DATA_BUFFER_ERROR = 1;
 const int Glove::NACK_ERROR = 2;
 const int Glove::UNKNOWN_ERROR = 4;
-const int Glove::kI2cSpeedHertz = 400000;
 
-void Glove::init() {
-  Wire.begin(kSdaPin, kSclPin, Glove::kI2cSpeedHertz);
-  setUpSensors();
+Glove::Glove() {
+  this->sensors_[Finger::Value::kThumb] = new Mpu(Finger::Value::kThumb);
+  // this->sensors_[Finger::Value::kIndex] = new Mpu(Finger::Value::kIndex);
+  // this->sensors_[Finger::Value::kMiddle] = new Mpu(Finger::Value::kMiddle);
+  // this->sensors_[Finger::Value::kRing] = new Mpu(Finger::Value::kRing);
+  // this->sensors_[Finger::Value::kPinky] = new Mpu(Finger::Value::kPinky);
 }
 
+void Glove::init() { setUpSensors(); }
+
 void Glove::setUpSensors() {
+  /*
   for (auto sensor : sensors_) {
     sensor.second.setWriteMode();
   }
   assert(this->checkAddress(mpuAddress::_OFF));
+  */
   for (auto sensor : sensors_) {
-    sensor.second.init();
+    sensor.second->init();
   }
 }
 
@@ -49,7 +55,7 @@ bool Glove::checkAddress(int address) {
 void Glove::calibrateSensors() {
   digitalWrite(LED_BUILTIN, HIGH);
   for (auto sensor : sensors_) {
-    sensor.second.calibrate();
+    sensor.second->calibrate();
   }
   digitalWrite(LED_BUILTIN, LOW);
 }
@@ -57,7 +63,8 @@ void Glove::calibrateSensors() {
 GloveMeasurements Glove::readSensors() {
   std::map<const Finger::Value, ImuSensorMeasurement> measurementsMap;
   for (auto sensor : sensors_) {
-    ImuSensorMeasurement measurement = sensor.second.read();
+    assert(this->checkAddress(mpuAddress::_ON));
+    ImuSensorMeasurement measurement = sensor.second->read();
     measurementsMap.insert(std::pair<Finger::Value, ImuSensorMeasurement>(
         sensor.first, measurement));
   }
@@ -74,12 +81,5 @@ std::string Glove::getDeviceId() {
            chipid[0], chipid[1], chipid[2], chipid[3], chipid[4], chipid[5]);
   return chipIdString;
 }
-
-const GloveSensors Glove::sensors_ = {
-    //{Finger::Value::kPinky, Mpu(Finger::Value::kPinky)},
-    //{Finger::Value::kRing, Mpu(Finger::Value::kRing)},
-    //{Finger::Value::kMiddle, Mpu(Finger::Value::kMiddle)},
-    //{Finger::Value::kIndex, Mpu(Finger::Value::kIndex)},
-    {Finger::Value::kThumb, Mpu(Finger::Value::kThumb)}};
 
 Glove::~Glove() = default;

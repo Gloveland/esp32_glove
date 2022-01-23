@@ -15,11 +15,11 @@ void Accelerometer::setError(int times, float sum_acc_x, float sum_acc_y, float 
   
 }
 
-Acceleration Accelerometer::readAcc(const int16_t raw_acc_x, const int16_t raw_acc_y, const int16_t raw_acc_z) {
+Acceleration Accelerometer::readAcc(const float acc_x, const float acc_y, const float acc_z) {
   float accScale = this->getScale(this->range);
-  float x_value = ((float) raw_acc_x / accScale) * GRAVITY_EARTH - this->acc_error.getX();
-  float y_value = ((float) raw_acc_y / accScale) * GRAVITY_EARTH - this->acc_error.getY();
-  float z_value = ((float) raw_acc_z / accScale) * GRAVITY_EARTH - this->acc_error.getZ();
+  float x_value = acc_x - this->acc_error.getX();
+  float y_value = acc_y - this->acc_error.getY();
+  float z_value = acc_z - this->acc_error.getZ();
   Acceleration current_acceleration = Acceleration(x_value, y_value, z_value);
   current_acceleration.log();
   

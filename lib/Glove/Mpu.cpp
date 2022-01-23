@@ -1,24 +1,6 @@
 #include <Mpu.h>
 
-#include "MPU6050.h"
-
-const int Mpu::HEX_ADDRESS = 16;
-const int Mpu::OK = 0;
 const int Mpu::GRAVITY_EARTH = 9.80665F;
-const int Mpu::GENERAL_CONFIG = 0x1A;  ///< General configuration register
-const int Mpu::PWR_MGMT_1 = 0x6B;
-const int Mpu::SIGNAL_PATH_RESET = 0x68;
-const int Mpu::SMPLRT_DIV = 0x19;
-const int Mpu::RESET = 0b10000000;
-const int Mpu::SENSOR_RESET = 0b00000111;
-const int Mpu::ACC_CONFIG_REGISTER =0x1C;
-const int Mpu::GYRO_CONFIG_REGISTER = 0x1C;
-const int Mpu::ACCEL_XOUT_H = 0x3B;
-const int Mpu::GYRO_XOUT_H = 0x43;
-const int Mpu::ALL_REGISTERS = 14;
-const int Mpu::BITS_IN_BYTE = 8;
-const int Mpu::TEMP_DIS_PLL = 0x09;  // temperature disabled: 0x08 and
-// PLL with X axiS gyroscope reference: 0x01 => 0X09
 
 Mpu::Mpu(const Finger::Value &finger)
     : finger_(finger),
@@ -33,55 +15,14 @@ void Mpu::endCommunication() { digitalWrite(this->ad0_, HIGH); }
 
 void Mpu::init() {
   this->beginCommunication();
-
-  Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(Mpu::PWR_MGMT_1);
-  Wire.write(Mpu::RESET);  // reset 1 in bit 7
-  Wire.endTransmission(true);
-  delay(100);
-
-  Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(Mpu::PWR_MGMT_1);
-  Wire.write(Mpu::SENSOR_RESET);  // reset all sensor registers set 1 lasT 3 bits
-  Wire.endTransmission(true);
-  delay(100); //delay is necessary datasheet page 41
-
-  uint8_t divisor = 0;
-  Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(Mpu::SMPLRT_DIV);
-  Wire.write(divisor);  // SampleRate = Gyroscope Output Rate / (1 + SMPLRT_DIV)
-  Wire.endTransmission(true);
-  delay(100); //delay is necessary datasheet page 41
-
-  Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(Mpu::GENERAL_CONFIG);
-  Wire.write(mpuBand::_21_HZ);  // ex: 00010000 (1000deg/s full scale)
-  Wire.endTransmission(true);
-  delay(20);
-
-  Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(Mpu::ACC_CONFIG_REGISTER);
-  Wire.write(this->accelerometer
-                 .getRange());  // ex 00010000 = 0x10  (+/- 8g full scale range)
-  Wire.endTransmission(true);
-  delay(20);
-
-  Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(Mpu::GYRO_CONFIG_REGISTER);
-  Wire.write(
-      this->gyroscope.getGyroRange());  // ex: 00010000 (1000deg/s full scale)
-  Wire.endTransmission(true);
-  delay(20);
-
-  Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(Mpu::PWR_MGMT_1);
-  Wire.write(Mpu::TEMP_DIS_PLL);
-  Wire.endTransmission(true);
-  delay(20);
-
-  // MPU6050 mpu6050;
-  // uint8_t speed = 13;
-  // mpu6050.setMasterClockSpeed(speed);
+  while (!this->mpu_.begin()) {
+    Serial.println("Failed to find MPU6050 chip");
+    delay(10);
+  }
+  Serial.println("MPU6050 Found!");
+  this->mpu_.setAccelerometerRange(MPU6050_RANGE_8_G);
+  this->mpu_.setGyroRange(MPU6050_RANGE_500_DEG);
+  this->mpu_.setFilterBandwidth(MPU6050_BAND_21_HZ);
 
   // this->endCommunication();
 }
@@ -109,12 +50,15 @@ void Mpu::calibrate() {
   float max_gyro_x = -FLT_MAX, max_gyro_y = -FLT_MAX, max_gyro_z = -FLT_MAX;
 
   int times = 100.0;
+  sensors_event_t a, g, temp;
   for (int i = 0; i <= times; i++) {
-    RawMeasurement raw = this->readAllRaw();
+    this->mpu_.getEvent(&a, &g, &temp);
 
-    Acceleration acc =
-        this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
-    Gyro gyro = this->gyroscope.readGyro(raw.gyro_x, raw.gyro_y, raw.gyro_z);
+    Acceleration acc = this->accelerometer.readAcc(
+        a.acceleration.x, a.acceleration.y, a.acceleration.z);
+
+    log_i("x:%d, y:%d, z:%d", acc.getX(), acc.getY(), acc.getZ());
+    Gyro gyro = this->gyroscope.readGyro(g.gyro.x, g.gyro.x, g.gyro.x);
 
     sum_acc_x += acc.getX();
     sum_acc_y += acc.getY();
@@ -154,38 +98,27 @@ ImuSensorMeasurement Mpu::read() {
   float currentTime = millis();  // Divide by 1000 to get seconds
   float elapsedTime = (currentTime - this->previousTime_) / 1000;
   this->previousTime_ = currentTime;
-  RawMeasurement raw = this->readAllRaw();
+  // this->beginCommunication();
+  
+  sensors_event_t a, g, temp;
+  this->mpu_.getEvent(&a, &g, &temp);
+
+  /* Print out the values */
+  Serial.print("  X: ");
+  Serial.print(a.acceleration.x);
+  Serial.print(", Y: ");
+  Serial.print(a.acceleration.y);
+  Serial.print(", Z: ");
+  Serial.print(a.acceleration.z);
+  Serial.println(" m/s^2");
+  // this->endCommunication();
+
   this->log();
-  Acceleration acc =
-      this->accelerometer.readAcc(raw.acc_x, raw.acc_y, raw.acc_z);
-  Gyro gyro = this->gyroscope.readGyro(raw.gyro_x, raw.gyro_y, raw.gyro_z);
+  Acceleration acc = this->accelerometer.readAcc(
+      a.acceleration.x, a.acceleration.y, a.acceleration.z);
+  Gyro gyro = this->gyroscope.readGyro(g.gyro.x, g.gyro.x, g.gyro.x);
   ImuSensorMeasurement result = ImuSensorMeasurement(this->finger_, acc, gyro);
   return result;
-}
-
-/**
- * We read 14 registers from mpu (each value is stored in 2 registers)
- * the registers order is: | ax | ay | az | temp | gx | gy | gz |
- */
-RawMeasurement Mpu::readAllRaw() {
-  // this->beginCommunication();
-  Wire.beginTransmission(mpuAddress::_ON);
-  Wire.write(ACCEL_XOUT_H);
-  Wire.endTransmission(false);
-  Wire.requestFrom(mpuAddress::_ON, ALL_REGISTERS, true);
-
-  RawMeasurement rawMeasurement;
-  rawMeasurement.acc_x = (Wire.read() << BITS_IN_BYTE | Wire.read());
-  rawMeasurement.acc_y = (Wire.read() << BITS_IN_BYTE | Wire.read());
-  rawMeasurement.acc_z = (Wire.read() << BITS_IN_BYTE | Wire.read());
-
-  rawMeasurement.temp = (Wire.read() << BITS_IN_BYTE | Wire.read());
-
-  rawMeasurement.gyro_x = (Wire.read() << BITS_IN_BYTE | Wire.read());
-  rawMeasurement.gyro_y = (Wire.read() << BITS_IN_BYTE | Wire.read());
-  rawMeasurement.gyro_z = (Wire.read() << BITS_IN_BYTE | Wire.read());
-  // this->endCommunication();
-  return rawMeasurement;
 }
 
 void Mpu::log() { log_d("%s", Finger::getName(this->finger_).c_str()); }

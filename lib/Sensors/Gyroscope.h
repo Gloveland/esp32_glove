@@ -35,8 +35,7 @@ class Gyroscope {
   void setGyroError(int times, float sumGyro_x, float sumGyro_y, float sumGyro_z);
   void setDeviation(int times, float maxX, float maxY, float maxZ, float minX,
                     float minY, float minZ);
-  Gyro readGyro(const int16_t rawGyro_x, const int16_t rawGyro_y,
-                const int16_t rawGyro_z);
+  Gyro readGyro(const float gyro_x, const float gyro_y, const float gyro_z);
   GyroRange getGyroRange();
 
   ~Gyroscope();
