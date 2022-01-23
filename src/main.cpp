@@ -5,7 +5,6 @@
 
 #include "../lib/TasksManager/TasksManager.h"
 
-
 void setup() {
   Serial.begin(9600);
   log_e("Test log level error -DCORE_DEBUG_LEVEL=1");
@@ -15,6 +14,7 @@ void setup() {
   log_v("Test log level verbose -DCORE_DEBUG_LEVEL=5");
   pinMode(LED_BUILTIN, OUTPUT);
   esp_task_wdt_init(100, false);
+
 
   pinMode(17, OUTPUT);
   digitalWrite(17, HIGH);
@@ -32,13 +32,10 @@ void setup() {
   digitalWrite(32, HIGH);
   delay(1000);
 
-  digitalWrite(17, LOW);
-
   Glove* glove = new Glove();
   glove->init();
   TasksManager* tasksManager = new TasksManager(glove);
   tasksManager->initBleService();
 }
 
-void loop() {
-}  // loop() runs on core 1
+void loop() {}  // loop() runs on core 1

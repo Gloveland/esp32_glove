@@ -21,18 +21,17 @@ Glove::Glove() {
 void Glove::init() { setUpSensors(); }
 
 void Glove::setUpSensors() {
-  /*
   for (auto sensor : sensors_) {
-    sensor.second.setWriteMode();
+    sensor.second->setWriteMode();
   }
   assert(this->checkAddress(mpuAddress::_OFF));
-  */
   for (auto sensor : sensors_) {
     sensor.second->init();
   }
 }
 
 bool Glove::checkAddress(int address) {
+  Wire.begin(kSdaPin, kSclPin);
   Wire.beginTransmission(address);
   byte error = Wire.endTransmission();
   if (error != Glove::OK) {
@@ -63,7 +62,6 @@ void Glove::calibrateSensors() {
 GloveMeasurements Glove::readSensors() {
   std::map<const Finger::Value, ImuSensorMeasurement> measurementsMap;
   for (auto sensor : sensors_) {
-    assert(this->checkAddress(mpuAddress::_ON));
     ImuSensorMeasurement measurement = sensor.second->read();
     measurementsMap.insert(std::pair<Finger::Value, ImuSensorMeasurement>(
         sensor.first, measurement));

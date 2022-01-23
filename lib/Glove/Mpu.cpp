@@ -23,8 +23,7 @@ void Mpu::init() {
   this->mpu_.setAccelerometerRange(MPU6050_RANGE_8_G);
   this->mpu_.setGyroRange(MPU6050_RANGE_500_DEG);
   this->mpu_.setFilterBandwidth(MPU6050_BAND_21_HZ);
-
-  // this->endCommunication();
+  this->endCommunication();
 }
 
 /**
@@ -41,7 +40,7 @@ void Mpu::init() {
 void Mpu::calibrate() {
   log_i("===================== Calibrating %s ====================",
         Finger::getName(this->finger_).c_str());
-  // this->beginCommunication();
+  this->beginCommunication();
 
   float sum_acc_x = 0.0, sum_acc_y = 0.0, sum_acc_z = 0.0;
   float sum_gyro_x = 0.0, sum_gyro_y = 0.0, sum_gyro_z = 0.0;
@@ -87,7 +86,7 @@ void Mpu::calibrate() {
     sum_gyro_z += gyro.getZ();
     delay(20);
   }
-  // this->endCommunication();
+  this->endCommunication();
   this->accelerometer.setError(times, sum_acc_x, sum_acc_y, sum_acc_z);
   this->gyroscope.setGyroError(times, sum_gyro_x, sum_gyro_y, sum_gyro_z);
   this->gyroscope.setDeviation(times, max_gyro_x, max_gyro_y, max_gyro_z,
@@ -98,8 +97,8 @@ ImuSensorMeasurement Mpu::read() {
   float currentTime = millis();  // Divide by 1000 to get seconds
   float elapsedTime = (currentTime - this->previousTime_) / 1000;
   this->previousTime_ = currentTime;
-  // this->beginCommunication();
-  
+  this->beginCommunication();
+
   sensors_event_t a, g, temp;
   this->mpu_.getEvent(&a, &g, &temp);
 
@@ -111,7 +110,7 @@ ImuSensorMeasurement Mpu::read() {
   Serial.print(", Z: ");
   Serial.print(a.acceleration.z);
   Serial.println(" m/s^2");
-  // this->endCommunication();
+  this->endCommunication();
 
   this->log();
   Acceleration acc = this->accelerometer.readAcc(
