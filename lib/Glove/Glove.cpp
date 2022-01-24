@@ -12,10 +12,10 @@ const int Glove::UNKNOWN_ERROR = 4;
 
 Glove::Glove() {
   this->sensors_[Finger::Value::kThumb] = new Mpu(Finger::Value::kThumb);
-  // this->sensors_[Finger::Value::kIndex] = new Mpu(Finger::Value::kIndex);
-  // this->sensors_[Finger::Value::kMiddle] = new Mpu(Finger::Value::kMiddle);
-  // this->sensors_[Finger::Value::kRing] = new Mpu(Finger::Value::kRing);
-  // this->sensors_[Finger::Value::kPinky] = new Mpu(Finger::Value::kPinky);
+  this->sensors_[Finger::Value::kIndex] = new Mpu(Finger::Value::kIndex);
+  this->sensors_[Finger::Value::kMiddle] = new Mpu(Finger::Value::kMiddle);
+  this->sensors_[Finger::Value::kRing] = new Mpu(Finger::Value::kRing);
+  this->sensors_[Finger::Value::kPinky] = new Mpu(Finger::Value::kPinky);
 }
 
 void Glove::init() { setUpSensors(); }

@@ -98,24 +98,13 @@ ImuSensorMeasurement Mpu::read() {
   float elapsedTime = (currentTime - this->previousTime_) / 1000;
   this->previousTime_ = currentTime;
   this->beginCommunication();
-
   sensors_event_t a, g, temp;
   this->mpu_.getEvent(&a, &g, &temp);
-
-  /* Print out the values */
-  Serial.print("  X: ");
-  Serial.print(a.acceleration.x);
-  Serial.print(", Y: ");
-  Serial.print(a.acceleration.y);
-  Serial.print(", Z: ");
-  Serial.print(a.acceleration.z);
-  Serial.println(" m/s^2");
   this->endCommunication();
-
   this->log();
   Acceleration acc = this->accelerometer.readAcc(
       a.acceleration.x, a.acceleration.y, a.acceleration.z);
-  Gyro gyro = this->gyroscope.readGyro(g.gyro.x, g.gyro.x, g.gyro.x);
+  Gyro gyro = this->gyroscope.readGyro(g.gyro.x, g.gyro.y, g.gyro.z);
   ImuSensorMeasurement result = ImuSensorMeasurement(this->finger_, acc, gyro);
   return result;
 }
