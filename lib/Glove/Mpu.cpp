@@ -16,10 +16,10 @@ void Mpu::endCommunication() { digitalWrite(this->ad0_, HIGH); }
 void Mpu::init() {
   this->beginCommunication();
   while (!this->mpu_.begin()) {
-    Serial.println("Failed to find MPU6050 chip");
+    log_e("Failed to find MPU6050 chip");
     delay(10);
   }
-  Serial.println("MPU6050 Found!");
+ 
   this->mpu_.setAccelerometerRange(MPU6050_RANGE_8_G);
   this->mpu_.setGyroRange(MPU6050_RANGE_500_DEG);
   this->mpu_.setFilterBandwidth(MPU6050_BAND_21_HZ);

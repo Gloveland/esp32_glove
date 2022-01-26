@@ -1,6 +1,6 @@
 #include "Interpreter.h"
 
-#include <RightGloveLSA_inferencing.h>
+#include <LeftGloveLSA_inferencing.h>
 
 #include <sstream>
 
