@@ -8,10 +8,11 @@
 
 #include "../Sensors/GloveMeasurements.h"
 
-typedef std::map<Finger::Value, Mpu> GloveSensors;
+typedef std::map<Finger::Value, Mpu*> GloveSensors;
 
 class Glove {
  public:
+  Glove();
   void init();
   GloveMeasurements readSensors();
   static std::string getDeviceId();
@@ -30,7 +31,7 @@ class Glove {
   static const int UNKNOWN_ERROR;
   static const int kI2cSpeedHertz;
   /** Enabled sensors of the glove. */
-  static const GloveSensors sensors_;
+  GloveSensors sensors_;
 
   void setUpSensors();
   bool checkAddress(int address);

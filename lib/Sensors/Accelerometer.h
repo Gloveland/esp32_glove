@@ -24,13 +24,12 @@ class Accelerometer {
 
  public:;
   Accelerometer(const Range range);
-  Acceleration readAcc(const int16_t rawAccX, const int16_t rawAccY, const int16_t rawAccZ);
+  Acceleration readAcc(const float accX, const float accY, const float accZ);
   Range getRange();
   void setError(int times, float sum_acc_x, float sum_acc_y, float sum_acc_z);
   ~Accelerometer();
 
  private:
-  const int GRAVITY_EARTH = 9.80665F;
   Range range;
   Acceleration acc_error;
  
