@@ -56,6 +56,7 @@ void Interpreter::processGloveMeasurements(GloveMeasurements gloveMeasurements) 
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyAcceleration.getX();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyAcceleration.getZ();
+
   xSemaphoreGive(mutex);
   std::stringstream log;
   log << "Accel: [" << indexAcceleration.getX() << ", "
