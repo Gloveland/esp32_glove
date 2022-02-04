@@ -1,6 +1,8 @@
 #include "Interpreter.h"
 
-#include <LeftGloveLSA_inferencing.h>
+//#include <LeftGloveLSA_inferencing.h>
+#include <RightGloveLSA_inferencing.h>
+#include <model-parameters/model_variables.h>
 
 #include <sstream>
 
@@ -23,15 +25,37 @@ void Interpreter::startInterpretations() {
                           this, 1, &inference_task_handler_, 1);
 }
 
-void Interpreter::processGloveMeasurements(
-    GloveMeasurements gloveMeasurements) {
+void Interpreter::processGloveMeasurements(GloveMeasurements gloveMeasurements) {
+  xSemaphoreTake(mutex, portMAX_DELAY);
+  int i = 15;
+  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, - i);
+  Acceleration thumbAcceleration =
+      gloveMeasurements.getSensor(Finger::Value::kThumb).getAcc();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbAcceleration.getZ();
   Acceleration indexAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kIndex).getAcc();
-  xSemaphoreTake(mutex, portMAX_DELAY);
-  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, -3);
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 3] = indexAcceleration.getX();
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 2] = indexAcceleration.getY();
-  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - 1] = indexAcceleration.getZ();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = indexAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = indexAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = indexAcceleration.getZ();
+
+  Acceleration middleAcceleration =
+      gloveMeasurements.getSensor(Finger::Value::kMiddle).getAcc();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleAcceleration.getZ();
+
+ Acceleration ringAcceleration =
+      gloveMeasurements.getSensor(Finger::Value::kRing).getAcc();
+   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getZ();
+  Acceleration pinkyAcceleration =
+      gloveMeasurements.getSensor(Finger::Value::kPinky).getAcc();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyAcceleration.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyAcceleration.getZ();
   xSemaphoreGive(mutex);
   std::stringstream log;
   log << "Accel: [" << indexAcceleration.getX() << ", "
@@ -97,27 +121,19 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
 
     // ei_classifier_smooth_update yields the predicted label
     const char *prediction = ei_classifier_smooth_update(&smooth, &result);
-    std::stringstream predictionsStream;
-    predictionsStream << "(DSP: " << result.timing.dsp
-                      << " ms., Classification: "
-                      << result.timing.classification
-                      << " ms., Anomaly: " << result.timing.anomaly << " ms.)";
-    // print the cumulative results
 
+    // The expected format to be parsed from the application is the following:
+    // [prediction]{category1:statistic}{category2:statistic2}...{categoryN:statisticN}
     std::stringstream resultsStream;
-    resultsStream << "Prediction: " << prediction << " [";
-    for (size_t ix = 0; ix < smooth.count_size; ix++) {
-      resultsStream << " " << (int)smooth.count[ix];
-      if (ix != smooth.count_size + 1) {
-        resultsStream << ",";
-      }
+    resultsStream << "[" << prediction << "]";
+    int i = 0;
+    for (const std::string category : ei_classifier_inferencing_categories) {
+      resultsStream << "{" << category << ":" << (int) smooth.count[i] << "}";
+      i++;
     }
-    resultsStream << "]\n";
 
-    std::string message;
-    message = resultsStream.str() + "\n" + predictionsStream.str();
-    log_i("%s", message);
-    bleCommunicator->sendInterpretation(message);
+    log_i("%s", resultsStream.str());
+    bleCommunicator->sendInterpretation(resultsStream.str());
     delay(run_inference_every_ms);
   }
 
