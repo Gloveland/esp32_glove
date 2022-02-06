@@ -1,6 +1,8 @@
 #include "Interpreter.h"
 
-#include <LeftGloveLSA_inferencing.h>
+//#include <LeftGloveLSA_inferencing.h>
+#include <RightGloveLSA_inferencing.h>
+#include <model-parameters/model_variables.h>
 
 #include <sstream>
 
@@ -120,27 +122,19 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
 
     // ei_classifier_smooth_update yields the predicted label
     const char *prediction = ei_classifier_smooth_update(&smooth, &result);
-    std::stringstream predictionsStream;
-    predictionsStream << "(DSP: " << result.timing.dsp
-                      << " ms., Classification: "
-                      << result.timing.classification
-                      << " ms., Anomaly: " << result.timing.anomaly << " ms.)";
-    // print the cumulative results
 
+    // The expected format to be parsed from the application is the following:
+    // [prediction]{category1:statistic}{category2:statistic2}...{categoryN:statisticN}
     std::stringstream resultsStream;
-    resultsStream << "Prediction: " << prediction << " [";
-    for (size_t ix = 0; ix < smooth.count_size; ix++) {
-      resultsStream << " " << (int)smooth.count[ix];
-      if (ix != smooth.count_size + 1) {
-        resultsStream << ",";
-      }
+    resultsStream << "[" << prediction << "]";
+    int i = 0;
+    for (const std::string category : ei_classifier_inferencing_categories) {
+      resultsStream << "{" << category << ":" << (int) smooth.count[i] << "}";
+      i++;
     }
-    resultsStream << "]\n";
 
-    std::string message;
-    message = resultsStream.str() + "\n" + predictionsStream.str();
-    log_i("%s", message);
-    bleCommunicator->sendInterpretation(message);
+    log_i("%s", resultsStream.str());
+    bleCommunicator->sendInterpretation(resultsStream.str());
     delay(run_inference_every_ms);
   }
 
