@@ -1,7 +1,7 @@
 #include "Interpreter.h"
 
 //#include <LeftGloveLSA_inferencing.h>
-#include <RightGloveLSA_inferencing.h>
+#include <LeftGloveLSA_inferencing.h>
 #include <model-parameters/model_variables.h>
 
 #include <sstream>
