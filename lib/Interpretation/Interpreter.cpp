@@ -23,10 +23,11 @@ void Interpreter::startInterpretations() {
                           this, 1, &inference_task_handler_, 1);
 }
 
-void Interpreter::processGloveMeasurements(GloveMeasurements gloveMeasurements) {
+void Interpreter::processGloveMeasurements(
+    GloveMeasurements gloveMeasurements) {
   xSemaphoreTake(mutex, portMAX_DELAY);
   int i = 15;
-  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, - i);
+  // numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, - i);
   Acceleration thumbAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kThumb).getAcc();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbAcceleration.getX();
@@ -44,9 +45,9 @@ void Interpreter::processGloveMeasurements(GloveMeasurements gloveMeasurements) 
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleAcceleration.getZ();
 
- Acceleration ringAcceleration =
+  Acceleration ringAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kRing).getAcc();
-   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getX();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getZ();
   Acceleration pinkyAcceleration =
@@ -88,8 +89,8 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
   // classifying.
   ei_classifier_smooth_t smooth;
   ei_classifier_smooth_init(&smooth, 10 /* no. of readings */,
-                            7 /* min. readings the same */,
-                            0.8 /* min. confidence */, 0.3 /* max anomaly */);
+                            7 /* min. readings the same  */,
+                            0.8 /* min. confidence  */, 0.3 /* max anomaly  */);
 
   while (1) {
     xSemaphoreTake(mutex, portMAX_DELAY);
@@ -104,7 +105,8 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
         inference_buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, &signal);
     if (err != 0) {
       log_e("Failed to create signal from buffer (%d)\n", err);
-      bleCommunicator->sendInterpretation("Failed to create signal from buffer");
+      bleCommunicator->sendInterpretation(
+          "Failed to create signal from buffer");
       delay(5000);
     }
 
