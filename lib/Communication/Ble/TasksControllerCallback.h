@@ -3,15 +3,16 @@
 
 #include <Arduino.h>
 #include <BLECharacteristic.h>
+#include "TasksManager.h"
 
-#include "AbstractTasksManager.h"
+class TasksManager;
 
 /**
  * Callbacks to handle characteristic events such as onWrite.
  */
 class TasksControllerCallback : public BLECharacteristicCallbacks {
  public:
-  TasksControllerCallback(AbstractTasksManager* tasksManager);
+  TasksControllerCallback(TasksManager* tasksManager);
 
   void onWrite(BLECharacteristic* pCharacteristic) override;
 
@@ -30,7 +31,7 @@ class TasksControllerCallback : public BLECharacteristicCallbacks {
   static const std::string kCalibrate_;
 
  private:
-  AbstractTasksManager* tasksManager_;
+  TasksManager* tasksManager_;
 };
 
 #endif  // TASKS_CONTROLLER_CALLBACKS_H
