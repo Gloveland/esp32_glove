@@ -33,7 +33,7 @@ GyroRange Gyroscope::getGyroRange() { return this->gyro_range_; }
  * is lower than the maximum deviation we dismiss the measurement because is
  * considered noise
  */
-Gyro Gyroscope::readGyro(const float gyro_x, const float gyro_y,
+Gyro Gyroscope::fixGyro(const float gyro_x, const float gyro_y,
                          const float gyro_z) {
 
   float x_value, y_value, z_value = 0.0;
