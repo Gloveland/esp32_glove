@@ -53,11 +53,11 @@ void Mpu::calibrate() {
   for (int i = 0; i <= times; i++) {
     this->mpu_.getEvent(&a, &g, &temp);
 
-    Acceleration acc = this->accelerometer.readAcc(
+    Acceleration acc = this->accelerometer.fixAcceleration(
         a.acceleration.x, a.acceleration.y, a.acceleration.z);
 
     log_i("x:%d, y:%d, z:%d", acc.getX(), acc.getY(), acc.getZ());
-    Gyro gyro = this->gyroscope.readGyro(g.gyro.x, g.gyro.x, g.gyro.x);
+    Gyro gyro = this->gyroscope.fixGyro(g.gyro.x, g.gyro.x, g.gyro.x);
 
     sum_acc_x += acc.getX();
     sum_acc_y += acc.getY();
@@ -102,9 +102,9 @@ ImuSensorMeasurement Mpu::read() {
   this->mpu_.getEvent(&a, &g, &temp);
   this->endCommunication();
   this->log();
-  Acceleration acc = this->accelerometer.readAcc(
+  Acceleration acc = this->accelerometer.fixAcceleration(
       a.acceleration.x, a.acceleration.y, a.acceleration.z);
-  Gyro gyro = this->gyroscope.readGyro(g.gyro.x, g.gyro.y, g.gyro.z);
+  Gyro gyro = this->gyroscope.fixGyro(g.gyro.x, g.gyro.y, g.gyro.z);
   ImuSensorMeasurement result = ImuSensorMeasurement(this->finger_, acc, gyro);
   return result;
 }

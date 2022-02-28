@@ -1,5 +1,6 @@
 #ifndef TASK_MANAGER_H
 #define TASK_MANAGER_H
+
 #include <Arduino.h>
 #include <BLECharacteristic.h>
 #include <Glove.h>
@@ -10,18 +11,33 @@
 #include "../Interpretation/Interpreter.h"
 #include "Counter.h"
 
+class TasksControllerCallback;
+
 /**
  * Callbacks to handle characteristic events such as onWrite.
  */
-class TasksManager : public AbstractTasksManager {
+class TasksManager {
  public:
   TasksManager(Glove *glove);
 
-  void initBleService() override;
-  void startDataCollectionTask() override;
-  void startInterpretationTask() override;
-  void startCalibrationTask() override;
-  void stopRunningTask() override;
+  /** Init Bluetooth low energy services. */
+  void initBleService();
+
+  /** Starts the data collection task. */
+  void startDataCollectionTask();
+
+  /** Starts the interpretation task. */
+  void startInterpretationTask();
+
+  /** Starts the calibration task. */
+  void startCalibrationTask();
+
+  /**
+   * Stop the ongoing task, either the interpretation task or the data
+   * collection task. Nothing happens if there is not an ongoing task.
+   */
+  void stopRunningTask();
+  
   ~TasksManager();
 
  private:

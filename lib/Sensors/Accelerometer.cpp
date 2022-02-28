@@ -15,7 +15,7 @@ void Accelerometer::setError(int times, float sum_acc_x, float sum_acc_y, float 
   
 }
 
-Acceleration Accelerometer::readAcc(const float acc_x, const float acc_y, const float acc_z) {
+Acceleration Accelerometer::fixAcceleration(const float acc_x, const float acc_y, const float acc_z) {
   float accScale = this->getScale(this->range);
   float x_value = acc_x - this->acc_error.getX();
   float y_value = acc_y - this->acc_error.getY();

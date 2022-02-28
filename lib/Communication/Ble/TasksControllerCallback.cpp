@@ -7,7 +7,7 @@ const std::string TasksControllerCallback::kStopTask_ = "stop";
 const std::string TasksControllerCallback::kCalibrate_ = "calibrate";
 
 TasksControllerCallback::TasksControllerCallback(
-    AbstractTasksManager* tasksManager)
+    TasksManager* tasksManager)
     : tasksManager_(tasksManager){};
 
 /** Callback to be called when the device receives a write event. */
