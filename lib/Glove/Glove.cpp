@@ -20,6 +20,18 @@ Glove::Glove() {
 
 void Glove::init() { setUpSensors(); }
 
+void Glove::sleep() {
+  for (auto sensor : sensors_) {
+    sensor.second->sleep();
+  }
+}
+
+void Glove::restart() {
+  for (auto sensor : sensors_) {
+    sensor.second->restart();
+  }
+}
+
 void Glove::setUpSensors() {
   for (auto sensor : sensors_) {
     sensor.second->setWriteMode();

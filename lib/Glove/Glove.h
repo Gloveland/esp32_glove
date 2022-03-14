@@ -14,6 +14,8 @@ class Glove {
  public:
   Glove();
   void init();
+  void sleep();
+  void restart();
   GloveMeasurements readSensors();
   static std::string getDeviceId();
   void calibrateSensors();

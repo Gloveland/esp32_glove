@@ -23,6 +23,8 @@ class Mpu {
  public:
   Mpu(const Finger::Value& finger);
   void init();
+  void sleep();
+  void restart();
   void setWriteMode();
   void calibrate();
   void log();

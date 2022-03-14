@@ -26,6 +26,14 @@ void Mpu::init() {
   this->endCommunication();
 }
 
+void Mpu::sleep() {
+  this->mpu_.enableSleep(true);
+}
+
+void Mpu::restart() {
+  this->mpu_.enableSleep(false);
+}
+
 /**
  * The calibration consist in readings raw measurements values when the sensor
  * is  in horizontal plane. The expected values for acceleration are 0.0

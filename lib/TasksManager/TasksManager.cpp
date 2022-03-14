@@ -42,6 +42,7 @@ void TasksManager::startDataCollectionTaskImpl(void* _this) {
 
 [[noreturn]] void TasksManager::taskDataCollection() {
   Counter counter;
+  this->glove_->restart();
   for (;;) {
     GloveMeasurements measurements = this->glove_->readSensors();
     float elapsedTime = counter.getAndUpdateElapsedTimeSinceLastMeasurementMs();
@@ -81,6 +82,7 @@ void TasksManager::startInterpretationTaskImpl(void* _this) {
 
 [[noreturn]] void TasksManager::taskInterpretation() {
   log_i("Task 'Interpretation' running on core %d", xPortGetCoreID());
+  this->glove_->restart();
   this->interpreter = new Interpreter(this->bleCommunicator);
   this->interpreter->startInterpretations();
   for (;;) {
@@ -115,6 +117,7 @@ void TasksManager::startCalibrationTaskImpl(void* _this) {
 [[noreturn]] void TasksManager::taskCalibration() {
   log_i("Task 'Calibration' running on core %d", xPortGetCoreID());
   for (;;) {
+    this->glove_->restart();
     this->glove_->calibrateSensors();
     // The task suspends itself in order to perform only a single calibration
     // per request.
@@ -126,6 +129,7 @@ void TasksManager::startCalibrationTaskImpl(void* _this) {
 void TasksManager::stopRunningTask() {
   if (this->running_task_handler_ != nullptr) {
     log_i("Stopping running task.");
+    this->glove_->sleep();
     vTaskDelete(running_task_handler_);
     this->running_task_handler_ = nullptr;
     log_i("Task stopped.");
