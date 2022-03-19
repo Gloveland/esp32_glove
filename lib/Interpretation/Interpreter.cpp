@@ -1,7 +1,6 @@
 #include "Interpreter.h"
 
 #include <LeftGloveLSA_inferencing.h>
-//#include <RightGloveLSA_inferencing.h>
 #include <model-parameters/model_variables.h>
 
 #include <sstream>
@@ -25,10 +24,11 @@ void Interpreter::startInterpretations() {
                           this, 1, &inference_task_handler_, 1);
 }
 
-void Interpreter::processGloveMeasurements(GloveMeasurements gloveMeasurements) {
+void Interpreter::processGloveMeasurements(
+    GloveMeasurements gloveMeasurements) {
   xSemaphoreTake(mutex, portMAX_DELAY);
   int i = 15;
-  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, - i);
+  numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, -i);
   Acceleration thumbAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kThumb).getAcc();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbAcceleration.getX();
@@ -46,9 +46,9 @@ void Interpreter::processGloveMeasurements(GloveMeasurements gloveMeasurements) 
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleAcceleration.getZ();
 
- Acceleration ringAcceleration =
+  Acceleration ringAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kRing).getAcc();
-   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getX();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getZ();
   Acceleration pinkyAcceleration =
@@ -106,7 +106,8 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
         inference_buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, &signal);
     if (err != 0) {
       log_e("Failed to create signal from buffer (%d)\n", err);
-      bleCommunicator->sendInterpretation("Failed to create signal from buffer");
+      bleCommunicator->sendInterpretation(
+          "Failed to create signal from buffer");
       delay(5000);
     }
 
@@ -129,7 +130,7 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
     resultsStream << "[" << prediction << "]";
     int i = 0;
     for (const std::string category : ei_classifier_inferencing_categories) {
-      resultsStream << "{" << category << ":" << (int) smooth.count[i] << "}";
+      resultsStream << "{" << category << ":" << (int)smooth.count[i] << "}";
       i++;
     }
 
