@@ -1,7 +1,5 @@
 #include "Interpreter.h"
-
-#include <LeftGloveLSA_inferencing.h>
-//#include <RightGloveLSA_inferencing.h>
+#include <RightGloveLSA_inferencing.h>
 #include <model-parameters/model_variables.h>
 
 #include <sstream>
@@ -27,35 +25,68 @@ void Interpreter::startInterpretations() {
 
 void Interpreter::processGloveMeasurements(GloveMeasurements gloveMeasurements) {
   xSemaphoreTake(mutex, portMAX_DELAY);
-  int i = 15;
+  int i = 30;
   numpy::roll(buffer, EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE, - i);
+  
+  /* Thumb */  
   Acceleration thumbAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kThumb).getAcc();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbAcceleration.getX();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbAcceleration.getZ();
+
+  Gyro thumbGyro = gloveMeasurements.getSensor(Finger::Value::kThumb).getGyro();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbGyro.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbGyro.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = thumbGyro.getZ();
+
+  /* Index */  
   Acceleration indexAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kIndex).getAcc();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = indexAcceleration.getX();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = indexAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = indexAcceleration.getZ();
 
+  Gyro indexGyro = gloveMeasurements.getSensor(Finger::Value::kIndex).getGyro();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = indexGyro.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = indexGyro.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = indexGyro.getZ();
+
+  /* Middle */  
   Acceleration middleAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kMiddle).getAcc();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleAcceleration.getX();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleAcceleration.getZ();
 
- Acceleration ringAcceleration =
+  Gyro middleGyro = gloveMeasurements.getSensor(Finger::Value::kMiddle).getGyro();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleGyro.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleGyro.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = middleGyro.getZ();
+
+  /* Ring */  
+  Acceleration ringAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kRing).getAcc();
    buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getX();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringAcceleration.getZ();
+
+  Gyro ringGyro = gloveMeasurements.getSensor(Finger::Value::kRing).getGyro();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringGyro.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringGyro.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = ringGyro.getZ();
+
+  /* Pinky */  
   Acceleration pinkyAcceleration =
       gloveMeasurements.getSensor(Finger::Value::kPinky).getAcc();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyAcceleration.getX();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyAcceleration.getY();
   buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyAcceleration.getZ();
+
+  Gyro pinkyGyro = gloveMeasurements.getSensor(Finger::Value::kPinky).getGyro();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyGyro.getX();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyGyro.getY();
+  buffer[EI_CLASSIFIER_DSP_INPUT_FRAME_SIZE - i--] = pinkyGyro.getZ();
 
   xSemaphoreGive(mutex);
   std::stringstream log;
@@ -90,7 +121,7 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
   // classifying.
   ei_classifier_smooth_t smooth;
   ei_classifier_smooth_init(&smooth, 10 /* no. of readings */,
-                            7 /* min. readings the same */,
+                            5 /* min. readings the same */,
                             0.8 /* min. confidence */, 0.3 /* max anomaly */);
 
   while (1) {
