@@ -20,7 +20,7 @@
 class Interpreter {
   private:
     bool debug_nn = false; // Set this to true to see e.g. features generated from the raw signal
-    uint32_t run_inference_every_ms = 200;
+    uint32_t run_inference_every_ms = 100;
     
     SemaphoreHandle_t mutex;
     float *buffer;

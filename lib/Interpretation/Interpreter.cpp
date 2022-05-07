@@ -121,7 +121,7 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
   // classifying.
   ei_classifier_smooth_t smooth;
   ei_classifier_smooth_init(&smooth, 10 /* no. of readings */,
-                            5 /* min. readings the same */,
+                            4 /* min. readings the same */,
                             0.8 /* min. confidence */, 0.3 /* max anomaly */);
 
   while (1) {
@@ -162,6 +162,9 @@ void Interpreter::startInferenceTaskImpl(void *_this) {
     for (const std::string category : ei_classifier_inferencing_categories) {
       resultsStream << "{" << category << ":" << (int) smooth.count[i] << "}";
       i++;
+      if (i == 6 ){
+        break;
+      }
     }
 
     log_i("%s", resultsStream.str());
